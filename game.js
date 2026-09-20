@@ -103,7 +103,7 @@ try{const s=localStorage.getItem('ws-portrait-v09');if(s){const o=JSON.parse(s);
 for(const it of meta.vehiclePack||[])if(VEH[it.type]?.kind==='weapon')it.locked=false;
 for(const it of meta.backpack||[])if(it.type==='pistol')it.locked=false;
 function save(){try{localStorage.setItem('ws-portrait-v09',JSON.stringify(meta))}catch(e){}}
-function resetSave(){meta=freshMeta();game=null;roadGame=null;packDrag=null;vehicleDrag=null;townPanel=null;restartConfirm=false;joyEnd();save();state='route';ensureChoices(true)}
+function resetSave(){meta=freshMeta();game=null;roadGame=null;eventData=null;packDrag=null;vehicleDrag=null;townPanel=null;restartConfirm=false;joyEnd();save();state='route';ensureChoices(true)}
 
 function touching(a,b,defs){const A=defs[a.type],B=defs[b.type];const xOverlap=a.gx<b.gx+B.w&&a.gx+A.w>b.gx;const yOverlap=a.gy<b.gy+B.h&&a.gy+A.h>b.gy;const vertical=(a.gx+A.w===b.gx||b.gx+B.w===a.gx)&&yOverlap;const horizontal=(a.gy+A.h===b.gy||b.gy+B.h===a.gy)&&xOverlap;return vertical||horizontal;}
 function makeItem(type,level=1){return{id:meta.nextId++,type,level,gx:null,gy:null,locked:false}}
@@ -263,12 +263,12 @@ function startScavenge(){
  const worldH=1450,scaleY=1.35,yOffset=130;
  const rules={
   gas:{label:'FUEL CACHE',extraCrates:2,pressure:1},
-  clinic:{label:'TRIAGE',extraCrates:0,pressure:1,heal:1},
+  clinic:{label:'TRIAGE',extraCrates:0,pressure:1,med:1},
   motel:{label:'AMBUSH',extraCrates:1,pressure:1.28},
   junkyard:{label:'SALVAGE FIELD',extraCrates:0,pressure:1,moduleBoost:2}
  },rule=rules[site]||{label:'STANDARD',extraCrates:0,pressure:1};
  const obstacles=buildSiteLayout(site,Math.floor(Math.random()*3)).map(o=>({...o,y:Math.round(o.y*scaleY+yOffset)}));
- game={site,danger,special,rule,time:90,elapsed:0,worldH,cameraY:0,player:{x:270,y:1240,r:15,hp:Math.min(b.maxHp,b.maxHp+(rule.heal||0)),max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1330,progress:0},search:null,spawn:.2};
+ game={site,danger,special,rule,time:90,elapsed:0,worldH,cameraY:0,player:{x:270,y:1240,r:15,hp:b.maxHp,max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges+(rule.med||0)},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1330,progress:0},search:null,spawn:.2};
  const spots=[[100,120],[270,135],[440,120],[105,300],[430,310],[90,690],[450,700],[270,530],[270,260]];
  shuffle(spots).slice(0,Math.min(spots.length,5+danger+(rule.extraCrates||0))).forEach((p,i)=>game.crates.push({x:p[0]+rnd(-12,12),y:Math.round(p[1]*scaleY+yOffset+rnd(-12,12)),opened:false,rare:special&&i===0,progress:0}));
  for(let i=0;i<4+danger*2+(site==='motel'?2:0);i++)spawnScavEnemy();
@@ -519,7 +519,7 @@ function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(
 function drawRoute(){drawDunes();ctx.fillStyle='rgba(12,14,11,.72)';ctx.fillRect(0,0,W,H);title('THE ROAD',`LEG ${meta.roadLeg}  •  BUILD IDENTITY RUN`);const vs=vehicleStats();text(`PACK`,28,104,10,C.muted);text(`${meta.backpack.length}`,28,124,15,C.cream);text(`FUEL ${meta.vehicle.fuel}/${vs.maxFuel}`,155,104,10,C.muted);bar(155,113,120,9,meta.vehicle.fuel/vs.maxFuel,C.yellow);text(`HULL`,315,104,10,C.muted);bar(315,113,90,9,(meta.vehicle.hull??vs.maxHull)/vs.maxHull,C.green);text(`¢${meta.credits}`,505,120,15,C.yellow,'right',900);
  ensureChoices();const pos=routeNodePositions();ctx.strokeStyle='#575a4d';ctx.lineWidth=5;for(const p of pos){ctx.beginPath();ctx.moveTo(270,720);ctx.lineTo(p.x,p.y+35);ctx.stroke()}ctx.fillStyle='#34372d';ctx.beginPath();ctx.arc(270,720,34,0,6.28);ctx.fill();drawVehicle(270,720,.62,C.yellow);
  for(let i=0;i<meta.mapChoices.length;i++){const n=meta.mapChoices[i],p=pos[i],sel=meta.selectedNode?.id===n.id;ctx.fillStyle=sel?'#5a5032':'#292c24';ctx.strokeStyle=sel?C.yellow:'#5b5f50';ctx.lineWidth=sel?4:2;ctx.beginPath();ctx.arc(p.x,p.y,56,0,6.28);ctx.fill();ctx.stroke();text(n.icon,p.x,p.y+8,25,n.type==='town'?C.green:n.danger===3?C.red:C.cream,'center',900);text(n.short,p.x,p.y+82,11,sel?C.yellow:C.cream,'center',900);if(n.type!=='town')text('▲'.repeat(n.danger),p.x,p.y+100,9,n.danger===3?C.red:C.muted,'center',900)}
- const n=meta.selectedNode;ctx.fillStyle='#20231c';roundRect(30,760,480,68,14,true,false);if(n){text(n.name,48,785,15,C.cream,'left',900);text(n.type==='town'?'SAFE • TRADE / REPAIR':`${n.focus} • DANGER ${n.danger}${n.special?' • RARE SIGNAL':''}`,48,808,10,n.special?C.yellow:C.muted);text(`FUEL COST ${fuelCost()}`,480,796,12,meta.vehicle.fuel<fuelCost()?C.red:C.yellow,'right',900)}else text('TAP A NODE',270,800,14,C.muted,'center',900);btn(55,842,430,70,n?`DRIVE TO ${n.short}`:'SELECT A DESTINATION',!!n);text('PACK',65,66,10,C.muted,'center',900);text('RESTART',270,66,10,C.red,'center',900);text('VEHICLE',472,66,10,C.muted,'center',900);
+ const n=meta.selectedNode;ctx.fillStyle='#20231c';roundRect(30,760,480,68,14,true,false);if(n){text(n.name,48,785,15,C.cream,'left',900);text(n.type==='town'?'SAFE • TRADE / REPAIR':n.type==='event'?'ROADSIDE EVENT • CHOICE':n.type==='boss'?`${n.focus} • KILL REQUIRED`:`${n.focus} • DANGER ${n.danger}${n.special?' • RARE SIGNAL':''}`,48,808,10,n.type==='boss'?C.red:n.type==='event'||n.special?C.yellow:C.muted);text(`FUEL COST ${fuelCost()}`,480,796,12,meta.vehicle.fuel<fuelCost()?C.red:C.yellow,'right',900)}else text('TAP A NODE',270,800,14,C.muted,'center',900);btn(55,842,430,70,n?`DRIVE TO ${n.short}`:'SELECT A DESTINATION',!!n);text('PACK',65,66,10,C.muted,'center',900);text('RESTART',270,66,10,C.red,'center',900);text('VEHICLE',472,66,10,C.muted,'center',900);
  if(restartConfirm){
   ctx.fillStyle='rgba(8,9,7,.78)';ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#20231c';roundRect(45,360,450,310,18,true,false);
