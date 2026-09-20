@@ -304,8 +304,9 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  e.hp-=roadDmg;hit=true;g.fx.push({x:b.x,y:b.y,r:b.kind==='cannon'?22:8,life:.18,color:b.kind==='rocket'?'#d97642':C.yellow});if(e.hp<=0)killRoad(j);break}}
  if(hit||b.life<=0||b.y<-60||b.y>1020||b.x<-40||b.x>580)g.bullets.splice(i,1)
 }
+ if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated)g.colossusY=Math.min(255,g.colossusY+20*dt);
  for(let i=g.enemies.length-1;i>=0;i--){const e=g.enemies[i],ox=e.x,oy=e.y;
- if(e.group==='colossus'){g.colossusY=Math.min(255,g.colossusY+20*dt);e.x=e.baseX+Math.sin(g.elapsed*1.25+e.sway)*13;e.y=g.colossusY+e.offY}
+ if(e.group==='colossus'){e.x=e.baseX+Math.sin(g.elapsed*1.25+e.sway)*13;e.y=g.colossusY+e.offY}
  else{e.y+=e.spd*dt;e.x+=Math.sin(g.elapsed*1.7+e.sway)*18*dt}const avx=(e.x-ox)/Math.max(dt,.001),avy=(e.y-oy)/Math.max(dt,.001);e.vx=(e.vx||0)*.55+avx*.45;e.vy=(e.vy||e.spd)*.55+avy*.45;e.shootCd-=dt;e.ram-=dt;if(e.shootCd<=0&&e.y>80&&e.y<p.y-110&&e.type!=='bike'&&e.type!=='col_armor'&&e.type!=='col_engine'){const a=Math.atan2(p.y-e.y,p.x-e.x),shots=e.type==='col_rocket'?5:e.type==='col_mg'?3:e.type==='dreadnought'?5:e.type==='wartruck'?3:1;for(let q=0;q<shots;q++){const aa=a+(q-(shots-1)/2)*.12;g.enemyBullets.push({x:e.x,y:e.y+e.h*.35,vx:Math.cos(aa)*360,vy:Math.sin(aa)*360,life:2.8})}e.shootCd=e.shoot*e.shootScale*(e.type==='wartruck'?.9:rnd(.9,1.15))}if(Math.abs(e.x-p.x)<(e.w+p.w)*.42&&Math.abs(e.y-p.y)<(e.h+p.h)*.42&&e.ram<=0){hurtRoad(e.type==='truck'||e.type==='wartruck'?2:1);e.hp-=2;e.ram=.8;if(e.hp<=0){killRoad(i);continue}}if(e.y>1030)g.enemies.splice(i,1)}
  for(let i=g.enemyBullets.length-1;i>=0;i--){const b=g.enemyBullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(Math.abs(b.x-p.x)<25&&Math.abs(b.y-p.y)<33){hurtRoad(1);g.enemyBullets.splice(i,1);continue}if(b.life<=0||b.y>1000)g.enemyBullets.splice(i,1)}
  if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(55,485),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(55,485),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f'});g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
@@ -765,7 +766,7 @@ function drawGarageMeta(){
  for(const c of garageCards(START_KITS,150)){const unlocked=profile.unlockedKits.includes(c.d.id),sel=profile.selectedKit===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
  text('JUNKER CHASSIS',35,405,11,C.yellow,'left',900);
  for(const c of garageCards(CHASSIS,425)){const unlocked=profile.unlockedChassis.includes(c.d.id),sel=profile.selectedChassis===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
- btn(75,775,390,72,'START NEW RUN');text('Unlock choices, not permanent damage bonuses.',270,880,9,C.muted,'center',700);
+ btn(75,775,390,72,'START NEW RUN');text('Unlock choices, not permanent damage bonuses.',270,880,9,C.muted,'center',700);drawNotice();
 }
 function garageTap(p){
  const handle=(cards,key,unlockedKey)=>{
