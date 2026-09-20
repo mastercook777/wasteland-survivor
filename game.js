@@ -111,7 +111,7 @@ function freshMeta(){return{
  pendingHaul:[],pendingVehicle:[],pack:{cols:6,rows:5,tier:1},vehicleGrid:{cols:6,rows:4,tier:1},
  roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},
  route:{...ROUTES[0]},town:{name:'RUSTWATER',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
- finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0},chassis:'junker',
+ finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0},runEnded:null,chassis:'junker',
  vehicle:{name:'JUNKER MK.I',scrap:0,fuel:18,hull:null}
 }}
 let profile={marks:0,runs:0,wins:0,selectedKit:'gunslinger',selectedChassis:'junker',unlockedKits:['gunslinger'],unlockedChassis:['junker']};
@@ -133,6 +133,7 @@ let meta=freshMeta();
 try{const s=localStorage.getItem('ws-portrait-v09');if(s){const o=JSON.parse(s);meta={...freshMeta(),...o,town:{...freshMeta().town,...o.town},vehicle:{...freshMeta().vehicle,...o.vehicle},pack:{...freshMeta().pack,...o.pack},vehicleGrid:{...freshMeta().vehicleGrid,...o.vehicleGrid},finalFlags:{...freshMeta().finalFlags,...o.finalFlags},runStats:{...freshMeta().runStats,...o.runStats}}}}catch(e){}
 for(const it of meta.vehiclePack||[])if(VEH[it.type]?.kind==='weapon')it.locked=false;
 for(const it of meta.backpack||[])if(it.type==='pistol')it.locked=false;
+if(meta.runEnded){runSummary=meta.runEnded;state='runsummary'}
 function save(){try{localStorage.setItem('ws-portrait-v09',JSON.stringify(meta))}catch(e){}}
 function resetSave(){meta=makeStartingMeta();game=null;roadGame=null;eventData=null;runSummary=null;packDrag=null;vehicleDrag=null;townPanel=null;restartConfirm=false;joyEnd();save();state='route';ensureChoices(true)}
 function startNewRun(){resetSave()}
@@ -581,7 +582,7 @@ function finishRun(victory){
  if(state==='runsummary')return;
  runSummary=makeRunSummary(victory);runSummary.marksEarned=victory?3:1;
  profile.runs++;if(victory)profile.wins++;profile.marks+=runSummary.marksEarned;saveProfile();
- state='runsummary';save();
+ meta.runEnded={...runSummary};state='runsummary';save();
 }
 function enterEvent(){
  const def=WORLD_EVENTS.find(x=>x.id===meta.selectedNode?.event)||WORLD_EVENTS[0];
