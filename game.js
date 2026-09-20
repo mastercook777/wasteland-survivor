@@ -126,7 +126,7 @@ function spawnRoadEnemy(force){
  if(type==='boss')type=g.threat<.9?'truck':'wartruck';
  const cfg=type==='bike'?{hp:2,spd:145,w:34,h:55,shoot:99,score:1}:type==='buggy'?{hp:4,spd:95,w:52,h:70,shoot:rnd(1.05,1.55),score:2}:type==='wartruck'?{hp:18,spd:48,w:82,h:110,shoot:.78,score:9}:{hp:9,spd:62,w:66,h:92,shoot:1.25,score:4};
  const shootScale=1.22/g.threat;
- roadGame.enemies.push({type,x:rnd(125,415),y:rnd(-160,-60),...cfg,maxHp:cfg.hp,shootCd:cfg.shoot*shootScale,sway:rnd(-1,1),ram:0,shootScale});
+ roadGame.enemies.push({type,x:rnd(55,485),y:rnd(-160,-60),...cfg,maxHp:cfg.hp,shootCd:cfg.shoot*shootScale,sway:rnd(-1,1),ram:0,shootScale});
 }
 function roadTarget(g,p,max=520){let t=null,b=1e9;for(const e of g.enemies){if(e.y>p.y+20)continue;const d=distance(p,e);if(d<max&&d<b){t=e;b=d}}return t;}
 function fireRoad(kind,target){const g=roadGame,p=g.player,n=norm(target.x-p.x,target.y-p.y);const cfg=kind==='mg'?{spd:760,dmg:1,r:4}:kind==='cannon'?{spd:600,dmg:5,r:8}:{spd:510,dmg:3,r:7};g.bullets.push({x:p.x,y:p.y-38,vx:n.x*cfg.spd,vy:n.y*cfg.spd,life:1.5,damage:cfg.dmg,kind,r:cfg.r});if(kind==='cannon')g.fx.push({x:p.x,y:p.y-55,r:8,life:.18,color:C.yellow});}
@@ -138,12 +138,12 @@ function killRoad(i){
  else if(Math.random()<.55)g.drops.push({x:e.x,y:e.y,type:Math.random()<.72?'scrap':'fuel'});
  g.enemies.splice(i,1);
 }
-function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.max(0,g.duration-g.elapsed);g.scroll+=340*dt;g.spawn-=dt;g.mine-=dt;p.inv=Math.max(0,p.inv-dt);p.mg-=dt;p.cannon-=dt;p.rocket-=dt;moveActor(p,dt,p.speed,105,435,610,850);
+function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.max(0,g.duration-g.elapsed);g.scroll+=340*dt;g.spawn-=dt;g.mine-=dt;p.inv=Math.max(0,p.inv-dt);p.mg-=dt;p.cannon-=dt;p.rocket-=dt;moveActor(p,dt,p.speed,38,502,155,900);
  const t=roadTarget(g,p,560);if(t&&p.mg<=0){fireRoad('mg',t);p.mg=g.build.mgInterval*(g.dry?1.35:1)}if(t&&p.cannon<=0){fireRoad('cannon',t);p.cannon=g.build.cannonCd*(g.dry?1.18:1)}if(t&&g.build.rocketCount&&p.rocket<=0){fireRoad('rocket',t);p.rocket=g.build.rocketCd}
  for(let i=g.bullets.length-1;i>=0;i--){const b=g.bullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=false;for(let j=g.enemies.length-1;j>=0;j--){const e=g.enemies[j];if(Math.abs(b.x-e.x)<e.w*.55&&Math.abs(b.y-e.y)<e.h*.5){e.hp-=b.damage;hit=true;g.fx.push({x:b.x,y:b.y,r:b.kind==='cannon'?22:8,life:.18,color:b.kind==='rocket'?'#d97642':C.yellow});if(e.hp<=0)killRoad(j);break}}if(hit||b.life<=0||b.y<-40)g.bullets.splice(i,1)}
  for(let i=g.enemies.length-1;i>=0;i--){const e=g.enemies[i];e.y+=e.spd*dt;e.x+=Math.sin(g.elapsed*1.7+e.sway)*18*dt;e.shootCd-=dt;e.ram-=dt;if(e.shootCd<=0&&e.y>80&&e.y<p.y-110&&e.type!=='bike'){const a=Math.atan2(p.y-e.y,p.x-e.x),shots=e.type==='wartruck'?3:1;for(let q=0;q<shots;q++){const aa=a+(q-(shots-1)/2)*.12;g.enemyBullets.push({x:e.x,y:e.y+e.h*.35,vx:Math.cos(aa)*360,vy:Math.sin(aa)*360,life:2.8})}e.shootCd=e.shoot*e.shootScale*(e.type==='wartruck'?.9:rnd(.9,1.15))}if(Math.abs(e.x-p.x)<(e.w+p.w)*.42&&Math.abs(e.y-p.y)<(e.h+p.h)*.42&&e.ram<=0){hurtRoad(e.type==='truck'||e.type==='wartruck'?2:1);e.hp-=2;e.ram=.8;if(e.hp<=0){killRoad(i);continue}}if(e.y>1030)g.enemies.splice(i,1)}
  for(let i=g.enemyBullets.length-1;i>=0;i--){const b=g.enemyBullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(Math.abs(b.x-p.x)<25&&Math.abs(b.y-p.y)<33){hurtRoad(1);g.enemyBullets.splice(i,1);continue}if(b.life<=0||b.y>1000)g.enemyBullets.splice(i,1)}
- if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(125,415),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(125,415),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f'});g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
+ if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(55,485),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(55,485),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f'});g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
  for(let i=g.drops.length-1;i>=0;i--){const d=g.drops[i];d.y+=145*dt;if(distance(d,p)<42){if(d.type==='scrap')g.scrap++;else if(d.type==='fuel')g.fuel++;else if(d.type==='repair'){const before=p.hp;p.hp=Math.min(p.max,p.hp+2);if(p.hp>before){g.repairs++;notice='FIELD REPAIR +2 HULL';noticeT=1.1}}g.drops.splice(i,1);continue}if(d.y>980)g.drops.splice(i,1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
  if(!g.boss&&g.elapsed/g.duration>.76){g.boss=true;spawnRoadEnemy('boss')}if(g.spawn<=0){spawnRoadEnemy();const extraChance=clamp((g.threat-.9)*.5,0,.30);if(g.elapsed/g.duration>.52&&Math.random()<extraChance)spawnRoadEnemy();g.spawn=rnd(.95,1.35)/(meta.route.spawn||1)/g.threat}
  if(p.hp<=0){meta.arrived=false;state='roadfail';save();return}if(g.time<=0){meta.arrived=true;meta.vehicle.hull=Math.max(1,p.hp);const bf=meta.route.id==='salt'?2:0,bs=meta.route.id==='raider'?2:0;meta.vehicle.scrap+=g.scrap+bs;meta.vehicle.fuel=Math.min(g.build.maxFuel,meta.vehicle.fuel+g.fuel+bf);g.scrap+=bs;g.fuel+=bf;const pool=['belt','loader','turbo','armor','fueltank','rocket'];const t=choice(pool),lv=meta.selectedNode?.danger===3&&Math.random()<.25?2:1;meta.pendingVehicle.push(makeVehicle(t,lv));g.reward=t;g.rewardLv=lv;if(meta.route.id==='raider'&&Math.random()<.55)meta.pendingVehicle.push(makeVehicle(choice(pool),1));state='roadresult';save()}}
@@ -161,10 +161,38 @@ function startScavenge(){
  game.cameraY=clamp(game.player.y-620,0,game.worldH-H);
  state='play';
 }
-function makeScavEnemy(type,x=rnd(60,480),y=rnd(250,game?.worldH?game.worldH-230:1200)){if(!type)type=choice(SITE[game.site].enemy);const e={type,x,y,cd:rnd(.4,1.2),inv:0};if(type==='melee')Object.assign(e,{hp:3,spd:74,r:15,color:'#78945f'});if(type==='gunner')Object.assign(e,{hp:4,spd:48,r:15,color:'#9b6d45'});if(type==='grenadier')Object.assign(e,{hp:5,spd:42,r:17,color:'#8d5d48'});if(type==='elite')Object.assign(e,{hp:12,spd:58,r:21,color:'#b34f3d'});e.max=e.hp;return e}
+function makeScavEnemy(type,x=rnd(60,480),y=rnd(250,game?.worldH?game.worldH-230:1200)){if(!type)type=choice(SITE[game.site].enemy);const e={type,x,y,cd:rnd(.4,1.2),inv:0,navSide:Math.random()<.5?-1:1,navHold:0};if(type==='melee')Object.assign(e,{hp:3,spd:74,r:15,color:'#78945f'});if(type==='gunner')Object.assign(e,{hp:4,spd:48,r:15,color:'#9b6d45'});if(type==='grenadier')Object.assign(e,{hp:5,spd:42,r:17,color:'#8d5d48'});if(type==='elite')Object.assign(e,{hp:12,spd:58,r:21,color:'#b34f3d'});e.max=e.hp;return e}
 function spawnScavEnemy(type){if(game.enemies.length>18)return;let e=makeScavEnemy(type);let tries=0;while(distance(e,game.player)<230&&tries++<20)e=makeScavEnemy(type);game.enemies.push(e)}
 function collideCircleRect(p,r,o){const x=clamp(p.x,o.x,o.x+o.w),y=clamp(p.y,o.y,o.y+o.h);return Math.hypot(p.x-x,p.y-y)<r}
 function moveWithObstacles(p,dx,dy,r,obs,bounds){const ox=p.x,oy=p.y;p.x+=dx;p.x=clamp(p.x,bounds[0],bounds[1]);if(obs.some(o=>collideCircleRect(p,r,o)))p.x=ox;p.y+=dy;p.y=clamp(p.y,bounds[2],bounds[3]);if(obs.some(o=>collideCircleRect(p,r,o)))p.y=oy}
+function enemyStepClear(e,dx,dy,obs,bounds){
+ const nx=clamp(e.x+dx,bounds[0],bounds[1]),ny=clamp(e.y+dy,bounds[2],bounds[3]);
+ return !obs.some(o=>collideCircleRect({x:nx,y:ny},e.r,o));
+}
+function moveEnemySmart(e,tx,ty,dt,speed,obs,bounds){
+ const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy)||1,base=Math.atan2(dy,dx),step=speed*dt;
+ const pref=e.navSide||1;
+ const offsets=[0,pref*.45,-pref*.45,pref*.85,-pref*.85,pref*1.25,-pref*1.25,Math.PI];
+ let best=null,bestScore=-1e9;
+ for(const off of offsets){
+  const a=base+off,mx=Math.cos(a)*step,my=Math.sin(a)*step;
+  if(!enemyStepClear(e,mx,my,obs,bounds))continue;
+  const nx=e.x+mx,ny=e.y+my,nd=Math.hypot(tx-nx,ty-ny);
+  const alignment=Math.cos(off),score=-nd+alignment*28-Math.abs(off)*4;
+  if(score>bestScore){bestScore=score;best={mx,my,off}}
+ }
+ if(best){
+  e.x=clamp(e.x+best.mx,bounds[0],bounds[1]);e.y=clamp(e.y+best.my,bounds[2],bounds[3]);
+  if(Math.abs(best.off)>.1){e.navSide=Math.sign(best.off)||pref;e.navHold=.55}else if((e.navHold||0)<=0)e.navSide=pref;
+ }else{
+  e.navSide=-(e.navSide||1);e.navHold=.7;
+ }
+ e.navHold=Math.max(0,(e.navHold||0)-dt);
+}
+function moveEnemyAwaySmart(e,tx,ty,dt,speed,obs,bounds){
+ const dx=e.x-tx,dy=e.y-ty,d=Math.hypot(dx,dy)||1;
+ moveEnemySmart(e,e.x+dx/d*180,e.y+dy/d*180,dt,speed,obs,bounds);
+}
 function moveActor(p,dt,speed,minX,maxX,minY,maxY){let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);p.x+=n.x*speed*dt;p.y+=n.y*speed*dt}p.x=clamp(p.x,minX,maxX);p.y=clamp(p.y,minY,maxY)}
 function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='MEDKIT AUTO-USED';noticeT=1.2}}
 function chooseLoot(){const w=SITE[game.site].loot,r=Math.random();let a=0;for(const k of ['gas','food','scrap','med']){a+=w[k];if(r<a)return k}return'scrap'}
@@ -192,7 +220,29 @@ function fireScav(w,target){const p=game.player,base=Math.atan2(target.y-p.y,tar
 function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,90-g.elapsed);p.inv=Math.max(0,p.inv-dt);let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}const cameraTarget=clamp(p.y-620,0,g.worldH-H);g.cameraY+=(cameraTarget-g.cameraY)*Math.min(1,dt*7);
  for(const w of g.weaponCd){w.cd-=dt;if(w.cd<=0){let t=null,b=1e9;for(const e of g.enemies){const d=distance(p,e);if(d<w.range&&d<b){b=d;t=e}}if(t){fireScav(w,t);w.cd=w.interval}}}
  for(let i=g.bullets.length-1;i>=0;i--){const b=g.bullets[i],ox=b.x,oy=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=segmentHitsObstacle(ox,oy,b.x,b.y,g.obstacles,b.r);if(!hit)for(let j=g.enemies.length-1;j>=0;j--){const e=g.enemies[j];if(distance(b,e)<e.r+b.r){e.hp-=b.damage;hit=true;g.fx.push({x:b.x,y:b.y,r:7,life:.15,color:C.yellow});if(e.hp<=0){if(Math.random()<.08+g.build.luck){const gear=gearDrop(false);if(gear)g.haul.push(gear)}g.enemies.splice(j,1)}break}}if(hit||b.life<=0)g.bullets.splice(i,1)}
- for(let i=g.enemies.length-1;i>=0;i--){const e=g.enemies[i],d=distance(e,p);e.cd-=dt;if(e.type==='melee'||e.type==='elite'){const n=norm(p.x-e.x,p.y-e.y);e.x+=n.x*e.spd*dt;e.y+=n.y*e.spd*dt;if(d<e.r+p.r+4&&e.cd<=0){hurtPlayer(e.type==='elite'?2:1);e.cd=.9}}else{const desired=e.type==='gunner'?235:275;if(d>desired+35){const n=norm(p.x-e.x,p.y-e.y);e.x+=n.x*e.spd*dt;e.y+=n.y*e.spd*dt}else if(d<desired-45){const n=norm(e.x-p.x,e.y-p.y);e.x+=n.x*e.spd*dt;e.y+=n.y*e.spd*dt}if(e.cd<=0){if(e.type==='gunner'){const n=norm(p.x-e.x,p.y-e.y);g.enemyBullets.push({x:e.x,y:e.y,vx:n.x*280,vy:n.y*280,life:2.1})}else if(d<=320){throwGrenade(e,p)}e.cd=e.type==='gunner'?rnd(1.25,1.75):rnd(2.2,3.0)}}}
+ for(let i=g.enemies.length-1;i>=0;i--){
+ const e=g.enemies[i],d=distance(e,p),bounds=[25,515,170,g.worldH-80];
+ e.cd-=dt;
+ const blocked=segmentHitsObstacle(e.x,e.y,p.x,p.y,g.obstacles,e.r*.45);
+ if(e.type==='melee'||e.type==='elite'){
+  moveEnemySmart(e,p.x,p.y,dt,e.spd,g.obstacles,bounds);
+  if(d<e.r+p.r+4&&e.cd<=0){hurtPlayer(e.type==='elite'?2:1);e.cd=.9}
+ }else{
+  const desired=e.type==='gunner'?235:265;
+  if(blocked||d>desired+35)moveEnemySmart(e,p.x,p.y,dt,e.spd,g.obstacles,bounds);
+  else if(d<desired-45)moveEnemyAwaySmart(e,p.x,p.y,dt,e.spd,g.obstacles,bounds);
+  else if((e.navHold||0)>0){
+   const side=e.navSide||1,a=Math.atan2(p.y-e.y,p.x-e.x)+side*Math.PI/2;
+   moveEnemySmart(e,e.x+Math.cos(a)*90,e.y+Math.sin(a)*90,dt,e.spd*.55,g.obstacles,bounds);
+  }
+  if(e.cd<=0&&!blocked){
+   if(e.type==='gunner'){
+    const n=norm(p.x-e.x,p.y-e.y);g.enemyBullets.push({x:e.x,y:e.y,vx:n.x*280,vy:n.y*280,life:2.1})
+   }else if(d<=300)throwGrenade(e,p);
+   e.cd=e.type==='gunner'?rnd(1.25,1.75):rnd(2.2,3.0)
+  }
+ }
+}
  for(let i=g.enemyBullets.length-1;i>=0;i--){
  const b=g.enemyBullets[i],ox=b.x,oy=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
  if(segmentHitsObstacle(ox,oy,b.x,b.y,g.obstacles,5)){g.enemyBullets.splice(i,1);continue}
@@ -270,7 +320,7 @@ function drawDunes(){ctx.fillStyle='#262920';ctx.fillRect(0,0,W,H);ctx.fillStyle
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,15,12,.92)';roundRect(85,865,370,42,12,true,false);text(notice,270,891,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('v0.9.3.1 ROAD HOTFIX',270,855,10,'#66695b','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('v0.9.4 ENEMY NAV',270,855,10,'#66695b','center',700)}
 function drawRoute(){drawDunes();ctx.fillStyle='rgba(12,14,11,.72)';ctx.fillRect(0,0,W,H);title('THE ROAD',`LEG ${meta.roadLeg}  •  choose what you need next`);const vs=vehicleStats();text(`PACK`,28,104,10,C.muted);text(`${meta.backpack.length}`,28,124,15,C.cream);text(`FUEL ${meta.vehicle.fuel}/${vs.maxFuel}`,155,104,10,C.muted);bar(155,113,120,9,meta.vehicle.fuel/vs.maxFuel,C.yellow);text(`HULL`,315,104,10,C.muted);bar(315,113,90,9,(meta.vehicle.hull??vs.maxHull)/vs.maxHull,C.green);text(`¢${meta.credits}`,505,120,15,C.yellow,'right',900);
  ensureChoices();const pos=routeNodePositions();ctx.strokeStyle='#575a4d';ctx.lineWidth=5;for(const p of pos){ctx.beginPath();ctx.moveTo(270,720);ctx.lineTo(p.x,p.y+35);ctx.stroke()}ctx.fillStyle='#34372d';ctx.beginPath();ctx.arc(270,720,34,0,6.28);ctx.fill();drawVehicle(270,720,.62,C.yellow);
  for(let i=0;i<meta.mapChoices.length;i++){const n=meta.mapChoices[i],p=pos[i],sel=meta.selectedNode?.id===n.id;ctx.fillStyle=sel?'#5a5032':'#292c24';ctx.strokeStyle=sel?C.yellow:'#5b5f50';ctx.lineWidth=sel?4:2;ctx.beginPath();ctx.arc(p.x,p.y,56,0,6.28);ctx.fill();ctx.stroke();text(n.icon,p.x,p.y+8,25,n.type==='town'?C.green:n.danger===3?C.red:C.cream,'center',900);text(n.short,p.x,p.y+82,11,sel?C.yellow:C.cream,'center',900);if(n.type!=='town')text('▲'.repeat(n.danger),p.x,p.y+100,9,n.danger===3?C.red:C.muted,'center',900)}
@@ -285,7 +335,7 @@ function drawRoute(){drawDunes();ctx.fillStyle='rgba(12,14,11,.72)';ctx.fillRect
  }
 }
 
-function drawRoad(){const g=roadGame,p=g.player;ctx.fillStyle='#806f51';ctx.fillRect(0,0,W,H);ctx.fillStyle=C.asphalt;ctx.fillRect(88,0,364,H);ctx.fillStyle='#b9a56b';ctx.fillRect(88,0,5,H);ctx.fillRect(447,0,5,H);ctx.save();ctx.strokeStyle='#b8aa72';ctx.lineWidth=5;ctx.setLineDash([35,38]);ctx.lineDashOffset=g.scroll%73;ctx.beginPath();ctx.moveTo(270,0);ctx.lineTo(270,H);ctx.stroke();ctx.restore();for(const m of g.mines)drawMine(m);for(const d of g.drops){
+function drawRoad(){const g=roadGame,p=g.player;ctx.fillStyle='#806f51';ctx.fillRect(0,0,W,H);ctx.fillStyle=C.asphalt;ctx.fillRect(18,0,504,H);ctx.fillStyle='#b9a56b';ctx.fillRect(18,0,5,H);ctx.fillRect(517,0,5,H);ctx.save();ctx.strokeStyle='#b8aa72';ctx.lineWidth=5;ctx.setLineDash([35,38]);ctx.lineDashOffset=g.scroll%73;ctx.beginPath();ctx.moveTo(270,0);ctx.lineTo(270,H);ctx.stroke();ctx.restore();for(const m of g.mines)drawMine(m);for(const d of g.drops){
  ctx.fillStyle=d.type==='fuel'?C.gas:d.type==='repair'?C.green:C.scrap;
  ctx.beginPath();ctx.arc(d.x,d.y,12,0,6.28);ctx.fill();
  text(d.type==='fuel'?'F':d.type==='repair'?'+':'S',d.x,d.y+4,10,'#171912','center',900)
