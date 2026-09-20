@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#11130f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Wasteland Survivor" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Wasteland Survivor — Portrait Reframe</title>
+</head>
+<body>
+  <main id="app">
+    <div id="game-shell">
+      <canvas id="game" width="540" height="960" aria-label="Wasteland Survivor portrait game canvas"></canvas>
+    </div>
+    <div id="landscape-note">PORTRAIT MODE RECOMMENDED</div>
+  </main>
+  <script src="game.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  </script>
+</body>
+</html>
