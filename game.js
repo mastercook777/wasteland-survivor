@@ -87,6 +87,20 @@ const WORLD_EVENTS=[
  {id:'mechanic',name:'LONE MECHANIC',short:'MECHANIC',icon:'W',desc:'A grease-covered mechanic waves you down beside a half-buried service truck.'},
  {id:'wreck',name:'FRESH WRECK',short:'WRECK',icon:'X',desc:'Smoke still rises from a raider wreck. Whoever won the fight left in a hurry.'}
 ];
+
+const START_KITS=[
+ {id:'gunslinger',name:'GUNSLINGER',desc:'Pistol + Ammo Pouch',cost:0},
+ {id:'breacher',name:'BREACHER',desc:'Shotgun + Runner Boots',cost:2},
+ {id:'hunter',name:'HUNTER',desc:'Scout Rifle + Optic',cost:2},
+ {id:'mechanic',name:'MECHANIC',desc:'Pistol + Medkit • stronger vehicle supports',cost:2}
+];
+const CHASSIS=[
+ {id:'junker',name:'JUNKER',desc:'Balanced',cost:0},
+ {id:'scout',name:'SCOUT',desc:'Fast • light hull',cost:3},
+ {id:'mule',name:'MULE',desc:'Big bay • high fuel',cost:3},
+ {id:'bruiser',name:'BRUISER',desc:'Heavy hull • slower',cost:3}
+];
+
 let eventData=null;
 
 
@@ -97,15 +111,31 @@ function freshMeta(){return{
  pendingHaul:[],pendingVehicle:[],pack:{cols:6,rows:5,tier:1},vehicleGrid:{cols:6,rows:4,tier:1},
  roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},
  route:{...ROUTES[0]},town:{name:'RUSTWATER',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
- finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0},
+ finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0},chassis:'junker',
  vehicle:{name:'JUNKER MK.I',scrap:0,fuel:18,hull:null}
 }}
+let profile={marks:0,runs:0,wins:0,selectedKit:'gunslinger',selectedChassis:'junker',unlockedKits:['gunslinger'],unlockedChassis:['junker']};
+try{const p=localStorage.getItem('ws-meta-v012');if(p)profile={...profile,...JSON.parse(p)}}catch(e){}
+function saveProfile(){try{localStorage.setItem('ws-meta-v012',JSON.stringify(profile))}catch(e){}}
+function makeStartingMeta(){
+ const m=freshMeta(),kit=profile.selectedKit||'gunslinger',ch=profile.selectedChassis||'junker';
+ m.chassis=ch;
+ if(kit==='breacher'){m.backpack=[{id:1,type:'shotgun',level:1,gx:1,gy:1,locked:false},{id:2,type:'boots',level:1,gx:3,gy:1,locked:false}]}
+ else if(kit==='hunter'){m.backpack=[{id:1,type:'rifle',level:1,gx:1,gy:1,locked:false},{id:2,type:'scope',level:1,gx:4,gy:1,locked:false}]}
+ else if(kit==='mechanic'){
+  m.backpack=[{id:1,type:'pistol',level:1,gx:1,gy:1,locked:false},{id:2,type:'medkit',level:1,gx:3,gy:1,locked:false}];
+  const ar=m.vehiclePack.find(x=>x.type==='armor'),tb=m.vehiclePack.find(x=>x.type==='turbo');if(ar)ar.level=2;if(tb)tb.level=2;
+ }
+ if(ch==='mule'){m.vehicleGrid.cols=7;m.vehicleGrid.tier=2;m.vehicle.fuel=24}
+ return m;
+}
 let meta=freshMeta();
 try{const s=localStorage.getItem('ws-portrait-v09');if(s){const o=JSON.parse(s);meta={...freshMeta(),...o,town:{...freshMeta().town,...o.town},vehicle:{...freshMeta().vehicle,...o.vehicle},pack:{...freshMeta().pack,...o.pack},vehicleGrid:{...freshMeta().vehicleGrid,...o.vehicleGrid},finalFlags:{...freshMeta().finalFlags,...o.finalFlags},runStats:{...freshMeta().runStats,...o.runStats}}}}catch(e){}
 for(const it of meta.vehiclePack||[])if(VEH[it.type]?.kind==='weapon')it.locked=false;
 for(const it of meta.backpack||[])if(it.type==='pistol')it.locked=false;
 function save(){try{localStorage.setItem('ws-portrait-v09',JSON.stringify(meta))}catch(e){}}
-function resetSave(){meta=freshMeta();game=null;roadGame=null;eventData=null;packDrag=null;vehicleDrag=null;townPanel=null;restartConfirm=false;joyEnd();save();state='route';ensureChoices(true)}
+function resetSave(){meta=makeStartingMeta();game=null;roadGame=null;eventData=null;runSummary=null;packDrag=null;vehicleDrag=null;townPanel=null;restartConfirm=false;joyEnd();save();state='route';ensureChoices(true)}
+function startNewRun(){resetSave()}
 
 function touching(a,b,defs){const A=defs[a.type],B=defs[b.type];const xOverlap=a.gx<b.gx+B.w&&a.gx+A.w>b.gx;const yOverlap=a.gy<b.gy+B.h&&a.gy+A.h>b.gy;const vertical=(a.gx+A.w===b.gx||b.gx+B.w===a.gx)&&yOverlap;const horizontal=(a.gy+A.h===b.gy||b.gy+B.h===a.gy)&&xOverlap;return vertical||horizontal;}
 function makeItem(type,level=1){return{id:meta.nextId++,type,level,gx:null,gy:null,locked:false}}
@@ -145,7 +175,10 @@ function buildStats(){
  return result;
 }
 function vehicleStats(){
- let s={maxHull:8,maxFuel:24,speed:230,mgInterval:.22,cannonCd:2.9,rocketCount:0,rocketCd:3.5,armor:0,activeWeapons:[]};
+ let s=meta.chassis==='scout'?{maxHull:6,maxFuel:22,speed:275,mgInterval:.22,cannonCd:2.9,rocketCount:0,rocketCd:3.5,armor:0,activeWeapons:[]}:
+ meta.chassis==='mule'?{maxHull:8,maxFuel:34,speed:215,mgInterval:.22,cannonCd:2.9,rocketCount:0,rocketCd:3.5,armor:0,activeWeapons:[]}:
+ meta.chassis==='bruiser'?{maxHull:12,maxFuel:22,speed:205,mgInterval:.22,cannonCd:2.9,rocketCount:0,rocketCd:3.5,armor:1,activeWeapons:[]}:
+ {maxHull:8,maxFuel:24,speed:230,mgInterval:.22,cannonCd:2.9,rocketCount:0,rocketCd:3.5,armor:0,activeWeapons:[]};
  const active=activeWeapons(meta.vehiclePack,VEH,2);s.activeWeapons=active.map(i=>i.type);
  for(const it of meta.vehiclePack){const lv=it.level||1;if(it.type==='armor'){s.maxHull+=2*lv;s.armor+=lv}if(it.type==='fueltank')s.maxFuel+=8*lv;}
  const mg=active.find(i=>i.type==='mg'),cn=active.find(i=>i.type==='cannon'),rk=active.filter(i=>i.type==='rocket'),en=meta.vehiclePack.find(i=>i.type==='engine');
@@ -280,9 +313,9 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  if(g.bossRoute&&!g.bossSpawned&&g.elapsed>6){g.bossSpawned=true;g.boss=true;if(g.finalRoute)spawnColossus();else spawnRoadEnemy('dreadnought')}
  else if(!g.bossRoute&&!g.boss&&g.elapsed/g.duration>.76){g.boss=true;spawnRoadEnemy('boss')}
  if(g.spawn<=0){if(!g.bossRoute||!g.bossSpawned||g.enemies.filter(e=>e.group!=='colossus'&&e.type!=='dreadnought').length<(g.finalRoute?2:4)){spawnRoadEnemy();const extraChance=clamp((g.threat-.9)*.5,0,.30);if(!g.bossRoute&&g.elapsed/g.duration>.52&&Math.random()<extraChance)spawnRoadEnemy()}g.spawn=rnd(.95,1.35)/(meta.route.spawn||1)/g.threat}
- if(p.hp<=0){meta.arrived=false;state='roadfail';save();return}
+ if(p.hp<=0){meta.arrived=false;finishRun(false);return}
  if(g.bossRoute&&g.bossDefeated){finishRoadSuccess();return}
- if(g.time<=0){if(g.bossRoute&&!g.bossDefeated){meta.arrived=false;state='roadfail';save();return}finishRoadSuccess();return}}
+ if(g.time<=0){if(g.bossRoute&&!g.bossDefeated){meta.arrived=false;finishRun(false);return}finishRoadSuccess();return}}
 
 function buildSiteLayout(site,variant){const obs=[];const add=(x,y,w,h)=>obs.push({x,y,w,h});if(site==='gas'){add(75,170,155,70);add(310,160,135,55);add(110,350,120,55);add(320,360,100,85);add(90,560,52,105);add(398,560,52,105)}else if(site==='clinic'){add(68,170,130,58);add(340,160,125,58);add(205,310,130,50);add(72,460,145,62);add(325,470,142,62);add(208,635,125,52)}else if(site==='motel'){add(55,150,170,100);add(315,150,170,100);add(55,370,170,105);add(315,370,170,105);add(185,585,170,70)}else{add(65,160,80,130);add(190,190,145,65);add(390,145,80,145);add(75,410,130,70);add(290,370,155,80);add(170,600,95,80);add(350,610,100,75)}if(variant===1)for(const o of obs)o.x=540-o.x-o.w;if(variant===2)for(let i=0;i<obs.length;i++)if(i%2)obs[i].y+=55;return obs}
 const FINAL_WAVES=[
@@ -321,7 +354,7 @@ function updateFinalAssaultStage(g,dt){
   if(g.wave<3)spawnFinalWave(g.wave);
   else spawnDriver();
  }
- if(g.driverDefeated){state='runvictory';runSummary=makeRunSummary(true);save()}
+ if(g.driverDefeated){finishRun(true)}
 }
 function startScavenge(){
  const site=meta.selectedNode?.site||'gas',danger=meta.selectedNode?.danger||1,special=!!meta.selectedNode?.special,b=buildStats();
@@ -501,12 +534,12 @@ for(let i=g.grenades.length-1;i>=0;i--){
  if(g.finalAssault){
   updateFinalAssaultStage(g,dt);
   for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
-  if(p.hp<=0){state='runsummary';runSummary=makeRunSummary(false);save()}
+  if(p.hp<=0){finishRun(false)}
   return;
  }
  let active=null,best=999;for(const c of g.crates){if(c.opened)continue;const d=distance(p,c);if(d<58&&d<best){best=d;active=c}}for(const c of g.crates){if(c!==active)c.progress=0}if(active){active.progress+=dt/(active.rare?1.65:1.15);if(active.progress>=1)openCrate(active)}
  const ed=distance(p,g.exit);if(ed<65){g.exit.progress+=dt/1.0;if(g.exit.progress>=1){meta.pendingHaul=[...g.haul];state='pack';packReturn='route';packAdvance=true;packDrag=null;save();return}}else g.exit.progress=0;
- g.spawn-=dt;const pressure=g.elapsed>45?1.45:1;if(g.spawn<=0){spawnScavEnemy();if(g.elapsed>65&&Math.random()<.45)spawnScavEnemy();g.spawn=rnd(2.2,3.5)/pressure/(g.danger===3?1.3:1)/(g.rule?.pressure||1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}if(p.hp<=0){meta.pendingHaul=[];state='dead';save()}}
+ g.spawn-=dt;const pressure=g.elapsed>45?1.45:1;if(g.spawn<=0){spawnScavEnemy();if(g.elapsed>65&&Math.random()<.45)spawnScavEnemy();g.spawn=rnd(2.2,3.5)/pressure/(g.danger===3?1.3:1)/(g.rule?.pressure||1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}if(p.hp<=0){meta.pendingHaul=[];finishRun(false)}}
 
 function packGeom(){const cell=Math.min(62,430/meta.pack.cols);const w=cell*meta.pack.cols;return{x:(W-w)/2,y:165,cell,cols:meta.pack.cols,rows:meta.pack.rows,bottom:165+cell*meta.pack.rows}}
 function vehicleGeom(){const cell=Math.min(62,430/meta.vehicleGrid.cols);const w=cell*meta.vehicleGrid.cols;return{x:(W-w)/2,y:180,cell,cols:meta.vehicleGrid.cols,rows:meta.vehicleGrid.rows,bottom:180+cell*meta.vehicleGrid.rows}}
@@ -542,7 +575,13 @@ function buildIdentity(){
  const ws=activeWeapons(meta.backpack,ITEM,2),e=ws.find(w=>w.evolution);if(e)return (EVOLUTIONS[e.type]?.find(x=>x.id===e.evolution)?.name||ITEM[e.type].name);
  return ws.map(w=>ITEM[w.type].name).join(' + ')||'UNARMED';
 }
-function makeRunSummary(victory){return{victory,leg:meta.roadLeg,roadKills:meta.runStats.roadKills||0,scavKills:meta.runStats.scavKills||0,bosses:meta.runStats.bosses||0,build:buildIdentity(),credits:meta.credits,flags:{...meta.finalFlags}}}
+function makeRunSummary(victory){return{victory,leg:meta.roadLeg,roadKills:meta.runStats.roadKills||0,scavKills:meta.runStats.scavKills||0,bosses:meta.runStats.bosses||0,build:buildIdentity(),credits:meta.credits,pack:meta.backpack.length,vehicle:meta.vehiclePack.length,flags:{...meta.finalFlags}}}
+function finishRun(victory){
+ if(state==='runsummary')return;
+ runSummary=makeRunSummary(victory);runSummary.marksEarned=victory?3:1;
+ profile.runs++;if(victory)profile.wins++;profile.marks+=runSummary.marksEarned;saveProfile();
+ state='runsummary';save();
+}
 function enterEvent(){
  const def=WORLD_EVENTS.find(x=>x.id===meta.selectedNode?.event)||WORLD_EVENTS[0];
  eventData={...def};state='event';save();
@@ -578,9 +617,9 @@ function joyStart(e,p){joy.active=true;joy.id=e.pointerId;joy.ox=p.x;joy.oy=p.y;
 function joyMove(p){if(!joy.active)return;let dx=p.x-joy.ox,dy=p.y-joy.oy;const m=Math.hypot(dx,dy),max=62;if(m>max){dx=dx/m*max;dy=dy/m*max}joy.x=joy.ox+dx;joy.y=joy.oy+dy;joy.dx=dx/max;joy.dy=dy/max}
 function joyEnd(){joy.active=false;joy.dx=joy.dy=0}
 
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys.add(k);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(state==='menu'&&(k==='enter'||k===' ')){state='route';ensureChoices()}else if(state==='route'&&(k==='enter'||k===' ')){if(!meta.selectedNode)selectNode(0);startRoad()}else if(state==='roadresult'&&(k==='enter'||k===' ')){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='event')enterEvent();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else startScavenge()}else if((state==='roadfail'||state==='dead')&&(k==='enter'||k===' ')){state='route';meta.selectedNode=null;ensureChoices(true)}else if(state==='route'&&(k==='b'||k==='i'))startPack('route',false,[]) ;else if(state==='route'&&k==='v')startVehicleBay('route')});
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys.add(k);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(state==='menu'&&(k==='enter'||k===' ')){state='route';ensureChoices()}else if(state==='route'&&(k==='enter'||k===' ')){if(!meta.selectedNode)selectNode(0);startRoad()}else if(state==='roadresult'&&(k==='enter'||k===' ')){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='event')enterEvent();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else startScavenge()}else if(state==='runsummary'&&(k==='enter'||k===' ')){state='garage'}else if(state==='garage'&&(k==='enter'||k===' ')){startNewRun()}else if((state==='roadfail'||state==='dead')&&(k==='enter'||k===' ')){finishRun(false)}else if(state==='route'&&(k==='b'||k==='i'))startPack('route',false,[]) ;else if(state==='route'&&k==='v')startVehicleBay('route')});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-canvas.addEventListener('pointerdown',e=>{const p=canvasPoint(e);if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}if(state==='menu'){state='route';ensureChoices();return}if(state==='route'){routeTap(p);return}if(state==='roadresult'){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='event')enterEvent();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else startScavenge();return}if(state==='event'){if(p.y>=430&&p.y<=555)resolveEvent(0);else if(p.y>=605&&p.y<=730)resolveEvent(1);return}if(state==='roadfail'||state==='dead'){state='route';meta.selectedNode=null;ensureChoices(true);return}if(state==='pack'){packDown(p);return}if(state==='vehicle'){vehicleDown(p);return}if(state==='town'){townTap(p);return}});
+canvas.addEventListener('pointerdown',e=>{const p=canvasPoint(e);if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}if(state==='menu'){state='route';ensureChoices();return}if(state==='route'){routeTap(p);return}if(state==='roadresult'){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='event')enterEvent();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else startScavenge();return}if(state==='event'){if(p.y>=430&&p.y<=555)resolveEvent(0);else if(p.y>=605&&p.y<=730)resolveEvent(1);return}if(state==='runsummary'){state='garage';return}if(state==='garage'){garageTap(p);return}if(state==='roadfail'||state==='dead'){finishRun(false);return}if(state==='pack'){packDown(p);return}if(state==='vehicle'){vehicleDown(p);return}if(state==='town'){townTap(p);return}});
 canvas.addEventListener('pointermove',e=>{const p=canvasPoint(e);if(joy.active&&e.pointerId===joy.id)joyMove(p);if(packDrag){packDrag.x=p.x;packDrag.y=p.y}if(vehicleDrag){vehicleDrag.x=p.x;vehicleDrag.y=p.y}});
 canvas.addEventListener('pointerup',e=>{const p=canvasPoint(e);if(joy.active&&e.pointerId===joy.id)joyEnd();if(state==='pack')packUp(p);if(state==='vehicle')vehicleUp(p)});
 canvas.addEventListener('pointercancel',joyEnd);
@@ -704,7 +743,42 @@ function drawEvent(){
  const cs=eventChoices();cs.forEach((c,i)=>{const y=430+i*175;ctx.fillStyle='#2a2d25';roundRect(55,y,430,125,14,true,false);ctx.strokeStyle=i===0?C.yellow:'#596052';ctx.lineWidth=2;roundRect(55,y,430,125,14,false,true);text(c[0],270,y+45,15,C.cream,'center',900);text(c[1],270,y+78,10,i===0?C.yellow:C.muted,'center',800)});
  text('Every stop should change the run.',270,820,10,C.muted,'center',700);drawNotice();
 }
-function draw(){ctx.clearRect(0,0,W,H);if(state==='menu')drawMenu();else if(state==='route')drawRoute();else if(state==='roadcombat')drawRoad();else if(state==='roadresult')drawRoadResult(false);else if(state==='roadfail')drawRoadResult(true);else if(state==='play'||state==='finalassault')drawScavenge();else if(state==='pack')drawGridScreen('pack');else if(state==='vehicle')drawGridScreen('vehicle');else if(state==='town')drawTown();else if(state==='event')drawEvent();else if(state==='dead'){drawDunes();text('YOU DID NOT MAKE IT BACK',270,330,26,C.red,'center',900);wrap('New gear from this scavenging run was lost. Your persistent build remains for prototype testing.',75,390,390,22,13,C.muted);btn(75,600,390,70,'BACK TO ROAD MAP')}}
+function drawRunSummary(){
+ const r=runSummary||makeRunSummary(false);drawDunes();ctx.fillStyle='rgba(10,12,9,.80)';ctx.fillRect(0,0,W,H);
+ text(r.victory?'RUN COMPLETE':'RUN ENDED',270,115,32,r.victory?C.yellow:C.red,'center',900);
+ text(r.victory?'RUST CATHEDRAL FALLS':'THE WASTELAND WINS',270,150,11,C.muted,'center',800);
+ ctx.fillStyle='#23261f';roundRect(45,205,450,420,18,true,false);
+ text(r.build,270,250,22,C.cream,'center',900);text('FINAL BUILD',270,275,9,C.muted,'center',800);
+ const rows=[['LEGS',r.leg],['ROAD KILLS',r.roadKills],['ON-FOOT KILLS',r.scavKills],['BOSSES',r.bosses],['BACKPACK',r.pack],['VEHICLE MODULES',r.vehicle]];
+ rows.forEach((x,i)=>{const y=320+i*45;text(x[0],75,y,10,C.muted);text(String(x[1]),465,y,13,C.cream,'right',900)});
+ text('COLOSSUS PARTS',75,605,10,C.muted);text(`${r.flags.mg?'MG✓':'MG—'}  ${r.flags.rocket?'RKT✓':'RKT—'}  ${r.flags.armor?'ARM✓':'ARM—'}`,465,605,10,C.yellow,'right',900);
+ text(`+${r.marksEarned||0} WASTELAND MARKS`,270,685,18,C.yellow,'center',900);
+ btn(75,755,390,72,'ENTER GARAGE');
+ text(`TOTAL MARKS ${profile.marks} • RUNS ${profile.runs} • WINS ${profile.wins}`,270,865,9,C.muted,'center',700);
+}
+function garageCards(defs,y0){
+ return defs.map((d,i)=>({d,x:i%2===0?35:285,y:y0+Math.floor(i/2)*120,w:220,h:94}));
+}
+function drawGarageMeta(){
+ drawDunes();ctx.fillStyle='rgba(11,13,10,.76)';ctx.fillRect(0,0,W,H);title('THE GARAGE',`WASTELAND MARKS ${profile.marks}`);
+ text('STARTING KIT',35,130,11,C.yellow,'left',900);
+ for(const c of garageCards(START_KITS,150)){const unlocked=profile.unlockedKits.includes(c.d.id),sel=profile.selectedKit===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
+ text('JUNKER CHASSIS',35,405,11,C.yellow,'left',900);
+ for(const c of garageCards(CHASSIS,425)){const unlocked=profile.unlockedChassis.includes(c.d.id),sel=profile.selectedChassis===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
+ btn(75,775,390,72,'START NEW RUN');text('Unlock choices, not permanent damage bonuses.',270,880,9,C.muted,'center',700);
+}
+function garageTap(p){
+ const handle=(cards,key,unlockedKey)=>{
+  for(const c of cards)if(p.x>=c.x&&p.x<=c.x+c.w&&p.y>=c.y&&p.y<=c.y+c.h){
+   const list=profile[unlockedKey];if(list.includes(c.d.id)){profile[key]=c.d.id;saveProfile();notice=`${c.d.name} SELECTED`;noticeT=1;return true}
+   if(profile.marks>=c.d.cost){profile.marks-=c.d.cost;list.push(c.d.id);profile[key]=c.d.id;saveProfile();notice=`${c.d.name} UNLOCKED`;noticeT=1}else{notice='NOT ENOUGH MARKS';noticeT=1}return true
+  }return false;
+ };
+ if(handle(garageCards(START_KITS,150),'selectedKit','unlockedKits'))return;
+ if(handle(garageCards(CHASSIS,425),'selectedChassis','unlockedChassis'))return;
+ if(p.y>=775&&p.y<=847&&p.x>=75&&p.x<=465)startNewRun();
+}
+function draw(){ctx.clearRect(0,0,W,H);if(state==='menu')drawMenu();else if(state==='route')drawRoute();else if(state==='roadcombat')drawRoad();else if(state==='roadresult')drawRoadResult(false);else if(state==='roadfail')drawRoadResult(true);else if(state==='play'||state==='finalassault')drawScavenge();else if(state==='pack')drawGridScreen('pack');else if(state==='vehicle')drawGridScreen('vehicle');else if(state==='town')drawTown();else if(state==='event')drawEvent();else if(state==='runsummary')drawRunSummary();else if(state==='garage')drawGarageMeta();else if(state==='dead'){drawDunes();text('YOU DID NOT MAKE IT BACK',270,330,26,C.red,'center',900);wrap('New gear from this scavenging run was lost. Your persistent build remains for prototype testing.',75,390,390,22,13,C.muted);btn(75,600,390,70,'BACK TO ROAD MAP')}}
 
 function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop)}
 ensureChoices();requestAnimationFrame(loop);
