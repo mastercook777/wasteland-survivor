@@ -13,7 +13,7 @@ body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none;
   display: grid;
   place-items: center;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background: radial-gradient(circle at 50% 28%, #282a20 0%, #151711 48%, #0b0d0a 100%);
+  background: radial-gradient(circle at 50% 24%, #3b3021 0%, #1c1912 50%, #0c0c09 100%);
 }
 #game-shell {
   position: relative;
@@ -21,8 +21,9 @@ body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none;
   height: min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)), calc(100vw * 16 / 9));
   aspect-ratio: 9 / 16;
   overflow: hidden;
-  background: #171912;
-  box-shadow: 0 0 0 1px rgba(240,232,207,.12), 0 18px 60px rgba(0,0,0,.52);
+  background: #15130e;
+  border: 1px solid rgba(221,183,103,.18);
+  box-shadow: 0 0 0 3px rgba(19,17,12,.72), 0 24px 80px rgba(0,0,0,.62), inset 0 0 40px rgba(0,0,0,.22);
 }
 #game { width: 100%; height: 100%; display: block; touch-action: none; }
 #landscape-note { display: none; }
