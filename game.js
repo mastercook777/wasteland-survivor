@@ -311,6 +311,7 @@ function fireEMP(){
  const hit=[priority],rest=g.enemies.filter(e=>e!==priority).sort((a,b)=>distance(priority,a)-distance(priority,b));
  for(const e of rest){if(hit.length>=1+(g.build.empChains||1))break;if(distance(priority,e)<185)hit.push(e)}
  for(const e of hit){e.disabled=Math.max(e.disabled||0,e.group==='colossus'?1.8:2.8);e.hp-=.5;g.fx.push({x:e.x,y:e.y,r:42,life:.32,color:C.teal})}
+ for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
  const centers=hit;
  g.enemyBullets=g.enemyBullets.filter(b=>!centers.some(e=>Math.hypot(b.x-e.x,b.y-e.y)<175));
  g.mines=g.mines.filter(m=>!centers.some(e=>Math.hypot(m.x-e.x,m.y-e.y)<135));
@@ -755,7 +756,7 @@ function resolveEvent(choiceIndex){
  }else if(id==='mechanic'){
   if(choiceIndex===0){
    if(meta.credits<30)return say('NEED ¢30');
-   meta.credits-=30;meta.vehicle.hull=vs.maxHull;meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank']),2));say('FULL OVERHAUL + LV2 MODULE');
+   meta.credits-=30;meta.vehicle.hull=vs.maxHull;meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','emp','capacitor']),2));say('FULL OVERHAUL + LV2 MODULE');
   }else{
    meta.vehicle.scrap+=4;meta.vehicle.fuel=Math.max(0,meta.vehicle.fuel-2);
    meta.nextSearchEffect={pressure:1.18,extraEnemies:1,label:'NOISY SALVAGE'};say('+4 SALVAGE • FUEL -2');
@@ -840,7 +841,7 @@ for(const m of g.mines)drawMine(m);for(const d of g.drops){
  ctx.fillStyle=d.type==='fuel'?C.gas:d.type==='repair'?C.green:C.scrap;
  ctx.beginPath();ctx.arc(d.x,d.y,12,0,6.28);ctx.fill();
  text(d.type==='fuel'?'F':d.type==='repair'?'+':'S',d.x,d.y+4,10,'#171912','center',900)
-}for(const e of g.enemies)drawEnemyVehicle(e);for(const b of g.bullets){ctx.fillStyle=b.kind==='cannon'?C.yellow:b.kind==='rocket'?'#df7c42':'#f1e6b3';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,6.28);ctx.fill()}for(const b of g.enemyBullets){ctx.fillStyle=b.sniper?'#d8d7c4':C.red;ctx.beginPath();ctx.arc(b.x,b.y,b.sniper?6:5,0,6.28);ctx.fill()}for(const f of g.fx){ctx.save();ctx.globalAlpha=f.life/.35;ctx.strokeStyle=f.color;ctx.lineWidth=5;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1-f.life/.35),0,6.28);ctx.stroke();ctx.restore()}drawVehicle(p.x,p.y,1,p.inv>0&&Math.floor(performance.now()/80)%2?'#fff':C.yellow);ctx.fillStyle='rgba(18,20,16,.9)';roundRect(18,20,504,100,14,true,false);text(`${Math.ceil(g.time)}s`,36,60,28,g.time<10?C.red:C.cream,'left',900);text(destinationName(),36,85,11,C.muted);text(`FUEL -${g.cost}${g.dry?' • DRY RUN':''}`,500,58,11,g.dry?C.red:C.yellow,'right',900);bar(36,96,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`HULL ${p.hp}/${p.max}`,255,105,10,C.cream);bar(305,96,195,10,g.elapsed/g.duration,C.yellow);text(`THREAT ${Math.round(g.threat*100)}%`,500,105,9,g.threat>1.05?C.red:C.muted,'right',900);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated){
+}for(const e of g.enemies)drawEnemyVehicle(e);for(const b of g.bullets){ctx.fillStyle=b.kind==='cannon'?C.yellow:b.kind==='rocket'?'#df7c42':'#f1e6b3';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,6.28);ctx.fill();if(b.kind==='rocket'){ctx.strokeStyle='rgba(223,124,66,.45)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,6.28);ctx.stroke()}}for(const b of g.enemyBullets){ctx.fillStyle=b.sniper?'#d8d7c4':C.red;ctx.beginPath();ctx.arc(b.x,b.y,b.sniper?6:5,0,6.28);ctx.fill()}for(const f of g.fx){ctx.save();ctx.globalAlpha=f.life/.35;ctx.strokeStyle=f.color;ctx.lineWidth=5;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1-f.life/.35),0,6.28);ctx.stroke();ctx.restore()}drawVehicle(p.x,p.y,1,p.inv>0&&Math.floor(performance.now()/80)%2?'#fff':C.yellow);ctx.fillStyle='rgba(18,20,16,.9)';roundRect(18,20,504,100,14,true,false);text(`${Math.ceil(g.time)}s`,36,60,28,g.time<10?C.red:C.cream,'left',900);text(destinationName(),36,85,11,C.muted);text(`FUEL -${g.cost}${g.dry?' • DRY RUN':''}`,500,58,11,g.dry?C.red:C.yellow,'right',900);bar(36,96,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`HULL ${p.hp}/${p.max}`,255,105,10,C.cream);bar(305,96,195,10,g.elapsed/g.duration,C.yellow);text(`THREAT ${Math.round(g.threat*100)}%`,500,105,9,g.threat>1.05?C.red:C.muted,'right',900);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated){
  text('THE COLOSSUS',270,150,17,C.red,'center',900);
  const lock=roadTarget(g,p,560);if(lock?.group==='colossus')text(`LOCK: ${lock.part.toUpperCase()}   •   LEFT MG / CENTER ARMOR / RIGHT RKT`,270,172,9,C.yellow,'center',800);
 }else if(g.bossRoute&&g.bossSpawned&&!g.bossDefeated)text('IRON JACKAL',270,150,16,C.red,'center',900);else if(g.boss&&g.enemies.some(e=>e.type==='wartruck'))text('WAR TRUCK',270,150,15,C.red,'center',900);drawJoy()}
