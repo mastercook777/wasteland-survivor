@@ -916,12 +916,23 @@ function drawRoadResult(fail=false){drawDunes();ctx.fillStyle='rgba(11,13,10,.72
  btn(75,790,390,70,meta.selectedNode?.type==='town'?'ENTER TOWN':meta.pendingRoadEvent?'ROADSIDE EVENT':meta.selectedNode?.type==='final'?'BREACH THE CATHEDRAL':meta.selectedNode?.type==='boss'?'CLAIM TROPHY':'GET OUT & SCAVENGE')}else{wrap('The Junker could not make the route. Your run continues from the road map for prototype testing.',80,360,380,22,13,C.muted);btn(75,640,390,70,'BACK TO ROAD MAP')}}
 
 function drawScavenge(){
- const g=game,p=g.player,cam=g.cameraY||0;
- ctx.fillStyle='#6e6652';ctx.fillRect(0,0,W,H);
+ const g=game,p=g.player,cam=g.cameraY||0,site=g.finalAssault?'final':g.site;
+ const ground=site==='clinic'?'#756d5b':site==='motel'?'#806a4d':site==='junkyard'?'#625d50':site==='gas'?'#796a50':'#51483e';
+ ctx.fillStyle=ground;ctx.fillRect(0,0,W,H);
  ctx.save();ctx.translate(0,-cam);
- ctx.fillStyle='#6e6652';ctx.fillRect(0,0,W,g.worldH);
- ctx.fillStyle='rgba(20,22,17,.16)';for(let y=100;y<g.worldH;y+=80)ctx.fillRect(0,y,W,2);
- for(const o of g.obstacles){ctx.fillStyle=g.finalAssault?'#51463f':SITE[g.site].color;roundRect(o.x,o.y,o.w,o.h,8,true,false);ctx.fillStyle='rgba(15,17,13,.25)';ctx.fillRect(o.x+8,o.y+8,o.w-16,o.h-16)}
+ ctx.fillStyle=ground;ctx.fillRect(0,0,W,g.worldH);
+ ctx.strokeStyle='rgba(40,32,22,.16)';ctx.lineWidth=2;for(let y=75;y<g.worldH;y+=95){ctx.beginPath();ctx.moveTo(0,y);ctx.quadraticCurveTo(130,y-16,270,y+5);ctx.quadraticCurveTo(420,y+22,540,y-7);ctx.stroke()}
+ for(let y=140;y<g.worldH;y+=260){const shift=(y/260%2)*85;ctx.fillStyle='rgba(30,27,21,.22)';ctx.fillRect(24+shift,y,42,4);ctx.fillRect(430-shift*.35,y+78,58,5);ctx.fillStyle='rgba(207,173,105,.10)';ctx.fillRect(100+shift*.4,y+135,72,3)}
+ if(site==='gas'){ctx.fillStyle='rgba(73,47,30,.34)';for(let y=260;y<g.worldH;y+=520){ctx.fillRect(72,y,155,9);ctx.fillRect(312,y+145,128,7)}}
+ if(site==='clinic'){ctx.fillStyle='rgba(210,215,190,.09)';for(let y=190;y<g.worldH;y+=470){ctx.fillRect(38,y,180,38);ctx.fillRect(335,y+160,130,26)}}
+ if(site==='motel'){ctx.fillStyle='rgba(112,48,35,.18)';for(let y=210;y<g.worldH;y+=500){ctx.fillRect(45,y,210,12);ctx.fillRect(300,y+115,165,10)}}
+ if(site==='junkyard'){ctx.strokeStyle='rgba(33,31,27,.34)';ctx.lineWidth=5;for(let y=180;y<g.worldH;y+=330){ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(120,y+35);ctx.lineTo(205,y-5);ctx.stroke();ctx.beginPath();ctx.moveTo(350,y+95);ctx.lineTo(505,y+55);ctx.stroke()}}
+ for(const o of g.obstacles){
+  ctx.fillStyle=g.finalAssault?'#4a3d35':SITE[g.site].color;roundRect(o.x,o.y,o.w,o.h,5,true,false);
+  ctx.fillStyle='rgba(20,18,14,.34)';ctx.fillRect(o.x+7,o.y+7,o.w-14,o.h-14);
+  ctx.strokeStyle='rgba(235,215,171,.14)';ctx.lineWidth=2;ctx.strokeRect(o.x+3,o.y+3,o.w-6,o.h-6);
+  ctx.fillStyle='rgba(12,12,10,.22)';ctx.fillRect(o.x+o.w*.18,o.y+o.h*.18,Math.max(5,o.w*.12),Math.max(5,o.h*.12));
+ }
  for(const c of g.crates){if(c.opened)continue;ctx.fillStyle=c.rare?C.yellow:'#755d3f';roundRect(c.x-17,c.y-15,34,30,5,true,false);ctx.strokeStyle=c.rare?'#fff0a0':'#9a805f';ctx.lineWidth=2;ctx.strokeRect(c.x-13,c.y-11,26,22);if(c.progress>0)bar(c.x-28,c.y-32,56,7,c.progress,c.rare?C.yellow:C.green)}
  for(const l of g.loot){ctx.fillStyle=l.type==='gas'?C.gas:l.type==='food'?C.food:l.type==='med'?C.med:C.scrap;ctx.beginPath();ctx.arc(l.x,l.y,7,0,6.28);ctx.fill()}
  for(const gr of g.grenades){
