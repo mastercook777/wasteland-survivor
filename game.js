@@ -111,7 +111,7 @@ function freshMeta(){return{
  pendingHaul:[],pendingVehicle:[],pack:{cols:6,rows:5,tier:1},vehicleGrid:{cols:6,rows:4,tier:1},
  roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},
  route:{...ROUTES[0]},town:{name:'RUSTWATER',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
- finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0},runEnded:null,pendingRoadEvent:null,nextSearchEffect:null,chassis:'junker',
+ finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0,events:0},runEnded:null,pendingRoadEvent:null,nextSearchEffect:null,eventGap:0,chassis:'junker',
  vehicle:{name:'JUNKER MK.I',scrap:0,fuel:18,hull:null}
 }}
 let profile={marks:0,runs:0,wins:0,selectedKit:'gunslinger',selectedChassis:'junker',unlockedKits:['gunslinger'],unlockedChassis:['junker']};
@@ -133,6 +133,8 @@ let meta=freshMeta();
 try{const s=localStorage.getItem('ws-portrait-v09');if(s){const o=JSON.parse(s);meta={...freshMeta(),...o,town:{...freshMeta().town,...o.town},vehicle:{...freshMeta().vehicle,...o.vehicle},pack:{...freshMeta().pack,...o.pack},vehicleGrid:{...freshMeta().vehicleGrid,...o.vehicleGrid},finalFlags:{...freshMeta().finalFlags,...o.finalFlags},runStats:{...freshMeta().runStats,...o.runStats}}}}catch(e){}
 for(const it of meta.vehiclePack||[])if(VEH[it.type]?.kind==='weapon')it.locked=false;
 for(const it of meta.backpack||[])if(it.type==='pistol')it.locked=false;
+meta.eventGap=meta.eventGap||0;meta.runStats={roadKills:0,scavKills:0,bosses:0,events:0,...(meta.runStats||{})};
+
 if((meta.mapChoices||[]).some(n=>n.type==='event')){meta.mapChoices=meta.mapChoices.filter(n=>n.type!=='event');if(meta.selectedNode?.type==='event')meta.selectedNode=null;}
 
 if(meta.runEnded){runSummary=meta.runEnded;state='runsummary'}
@@ -297,9 +299,10 @@ function killRoad(i){
 function finishRoadSuccess(){
  const g=roadGame,p=g.player;meta.arrived=true;meta.vehicle.hull=Math.max(1,p.hp);
  meta.pendingRoadEvent=null;
- if(meta.selectedNode?.type==='scavenge'&&meta.runStep>0){
-  const chance=clamp(.36+meta.runStep*.035,.36,.64);
-  if(Math.random()<chance)meta.pendingRoadEvent={id:choice(WORLD_EVENTS).id};
+ if(meta.selectedNode?.type==='scavenge'){
+  meta.eventGap=(meta.eventGap||0)+1;
+  const chance=clamp(.34+meta.runStep*.035,.34,.62),forced=meta.eventGap>=3;
+  if(forced||Math.random()<chance){meta.pendingRoadEvent={id:choice(WORLD_EVENTS).id,forced};meta.eventGap=0}
  }
  const bf=meta.route.id==='salt'?2:0,bs=meta.route.id==='raider'?2:0;meta.vehicle.scrap+=g.scrap+bs;meta.vehicle.fuel=Math.min(g.build.maxFuel,meta.vehicle.fuel+g.fuel+bf);g.scrap+=bs;g.fuel+=bf;
  const pool=['belt','loader','turbo','armor','fueltank','rocket'],final=meta.selectedNode?.type==='final',boss=meta.selectedNode?.type==='boss',t=choice(pool),lv=boss?2:(meta.selectedNode?.danger===3&&Math.random()<.25?2:1);
@@ -631,7 +634,7 @@ function buildIdentity(){
  const ws=activeWeapons(meta.backpack,ITEM,2),e=ws.find(w=>w.evolution);if(e)return (EVOLUTIONS[e.type]?.find(x=>x.id===e.evolution)?.name||ITEM[e.type].name);
  return ws.map(w=>ITEM[w.type].name).join(' + ')||'UNARMED';
 }
-function makeRunSummary(victory){return{victory,leg:meta.roadLeg,roadKills:meta.runStats.roadKills||0,scavKills:meta.runStats.scavKills||0,bosses:meta.runStats.bosses||0,build:buildIdentity(),credits:meta.credits,pack:meta.backpack.length,vehicle:meta.vehiclePack.length,kit:profile.selectedKit||'gunslinger',chassis:meta.chassis||profile.selectedChassis||'junker',flags:{...meta.finalFlags}}}
+function makeRunSummary(victory){return{victory,leg:meta.roadLeg,roadKills:meta.runStats.roadKills||0,scavKills:meta.runStats.scavKills||0,bosses:meta.runStats.bosses||0,events:meta.runStats.events||0,build:buildIdentity(),credits:meta.credits,pack:meta.backpack.length,vehicle:meta.vehiclePack.length,kit:profile.selectedKit||'gunslinger',chassis:meta.chassis||profile.selectedChassis||'junker',flags:{...meta.finalFlags}}}
 function finishRun(victory){
  if(state==='runsummary')return;
  runSummary=makeRunSummary(victory);runSummary.marksEarned=victory?3:1;
@@ -643,7 +646,7 @@ function enterEvent(){
  eventData={...def};state='event';save();
 }
 function resolveEvent(choiceIndex){
- const id=eventData?.id,vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);
+ const id=eventData?.id,vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);meta.runStats.events=(meta.runStats.events||0)+1;
  if(id==='convoy'){
   if(choiceIndex===0){
    if(meta.vehicle.fuel<4)return say('NEED 4 FUEL');
@@ -693,7 +696,7 @@ function joyEnd(){joy.active=false;joy.dx=joy.dy=0}
 
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys.add(k);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(state==='menu'&&(k==='enter'||k===' ')){state='route';ensureChoices()}else if(state==='route'&&(k==='enter'||k===' ')){if(!meta.selectedNode)selectNode(0);startRoad()}else if(state==='roadresult'&&(k==='enter'||k===' ')){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else if(meta.pendingRoadEvent)enterEvent();else startScavenge()}else if(state==='runsummary'&&(k==='enter'||k===' ')){state='garage'}else if(state==='garage'&&(k==='enter'||k===' ')){startNewRun()}else if((state==='roadfail'||state==='dead')&&(k==='enter'||k===' ')){finishRun(false)}else if(state==='route'&&(k==='b'||k==='i'))startPack('route',false,[]) ;else if(state==='route'&&k==='v')startVehicleBay('route')});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-canvas.addEventListener('pointerdown',e=>{const p=canvasPoint(e);if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}if(state==='menu'){state='route';ensureChoices();return}if(state==='route'){routeTap(p);return}if(state==='roadresult'){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='event')enterEvent();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else startScavenge();return}if(state==='event'){if(p.y>=430&&p.y<=555)resolveEvent(0);else if(p.y>=605&&p.y<=730)resolveEvent(1);return}if(state==='runsummary'){state='garage';return}if(state==='garage'){garageTap(p);return}if(state==='roadfail'||state==='dead'){finishRun(false);return}if(state==='pack'){packDown(p);return}if(state==='vehicle'){vehicleDown(p);return}if(state==='town'){townTap(p);return}});
+canvas.addEventListener('pointerdown',e=>{const p=canvasPoint(e);if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}if(state==='menu'){state='route';ensureChoices();return}if(state==='route'){routeTap(p);return}if(state==='roadresult'){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else if(meta.pendingRoadEvent)enterEvent();else startScavenge();return}if(state==='event'){if(p.y>=430&&p.y<=555)resolveEvent(0);else if(p.y>=605&&p.y<=730)resolveEvent(1);return}if(state==='runsummary'){state='garage';return}if(state==='garage'){garageTap(p);return}if(state==='roadfail'||state==='dead'){finishRun(false);return}if(state==='pack'){packDown(p);return}if(state==='vehicle'){vehicleDown(p);return}if(state==='town'){townTap(p);return}});
 canvas.addEventListener('pointermove',e=>{const p=canvasPoint(e);if(joy.active&&e.pointerId===joy.id)joyMove(p);if(packDrag){packDrag.x=p.x;packDrag.y=p.y}if(vehicleDrag){vehicleDrag.x=p.x;vehicleDrag.y=p.y}});
 canvas.addEventListener('pointerup',e=>{const p=canvasPoint(e);if(joy.active&&e.pointerId===joy.id)joyEnd();if(state==='pack')packUp(p);if(state==='vehicle')vehicleUp(p)});
 canvas.addEventListener('pointercancel',joyEnd);
@@ -837,7 +840,7 @@ function drawRunSummary(){
  text(r.build,270,250,22,C.cream,'center',900);text('FINAL BUILD',270,275,9,C.muted,'center',800);
  const kit=START_KITS.find(x=>x.id===r.kit)?.name||String(r.kit||'').toUpperCase(),ch=CHASSIS.find(x=>x.id===r.chassis)?.name||String(r.chassis||'').toUpperCase();
  text(`${kit} • ${ch} • ¢${r.credits}`,270,298,9,C.yellow,'center',800);
- const rows=[['LEGS',r.leg],['ROAD KILLS',r.roadKills],['ON-FOOT KILLS',r.scavKills],['BOSSES',r.bosses],['BACKPACK',r.pack],['VEHICLE MODULES',r.vehicle]];
+ const rows=[['LEGS',r.leg],['ROAD KILLS',r.roadKills],['ON-FOOT KILLS',r.scavKills],['EVENTS',r.events||0],['BOSSES',r.bosses],['BACKPACK',r.pack]];
  rows.forEach((x,i)=>{const y=335+i*43;text(x[0],75,y,10,C.muted);text(String(x[1]),465,y,13,C.cream,'right',900)});
  text('COLOSSUS PARTS',75,608,10,C.muted);text(`${r.flags.mg?'MG✓':'MG—'}  ${r.flags.rocket?'RKT✓':'RKT—'}  ${r.flags.armor?'ARM✓':'ARM—'}`,465,608,10,C.yellow,'right',900);
  text(`+${r.marksEarned||0} WASTELAND MARKS`,270,685,18,C.yellow,'center',900);
