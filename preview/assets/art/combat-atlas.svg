@@ -1,110 +1,196 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="900" viewBox="0 0 1024 900">
 <defs>
- <filter id="shadow"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#120f0a" flood-opacity=".45"/></filter>
- <filter id="dust"><feGaussianBlur stdDeviation="2.5"/></filter>
- <linearGradient id="rust" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d2a64d"/><stop offset=".55" stop-color="#9a6535"/><stop offset="1" stop-color="#5d3826"/></linearGradient>
- <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6b6b5b"/><stop offset="1" stop-color="#292a24"/></linearGradient>
- <linearGradient id="roadred" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9d5134"/><stop offset="1" stop-color="#4f2a24"/></linearGradient>
+ <filter id="sh"><feDropShadow dx="0" dy="7" stdDeviation="4" flood-color="#17120d" flood-opacity=".42"/></filter>
+ <linearGradient id="sandSteel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6b76c"/><stop offset=".52" stop-color="#ad7b3f"/><stop offset="1" stop-color="#68442f"/></linearGradient>
+ <linearGradient id="olive" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9b9b68"/><stop offset=".55" stop-color="#69724f"/><stop offset="1" stop-color="#394233"/></linearGradient>
+ <linearGradient id="rustRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b85d3c"/><stop offset=".58" stop-color="#803f31"/><stop offset="1" stop-color="#45282a"/></linearGradient>
+ <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#85758f"/><stop offset="1" stop-color="#514653"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea1a6"/><stop offset="1" stop-color="#293f43"/></linearGradient>
 </defs>
-<!-- JUNKER 0,0 160x190 -->
-<g transform="translate(80 94)" filter="url(#shadow)">
- <ellipse cx="0" cy="68" rx="55" ry="17" fill="#15130f" opacity=".45"/>
- <rect x="-48" y="-42" width="96" height="100" rx="13" fill="#171713"/>
- <path d="M-40-34 L31-41 45-12 39 48 18 60 -31 54 -45 20Z" fill="url(#rust)" stroke="#211d16" stroke-width="5"/>
- <path d="M-22-23 L19-29 29-5 18 14 -22 12 -31-5Z" fill="#242722" stroke="#b58d4c" stroke-width="3"/>
- <path d="M-10-55 L10-55 7-24 -6-22Z" fill="#68513b"/><rect x="-5" y="-82" width="10" height="35" fill="#a9864c"/>
- <rect x="-61" y="-28" width="17" height="32" rx="6" fill="#10110e"/><rect x="44" y="-28" width="17" height="32" rx="6" fill="#10110e"/>
- <rect x="-61" y="25" width="17" height="32" rx="6" fill="#10110e"/><rect x="44" y="25" width="17" height="32" rx="6" fill="#10110e"/>
- <path d="M-38 14 L-57 3 M38 14 L57 3 M-34 39 L-53 51 M34 39 L53 51" stroke="#7e6040" stroke-width="6"/>
- <rect x="-31" y="42" width="14" height="7" fill="#c34f33"/><rect x="17" y="42" width="14" height="7" fill="#c34f33"/>
- <path d="M-39-34 L-19-45 24-42" fill="none" stroke="#edd6a6" stroke-opacity=".38" stroke-width="3"/>
+
+<!-- JUNKER: retro Japanese wasteland RPG hero tank -->
+<g transform="translate(80 95)" filter="url(#sh)">
+ <ellipse cy="66" rx="61" ry="18" fill="#1b1712" opacity=".38"/>
+ <g fill="#181814" stroke="#0f0f0c" stroke-width="4">
+  <rect x="-64" y="-27" width="18" height="34" rx="7"/><rect x="46" y="-27" width="18" height="34" rx="7"/>
+  <rect x="-64" y="22" width="18" height="35" rx="7"/><rect x="46" y="22" width="18" height="35" rx="7"/>
+ </g>
+ <path d="M-49-34 L35-43 52-15 48 38 27 58 -33 55 -52 24Z" fill="url(#sandSteel)" stroke="#241d16" stroke-width="6"/>
+ <path d="M-43-26 L-8-36 35-34 43-11 25-1 -37 2Z" fill="#c98e46" opacity=".52"/>
+ <path d="M-28-22 L18-28 31-8 18 11 -25 11 -37-5Z" fill="url(#glass)" stroke="#27241f" stroke-width="4"/>
+ <path d="M-22-17 L-3-21 -11 6 -28 5Z" fill="#9ac0bd" opacity=".3"/>
+ <path d="M-37 16 L30 14 38 38 18 51 -31 48Z" fill="#7f542f" stroke="#352519" stroke-width="3"/>
+ <g fill="#d9b35d" stroke="#2c2419" stroke-width="3">
+   <rect x="-34" y="22" width="14" height="14" rx="3"/><rect x="20" y="20" width="12" height="15" rx="3"/>
+ </g>
+ <g fill="#a94d35"><rect x="-31" y="43" width="14" height="6" rx="2"/><rect x="14" y="43" width="14" height="6" rx="2"/></g>
+ <path d="M-8-47 L11-47 10-24 -5-21Z" fill="#66513b" stroke="#2a231a" stroke-width="4"/>
+ <rect x="-5" y="-82" width="10" height="42" rx="4" fill="#9e8152" stroke="#2d261d" stroke-width="3"/>
+ <rect x="-17" y="-86" width="34" height="10" rx="4" fill="#3b3930" stroke="#1e1e19" stroke-width="3"/>
+ <circle cx="-33" cy="9" r="7" fill="#60735a" stroke="#24271f" stroke-width="3"/>
+ <rect x="31" y="3" width="15" height="25" rx="3" fill="#71634a" stroke="#2a241c" stroke-width="3"/>
+ <path d="M-49-24 L-66-12 M45-19 L64-8 M-45 28 L-64 42 M43 30 L62 43" stroke="#8b6b40" stroke-width="6" stroke-linecap="round"/>
+ <path d="M-43-33 L-15-43 22-40" fill="none" stroke="#f0dc9d" stroke-opacity=".52" stroke-width="3"/>
+ <path d="M-18 31 L-2 27 10 31 27 27" fill="none" stroke="#d6ad5b" stroke-width="2"/>
 </g>
-<!-- BIKE 180,0 120x190 -->
-<g transform="translate(240 95)" filter="url(#shadow)">
- <ellipse cy="66" rx="25" ry="10" fill="#15130f" opacity=".5"/>
- <ellipse cy="-44" rx="14" ry="22" fill="#151612"/><ellipse cy="48" rx="15" ry="23" fill="#151612"/>
- <path d="M0-34 L-17 8 0 35 18 8Z" fill="#9a6138" stroke="#252019" stroke-width="4"/>
- <rect x="-7" y="-13" width="14" height="39" fill="#2d3028"/>
- <path d="M-25-18 L0-9 25-18" stroke="#c0904a" stroke-width="5" fill="none"/>
- <circle cy="-3" r="7" fill="#d7a12e"/>
+
+<!-- BIKE: raider monobike -->
+<g transform="translate(240 96)" filter="url(#sh)">
+ <ellipse cy="65" rx="27" ry="10" fill="#17130f" opacity=".42"/>
+ <g fill="#171816" stroke="#0d0e0c" stroke-width="4"><ellipse cy="-47" rx="14" ry="22"/><ellipse cy="48" rx="16" ry="24"/></g>
+ <path d="M0-34 L-18-5 -12 28 0 39 14 27 19-4Z" fill="url(#rustRed)" stroke="#2c1d19" stroke-width="5"/>
+ <path d="M-10-18 H10 L14 4 0 17 -15 5Z" fill="#545c47" stroke="#25281f" stroke-width="3"/>
+ <circle cy="-5" r="8" fill="#e0b958" stroke="#32281b" stroke-width="3"/>
+ <path d="M-28-24 L0-15 28-24" stroke="#d0a44f" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <path d="M-20 17 L-33 31 M20 17 L33 31" stroke="#69402c" stroke-width="5"/>
+ <rect x="-7" y="24" width="14" height="22" fill="#2c2e27"/>
 </g>
-<!-- TRUCK 320,0 160x190 -->
-<g transform="translate(400 95)" filter="url(#shadow)">
- <ellipse cy="66" rx="58" ry="17" fill="#15130f" opacity=".45"/>
- <rect x="-55" y="-48" width="110" height="104" rx="10" fill="#181713"/>
- <path d="M-47-39 H45 L52 25 35 53 -40 50 -52 22Z" fill="#6f5337" stroke="#282219" stroke-width="5"/>
- <rect x="-37" y="-23" width="74" height="43" fill="#39362d" stroke="#a27c49" stroke-width="3"/>
- <path d="M-30-17 H30 V-2 H-30Z" fill="#1c211f"/>
- <rect x="-65" y="-26" width="14" height="34" rx="5" fill="#0f100e"/><rect x="51" y="-26" width="14" height="34" rx="5" fill="#0f100e"/>
- <rect x="-65" y="25" width="14" height="34" rx="5" fill="#0f100e"/><rect x="51" y="25" width="14" height="34" rx="5" fill="#0f100e"/>
- <path d="M-42 31 H42 M-35 41 H35" stroke="#2b241c" stroke-width="5"/>
+
+<!-- TRUCK: scavenger armored pickup -->
+<g transform="translate(400 95)" filter="url(#sh)">
+ <ellipse cy="67" rx="62" ry="17" fill="#17130f" opacity=".4"/>
+ <g fill="#171713" stroke="#0d0e0c" stroke-width="4">
+  <rect x="-67" y="-27" width="16" height="34" rx="6"/><rect x="51" y="-27" width="16" height="34" rx="6"/>
+  <rect x="-67" y="27" width="16" height="34" rx="6"/><rect x="51" y="27" width="16" height="34" rx="6"/>
+ </g>
+ <path d="M-53-38 L39-42 56-9 50 38 31 57 -42 53 -57 22Z" fill="url(#olive)" stroke="#22231d" stroke-width="6"/>
+ <path d="M-36-27 L27-30 39-8 29 10 -36 10 -44-5Z" fill="url(#glass)" stroke="#25261f" stroke-width="4"/>
+ <path d="M-43 19 H42 L34 49 -38 48Z" fill="#5b5038" stroke="#2a251c" stroke-width="3"/>
+ <path d="M-38 26 H37 M-33 35 H33" stroke="#a88d55" stroke-width="3"/>
+ <g fill="#d7b257"><circle cx="-38" cy="16" r="5"/><circle cx="39" cy="15" r="5"/></g>
+ <path d="M-48-31 L-64-50 M44-31 L62-51" stroke="#725035" stroke-width="7" stroke-linecap="round"/>
+ <rect x="-8" y="-58" width="16" height="26" rx="5" fill="#504935" stroke="#25231c" stroke-width="3"/>
+ <rect x="-22" y="-64" width="44" height="9" rx="4" fill="#26261f"/>
 </g>
-<!-- MISSILE VAN 500,0 170x190 -->
-<g transform="translate(585 95)" filter="url(#shadow)">
- <ellipse cy="67" rx="56" ry="16" fill="#15130f" opacity=".45"/>
- <rect x="-52" y="-47" width="104" height="103" rx="11" fill="#181713"/>
- <path d="M-44-38 H42 L50 30 28 54 -37 49 -50 17Z" fill="#665164" stroke="#2a2229" stroke-width="5"/>
- <rect x="-38" y="-25" width="76" height="26" fill="#27252a"/>
- <g fill="#b2744e" stroke="#2a211a" stroke-width="2"><rect x="-34" y="-49" width="12" height="44" rx="5"/><rect x="-12" y="-55" width="12" height="48" rx="5"/><rect x="10" y="-54" width="12" height="48" rx="5"/><rect x="32" y="-48" width="12" height="42" rx="5"/></g>
- <rect x="-64" y="-20" width="13" height="31" rx="5" fill="#0f100e"/><rect x="51" y="-20" width="13" height="31" rx="5" fill="#0f100e"/>
- <rect x="-64" y="27" width="13" height="31" rx="5" fill="#0f100e"/><rect x="51" y="27" width="13" height="31" rx="5" fill="#0f100e"/>
+
+<!-- MISSILE VAN -->
+<g transform="translate(585 95)" filter="url(#sh)">
+ <ellipse cy="67" rx="61" ry="17" fill="#17130f" opacity=".4"/>
+ <g fill="#171713" stroke="#0d0e0c" stroke-width="4">
+  <rect x="-66" y="-24" width="15" height="34" rx="6"/><rect x="51" y="-24" width="15" height="34" rx="6"/>
+  <rect x="-66" y="28" width="15" height="34" rx="6"/><rect x="51" y="28" width="15" height="34" rx="6"/>
+ </g>
+ <path d="M-52-39 L44-42 58-5 48 42 28 57 -40 53 -58 21Z" fill="url(#violet)" stroke="#272128" stroke-width="6"/>
+ <path d="M-35-24 L28-27 41-8 32 10 -35 10 -44-4Z" fill="url(#glass)" stroke="#252328" stroke-width="4"/>
+ <g fill="#b86a46" stroke="#2b211b" stroke-width="3">
+  <rect x="-38" y="-63" width="12" height="43" rx="6"/><rect x="-15" y="-69" width="12" height="48" rx="6"/><rect x="8" y="-69" width="12" height="48" rx="6"/><rect x="31" y="-62" width="12" height="42" rx="6"/>
+ </g>
+ <path d="M-42 24 H37" stroke="#c3a16a" stroke-width="4"/>
+ <rect x="-28" y="31" width="55" height="13" rx="4" fill="#3e3540"/>
 </g>
-<!-- WARTRUCK 690,0 190x190 -->
-<g transform="translate(785 95)" filter="url(#shadow)">
- <ellipse cy="67" rx="70" ry="18" fill="#15130f" opacity=".48"/>
- <path d="M-64-48 H58 L70 15 51 57 -53 56 -71 13Z" fill="url(#roadred)" stroke="#241b18" stroke-width="6"/>
- <rect x="-46" y="-29" width="92" height="43" fill="#282820" stroke="#aa7c49" stroke-width="4"/>
- <path d="M-40-36 L-70-61 M40-36 L70-61 M-60 26 L-82 40 M60 26 L82 40" stroke="#39241d" stroke-width="8"/>
- <rect x="-80" y="-21" width="16" height="36" rx="5" fill="#0f100e"/><rect x="64" y="-21" width="16" height="36" rx="5" fill="#0f100e"/>
- <rect x="-80" y="30" width="16" height="34" rx="5" fill="#0f100e"/><rect x="64" y="30" width="16" height="34" rx="5" fill="#0f100e"/>
- <rect x="-7" y="-72" width="14" height="43" fill="#8e7548"/><rect x="-24" y="-76" width="48" height="12" rx="5" fill="#29251e"/>
- <path d="M-54 37 H54" stroke="#cf5a35" stroke-width="7"/>
+
+<!-- WARTRUCK: high silhouette boss -->
+<g transform="translate(785 95)" filter="url(#sh)">
+ <ellipse cy="67" rx="75" ry="20" fill="#17130f" opacity=".44"/>
+ <g fill="#151512" stroke="#0d0d0b" stroke-width="4">
+  <rect x="-82" y="-23" width="18" height="38" rx="7"/><rect x="64" y="-23" width="18" height="38" rx="7"/>
+  <rect x="-82" y="29" width="18" height="38" rx="7"/><rect x="64" y="29" width="18" height="38" rx="7"/>
+ </g>
+ <path d="M-67-47 L55-51 74-12 66 40 40 60 -53 57 -75 17Z" fill="url(#rustRed)" stroke="#241a18" stroke-width="7"/>
+ <path d="M-48-30 L40-33 52-9 41 13 -48 13 -58-4Z" fill="#33382f" stroke="#241f1b" stroke-width="4"/>
+ <path d="M-53 23 H52 L43 50 -46 48Z" fill="#554633" stroke="#2c211a" stroke-width="4"/>
+ <path d="M-58-36 L-81-58 M54-38 L80-58" stroke="#553027" stroke-width="9" stroke-linecap="round"/>
+ <rect x="-8" y="-77" width="16" height="44" rx="5" fill="#967743" stroke="#2b251c" stroke-width="4"/>
+ <rect x="-29" y="-84" width="58" height="12" rx="5" fill="#282720" stroke="#171713" stroke-width="3"/>
+ <g fill="#d6aa50"><circle cx="-45" cy="20" r="6"/><circle cx="45" cy="20" r="6"/></g>
+ <path d="M-48 38 H48" stroke="#d7603a" stroke-width="7"/>
+ <path d="M-38-21 L-18-25 M18-25 L38-20" stroke="#d7c08a" stroke-width="3"/>
 </g>
-<!-- SCAV PLAYER / ENEMIES y220 -->
-<g transform="translate(55 285)" filter="url(#shadow)">
- <ellipse cy="38" rx="22" ry="8" fill="#15130f" opacity=".4"/><circle cy="-24" r="14" fill="#c9a06f"/><path d="M-18-10 L18-10 22 33 -22 33Z" fill="#59634d" stroke="#272820" stroke-width="4"/><rect x="16" y="-1" width="35" height="6" rx="3" fill="#383126"/><path d="M-12 33 L-17 54 M12 33 L17 54" stroke="#332b22" stroke-width="8"/>
+
+<!-- CHARACTERS: cleaner 90s JRPG proportions -->
+<g transform="translate(55 286)" filter="url(#sh)">
+ <ellipse cy="38" rx="21" ry="8" fill="#17130f" opacity=".35"/>
+ <circle cy="-28" r="13" fill="#d4a673" stroke="#382a20" stroke-width="3"/>
+ <path d="M-17-15 L17-15 22 28 13 39 -14 39 -22 25Z" fill="#6b7958" stroke="#292b22" stroke-width="4"/>
+ <path d="M-13-17 Q0-33 14-17" fill="#51412f" stroke="#2b2119" stroke-width="3"/>
+ <rect x="14" y="-4" width="39" height="6" rx="3" fill="#514334" stroke="#252019" stroke-width="2"/>
+ <path d="M-11 38 L-16 56 M11 38 L17 56" stroke="#3b3126" stroke-width="7"/>
 </g>
-<g transform="translate(175 285)" filter="url(#shadow)">
- <ellipse cy="38" rx="22" ry="8" fill="#15130f" opacity=".4"/><circle cy="-23" r="13" fill="#bc8c61"/><path d="M-19-9 L19-9 23 33 -23 33Z" fill="#784837" stroke="#2c201a" stroke-width="4"/><path d="M-18 5 L-40 20 M18 5 L40 20" stroke="#3b2c22" stroke-width="7"/><path d="M-12 33 L-17 54 M12 33 L17 54" stroke="#332b22" stroke-width="8"/>
+<g transform="translate(175 286)" filter="url(#sh)">
+ <ellipse cy="38" rx="21" ry="8" fill="#17130f" opacity=".35"/>
+ <circle cy="-27" r="13" fill="#c18e61" stroke="#38271f" stroke-width="3"/>
+ <path d="M-18-14 L18-14 23 30 12 40 -14 39 -23 24Z" fill="#8a4e39" stroke="#31211b" stroke-width="4"/>
+ <path d="M-18-31 L18-31 10-19 -13-18Z" fill="#66513d"/>
+ <path d="M-18 2 L-39 18 M18 2 L39 18" stroke="#473328" stroke-width="6"/>
+ <path d="M-11 39 L-16 56 M11 39 L17 56" stroke="#3b3126" stroke-width="7"/>
 </g>
-<g transform="translate(295 285)" filter="url(#shadow)">
- <ellipse cy="38" rx="22" ry="8" fill="#15130f" opacity=".4"/><circle cy="-23" r="13" fill="#bc8c61"/><path d="M-20-9 L20-9 24 33 -24 33Z" fill="#685640" stroke="#2c241c" stroke-width="4"/><rect x="15" y="-2" width="42" height="7" rx="3" fill="#25231e"/><rect x="39" y="-8" width="17" height="4" fill="#9e7b4b"/><path d="M-12 33 L-17 54 M12 33 L17 54" stroke="#332b22" stroke-width="8"/>
+<g transform="translate(295 286)" filter="url(#sh)">
+ <ellipse cy="38" rx="21" ry="8" fill="#17130f" opacity=".35"/>
+ <circle cy="-27" r="13" fill="#c18e61" stroke="#38271f" stroke-width="3"/>
+ <path d="M-18-14 L18-14 23 30 12 40 -14 39 -23 24Z" fill="#75613f" stroke="#30271c" stroke-width="4"/>
+ <path d="M-12-33 Q0-40 14-31 L9-19 -13-19Z" fill="#4b4536"/>
+ <rect x="15" y="-5" width="43" height="6" rx="3" fill="#333129" stroke="#211f1a" stroke-width="2"/>
+ <rect x="42" y="-9" width="13" height="4" fill="#a18450"/>
+ <path d="M-11 39 L-16 56 M11 39 L17 56" stroke="#3b3126" stroke-width="7"/>
 </g>
-<g transform="translate(415 285)" filter="url(#shadow)">
- <ellipse cy="38" rx="22" ry="8" fill="#15130f" opacity=".4"/><circle cy="-23" r="13" fill="#bc8c61"/><path d="M-20-9 L20-9 24 33 -24 33Z" fill="#69504b" stroke="#2c211f" stroke-width="4"/><circle cx="31" cy="4" r="9" fill="#444239" stroke="#c09b52" stroke-width="3"/><path d="M-12 33 L-17 54 M12 33 L17 54" stroke="#332b22" stroke-width="8"/>
+<g transform="translate(415 286)" filter="url(#sh)">
+ <ellipse cy="38" rx="21" ry="8" fill="#17130f" opacity=".35"/>
+ <circle cy="-27" r="13" fill="#c18e61" stroke="#38271f" stroke-width="3"/>
+ <path d="M-18-14 L18-14 23 30 12 40 -14 39 -23 24Z" fill="#66504f" stroke="#2e2221" stroke-width="4"/>
+ <circle cx="30" cy="1" r="9" fill="#4e4b3e" stroke="#c5a154" stroke-width="3"/>
+ <path d="M-11 39 L-16 56 M11 39 L17 56" stroke="#3b3126" stroke-width="7"/>
 </g>
-<g transform="translate(535 285)" filter="url(#shadow)">
- <ellipse cy="38" rx="22" ry="8" fill="#15130f" opacity=".4"/><circle cy="-23" r="13" fill="#bc8c61"/><path d="M-20-9 L20-9 24 33 -24 33Z" fill="#4f5951" stroke="#222822" stroke-width="4"/><rect x="13" y="-3" width="49" height="6" rx="3" fill="#22231f"/><circle cx="39" cy="-3" r="5" fill="#708c87"/><path d="M-12 33 L-17 54 M12 33 L17 54" stroke="#332b22" stroke-width="8"/>
+<g transform="translate(535 286)" filter="url(#sh)">
+ <ellipse cy="38" rx="21" ry="8" fill="#17130f" opacity=".35"/>
+ <circle cy="-27" r="13" fill="#c18e61" stroke="#38271f" stroke-width="3"/>
+ <path d="M-18-14 L18-14 23 30 12 40 -14 39 -23 24Z" fill="#4c5f59" stroke="#222b28" stroke-width="4"/>
+ <path d="M-15-32 L18-32 10-20 -14-19Z" fill="#313c39"/>
+ <rect x="13" y="-5" width="51" height="6" rx="3" fill="#2b2c27" stroke="#1d1e1a" stroke-width="2"/>
+ <circle cx="43" cy="-5" r="5" fill="#75a2a0"/>
+ <path d="M-11 39 L-16 56 M11 39 L17 56" stroke="#3b3126" stroke-width="7"/>
 </g>
-<!-- LANDMARKS y390, cell 240x190 -->
-<g transform="translate(0 390)" filter="url(#shadow)">
- <path d="M18 160 H222 V86 H193 V48 H53 V86 H18Z" fill="#5a402d" stroke="#2b2119" stroke-width="6"/>
- <rect x="43" y="60" width="160" height="28" fill="#b8803f"/><text x="123" y="80" text-anchor="middle" font-family="monospace" font-size="20" font-weight="900" fill="#251d15">GAS</text>
- <path d="M35 49 H213 L195 18 H54Z" fill="#775437" stroke="#2c2118" stroke-width="5"/>
- <g fill="#302c24"><rect x="58" y="105" width="30" height="47"/><rect x="153" y="105" width="30" height="47"/></g><g fill="#c0934a"><rect x="65" y="111" width="16" height="14"/><rect x="160" y="111" width="16" height="14"/></g>
- <rect x="100" y="104" width="44" height="56" fill="#211f1a"/>
+
+<!-- GAS STATION landmark -->
+<g transform="translate(0 390)" filter="url(#sh)">
+ <path d="M20 160 H220 V88 H190 V55 H53 V88 H20Z" fill="#75503a" stroke="#302319" stroke-width="6"/>
+ <path d="M36 55 H204 L188 28 H54Z" fill="#c99b54" stroke="#35271b" stroke-width="5"/>
+ <rect x="50" y="39" width="142" height="26" rx="3" fill="#d7ba72" stroke="#5e452d" stroke-width="3"/>
+ <text x="121" y="58" text-anchor="middle" font-family="monospace" font-size="18" font-weight="900" fill="#493326">GAS</text>
+ <path d="M22 88 H218 L205 106 H35Z" fill="#4f4434"/>
+ <g>
+  <rect x="52" y="109" width="32" height="48" rx="4" fill="#6d5c43" stroke="#2a241d" stroke-width="4"/>
+  <rect x="156" y="109" width="32" height="48" rx="4" fill="#6d5c43" stroke="#2a241d" stroke-width="4"/>
+  <rect x="60" y="116" width="16" height="13" fill="#d8ae57"/><rect x="164" y="116" width="16" height="13" fill="#d8ae57"/>
+ </g>
+ <rect x="99" y="104" width="43" height="56" fill="#29251f" stroke="#4a3e30" stroke-width="3"/>
+ <path d="M17 160 H223" stroke="#bc8c51" stroke-width="5"/>
+ <g transform="translate(206 37)">
+  <circle r="18" fill="#b65739" stroke="#35241d" stroke-width="4"/>
+  <path d="M-7 3 Q0-8 7 3 Q0 11-7 3Z" fill="#ead99f"/>
+ </g>
 </g>
-<g transform="translate(260 390)" filter="url(#shadow)">
- <path d="M16 164 H224 V61 L198 37 H46 L16 65Z" fill="#67675c" stroke="#2a2923" stroke-width="6"/>
- <path d="M47 38 H196 L213 61 H29Z" fill="#8c8976"/>
- <rect x="88" y="85" width="64" height="79" fill="#282821"/>
- <rect x="172" y="80" width="34" height="34" fill="#d4cda9"/><rect x="185" y="84" width="8" height="26" fill="#a44a3d"/><rect x="176" y="93" width="26" height="8" fill="#a44a3d"/>
- <g fill="#25251f"><rect x="37" y="91" width="35" height="28"/><rect x="166" y="127" width="38" height="27"/></g>
+
+<!-- CLINIC -->
+<g transform="translate(260 390)" filter="url(#sh)">
+ <path d="M15 164 H225 V66 L197 42 H45 L15 67Z" fill="#747567" stroke="#2b2b24" stroke-width="6"/>
+ <path d="M43 43 H198 L216 66 H25Z" fill="#a6a287" stroke="#4c493d" stroke-width="3"/>
+ <rect x="86" y="86" width="67" height="78" fill="#2b2c26"/>
+ <rect x="173" y="78" width="35" height="35" rx="4" fill="#d9d0ab" stroke="#514b3d" stroke-width="3"/>
+ <rect x="186" y="83" width="9" height="25" fill="#a94b40"/><rect x="178" y="91" width="26" height="9" fill="#a94b40"/>
+ <g fill="#3a3a31"><rect x="35" y="93" width="36" height="28"/><rect x="168" y="126" width="39" height="28"/></g>
 </g>
-<g transform="translate(520 390)" filter="url(#shadow)">
- <path d="M13 164 H227 V73 H13Z" fill="#664735" stroke="#2a2019" stroke-width="6"/>
- <path d="M29 73 L45 41 H207 L222 73Z" fill="#86563d"/>
- <rect x="60" y="13" width="116" height="39" rx="6" fill="#8d4d38" stroke="#38231d" stroke-width="5"/><text x="118" y="39" text-anchor="middle" font-family="monospace" font-size="20" font-weight="900" fill="#f0d1a2">MOTEL</text>
- <g fill="#24221d"><rect x="32" y="96" width="43" height="48"/><rect x="98" y="96" width="43" height="48"/><rect x="165" y="96" width="43" height="48"/></g>
- <g fill="#a77a4c"><rect x="37" y="102" width="14" height="15"/><rect x="103" y="102" width="14" height="15"/><rect x="170" y="102" width="14" height="15"/></g>
+
+<!-- MOTEL -->
+<g transform="translate(520 390)" filter="url(#sh)">
+ <path d="M14 164 H228 V76 H14Z" fill="#76513e" stroke="#2d211b" stroke-width="6"/>
+ <path d="M29 76 L45 44 H208 L224 76Z" fill="#9a6042" stroke="#452d24" stroke-width="3"/>
+ <rect x="58" y="14" width="119" height="38" rx="6" fill="#a74f3b" stroke="#40261f" stroke-width="5"/>
+ <text x="117" y="39" text-anchor="middle" font-family="monospace" font-size="18" font-weight="900" fill="#efd6a6">MOTEL</text>
+ <g fill="#2b2823" stroke="#4b3f32" stroke-width="2"><rect x="32" y="98" width="43" height="47"/><rect x="98" y="98" width="43" height="47"/><rect x="165" y="98" width="43" height="47"/></g>
+ <g fill="#d3a65a"><rect x="38" y="104" width="13" height="14"/><rect x="104" y="104" width="13" height="14"/><rect x="171" y="104" width="13" height="14"/></g>
 </g>
-<g transform="translate(780 390)" filter="url(#shadow)">
- <path d="M9 163 H235 V119 L211 101 188 116 157 86 125 112 90 75 57 114 28 98 9 120Z" fill="#464740" stroke="#24241f" stroke-width="6"/>
- <g fill="#22231f" stroke="#796249" stroke-width="5"><circle cx="48" cy="125" r="25"/><circle cx="104" cy="117" r="31"/><circle cx="171" cy="125" r="27"/></g>
- <path d="M142 84 L190 33 202 40 169 99" stroke="#78533a" stroke-width="12" fill="none"/><path d="M185 35 L225 17" stroke="#9c7650" stroke-width="7"/>
- <path d="M21 97 L65 66 103 93" fill="#7a5036" stroke="#2c231d" stroke-width="5"/>
+
+<!-- JUNKYARD -->
+<g transform="translate(780 390)" filter="url(#sh)">
+ <path d="M8 164 H236 V120 L211 101 188 116 158 86 126 112 90 75 57 114 29 98 8 120Z" fill="#4e4e46" stroke="#24241f" stroke-width="6"/>
+ <g fill="#23231f" stroke="#8a704d" stroke-width="5"><circle cx="48" cy="126" r="25"/><circle cx="105" cy="118" r="31"/><circle cx="172" cy="126" r="27"/></g>
+ <path d="M142 85 L190 34 203 41 169 100" stroke="#875d3e" stroke-width="12" fill="none"/>
+ <path d="M185 35 L225 18" stroke="#b18a59" stroke-width="7"/>
+ <path d="M21 98 L65 67 104 94" fill="#8b5739" stroke="#33261d" stroke-width="5"/>
 </g>
-<!-- FX -->
-<g transform="translate(120 720)"><g fill="#b99b67" opacity=".45" filter="url(#dust)"><circle cx="-45" cy="10" r="30"/><circle cx="-5" cy="-5" r="39"/><circle cx="38" cy="12" r="28"/><circle cx="70" cy="20" r="20"/></g></g>
-<g transform="translate(360 715)" filter="url(#shadow)"><path d="M0-62 L19-24 62-34 35 5 65 34 19 30 0 69 -18 29 -61 40 -36 4 -68-27 -21-25Z" fill="#d97338"/><circle r="31" fill="#e6ad48"/><circle r="14" fill="#f4e0a1"/></g>
+
+<!-- reserved FX cells; not used for road dust anymore -->
+<g transform="translate(360 715)">
+ <circle r="54" fill="#d06c36" opacity=".22"/><circle r="35" fill="#e9a94b" opacity=".7"/><circle r="15" fill="#f5df9b"/>
+</g>
 </svg>
