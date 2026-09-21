@@ -25,9 +25,10 @@ const ART_SPRITES={
  gas:[0,390,240,190],clinic:[260,390,240,190],motel:[520,390,240,190],junkyard:[780,390,240,190],
  dust:[0,650,220,130],explosion:[280,635,170,170]
 };
-const ART={img:new Image(),ready:false};
-ART.img.onload=()=>ART.ready=true;
-ART.img.src='assets/art/combat-atlas.svg';
+const ART={img:new Image(),ready:false,error:false};
+ART.img.onload=()=>{ART.ready=true;ART.error=false};
+ART.img.onerror=()=>{ART.ready=false;ART.error=true};
+ART.img.src=new URL('assets/art/combat-atlas.svg',document.baseURI).href+'?cb='+Date.now();
 function drawArt(name,x,y,w,h,alpha=1){
  const r=ART_SPRITES[name];if(!ART.ready||!r)return false;
  ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(ART.img,r[0],r[1],r[2],r[3],x-w/2,y-h/2,w,h);ctx.restore();return true
@@ -893,6 +894,12 @@ function drawDunes(){
  ctx.strokeStyle='rgba(222,179,94,.18)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(30,407);ctx.lineTo(105,392);ctx.lineTo(180,407);ctx.stroke();
  ctx.fillStyle='rgba(188,92,50,.14)';ctx.fillRect(390,332,58,7);ctx.fillRect(400,339,4,40);
 }
+function drawArtStatus(){
+ if(!location.pathname.includes('/preview/'))return;
+ const label=ART.ready?'SPRITES ON':ART.error?'SPRITES ERROR':'SPRITES LOADING';
+ ctx.fillStyle='rgba(10,10,8,.86)';roundRect(398,8,132,26,7,true,false);
+ text(label,464,26,8,ART.ready?C.green:ART.error?C.red:C.yellow,'center',900)
+}
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,15,12,.92)';roundRect(85,865,370,42,12,true,false);text(notice,270,891,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
@@ -1146,6 +1153,6 @@ function garageTap(p){
 }
 function draw(){ctx.clearRect(0,0,W,H);if(state==='menu')drawMenu();else if(state==='route')drawRoute();else if(state==='roadcombat')drawRoad();else if(state==='roadresult')drawRoadResult(false);else if(state==='roadfail')drawRoadResult(true);else if(state==='play'||state==='finalassault')drawScavenge();else if(state==='pack')drawGridScreen('pack');else if(state==='vehicle')drawGridScreen('vehicle');else if(state==='town')drawTown();else if(state==='event')drawEvent();else if(state==='runsummary')drawRunSummary();else if(state==='garage')drawGarageMeta();else if(state==='dead'){drawDunes();text('YOU DID NOT MAKE IT BACK',270,330,26,C.red,'center',900);wrap('New gear from this scavenging run was lost. Your persistent build remains for prototype testing.',75,390,390,22,13,C.muted);btn(75,600,390,70,'BACK TO ROAD MAP')}}
 
-function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();drawArtStatus();requestAnimationFrame(loop)}
 ensureChoices();requestAnimationFrame(loop);
 })();
