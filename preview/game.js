@@ -43,6 +43,7 @@ const PROD_SOURCES={
  playerBodyDownRight:'assets/art/production/player_body_down_right_v2.webp',
  playerWeaponRifle:'assets/art/production/player_weapon_rifle.webp',
  enemyBike:'assets/art/production/enemy_bike.webp',
+ enemyBuggy:'assets/art/production/enemy_buggy_v1.webp',
  enemyTruck:'assets/art/production/enemy_truck_v2.webp',
  enemyWartruck:'assets/art/production/enemy_wartruck_v1.webp',
  enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
@@ -296,7 +297,7 @@ function spawnRoadEnemy(force){
  if(type==='boss')type=g.threat<.9?'truck':'wartruck';
  const cfg=type==='dreadnought'?{hp:58,spd:28,w:118,h:150,shoot:.62,score:22}:type==='missilevan'?{hp:7,spd:58,w:62,h:86,shoot:2.55,score:5}:type==='bike'?{hp:2,spd:145,w:34,h:55,shoot:99,score:1}:type==='buggy'?{hp:4,spd:95,w:52,h:70,shoot:rnd(1.05,1.55),score:2}:type==='wartruck'?{hp:18,spd:48,w:82,h:110,shoot:.78,score:9}:{hp:9,spd:62,w:66,h:92,shoot:1.25,score:4};
  const shootScale=1.22/g.threat;
- roadGame.enemies.push({rid:Math.random().toString(36).slice(2),type,x:rnd(55,485),y:rnd(-160,-60),...cfg,maxHp:cfg.hp,shootCd:cfg.shoot*shootScale,sway:rnd(-1,1),ram:0,shootScale});
+ roadGame.enemies.push({rid:Math.random().toString(36).slice(2),type,x:rnd(55,485),y:rnd(-160,-60),...cfg,maxHp:cfg.hp,shootCd:cfg.shoot*shootScale,sway:rnd(-1,1),ram:0,shootScale,dustTimer:rnd(0,.12)});
 }
 function spawnColossus(){
  const g=roadGame,phase=.35,parts=[
@@ -440,6 +441,15 @@ function roadHitDamage(g,e,kind,base){
  if(kind==='cannon')e.disabled=Math.max(e.disabled||0,e.group==='colossus'?.28:.55);
  e.hp-=dmg;return dmg;
 }
+function emitEnemyRoadDust(g,e,dt){
+ if(e.group==='colossus'||e.y<110||e.y>H+e.h||g.dust.length>240||Math.hypot(e.vx||0,e.vy||0)<18)return;
+ e.dustTimer=(e.dustTimer??0)-dt;
+ if(e.dustTimer>0)return;
+ const bike=e.type==='bike',buggy=e.type==='buggy',heavy=e.type==='wartruck'||e.type==='dreadnought';
+ e.dustTimer=bike?.16:buggy?.10:heavy?.09:.12;
+ const rearY=e.y-e.h*.43,spread=e.w*(bike?0:.3),baseR=bike?4:buggy?6:heavy?10:8;
+ for(const side of bike?[0]:[-1,1])g.dust.push({x:e.x+side*spread+rnd(-3,3),y:rearY+rnd(-3,3),vx:(e.vx||0)*.2+side*rnd(12,28)+rnd(-8,8),vy:rnd(-10,25),r:baseR+rnd(0,4),life:rnd(.42,.65),alpha:heavy?rnd(.16,.22):buggy?rnd(.13,.19):rnd(.10,.17)});
+}
 function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.max(0,g.duration-g.elapsed);g.scroll+=340*dt;g.spawn-=dt;g.mine-=dt;p.inv=Math.max(0,p.inv-dt);p.mg-=dt;p.flak-=dt;p.arc-=dt;p.cannon-=dt;p.rocket-=dt;p.emp-=dt;moveActor(p,dt,p.speed,38,502,155,900);
  g.dustTimer-=dt;
  if(g.dustTimer<=0){
@@ -490,6 +500,7 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  if(e.group==='colossus'){e.x=e.baseX+Math.sin(g.elapsed*1.25+e.sway)*(disabled?4:13);e.y=g.colossusY+e.offY}
  else{e.y+=e.spd*dt;if(!disabled)e.x+=Math.sin(g.elapsed*1.7+e.sway)*18*dt}
  const avx=(e.x-ox)/Math.max(dt,.001),avy=(e.y-oy)/Math.max(dt,.001);e.vx=(e.vx||0)*.55+avx*.45;e.vy=(e.vy||e.spd)*.55+avy*.45;
+ emitEnemyRoadDust(g,e,dt);
  if(!disabled)e.shootCd-=dt;e.ram-=dt;
  if(!disabled&&e.shootCd<=0&&e.y>80&&e.y<p.y-110&&e.type==='missilevan'){
   const leadX=clamp(p.x+(joy.dx||0)*55+rnd(-25,25),55,485),leadY=clamp(p.y+(joy.dy||0)*45+rnd(-18,18),180,900);
@@ -991,7 +1002,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1067,6 +1078,7 @@ function drawEnemyVehicle(e){
  const key=e.type==='bike'?'bike':e.type==='missilevan'?'missilevan':e.type==='wartruck'||boss?'wartruck':e.type==='truck'?'truck':null;
  let art=false;
  if(e.type==='bike')art=drawProd('enemyBike',e.x,e.y,78*sc,81*sc,1);
+ else if(e.type==='buggy')art=drawProd('enemyBuggy',e.x,e.y,66,76,1);
  else if(e.type==='truck')art=drawProd('enemyTruck',e.x,e.y,106*sc,104*sc,1);
  else if(e.type==='missilevan')art=drawProd('enemyMissileVan',e.x,e.y,96,96,1);
  else if(e.type==='wartruck'||boss)art=drawProd('enemyWartruck',e.x,e.y,boss?178:130,boss?174:128,1);
