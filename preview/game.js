@@ -50,7 +50,8 @@ const PROD_SOURCES={
  enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
  siteGasStation:'assets/art/production/site_gas_station_v1.webp',
  enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
- enemyMelee:'assets/art/production/enemy_melee_v1.webp'
+ enemyMelee:'assets/art/production/enemy_melee_v1.webp',
+ enemyGrenadier:'assets/art/production/enemy_grenadier_v1.webp'
 };
 const PROD={};
 for(const [key,src] of Object.entries(PROD_SOURCES)){
@@ -1006,7 +1007,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee','enemyGrenadier'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1253,9 +1254,13 @@ function drawSurvivor(p){
  if(!weaponBehind)drawScavWeapon(p,flash)
 }
 function drawScavEnemy(e){
- const key=e.type==='gunner'?'gunner':e.type==='grenadier'?'grenadier':e.type==='sniper'?'sniper':e.type==='melee'?'melee':e.type==='elite'||e.type==='armored'||e.type==='driver'?'gunner':null;
- const prodKey=e.type==='gunner'?'enemyGunner':e.type==='melee'?'enemyMelee':null;
- if(!(prodKey&&drawProd(prodKey,e.x,e.y,72,72,1))&&!drawArt(key,e.x,e.y,58,72,1)){ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,6.28);ctx.fill()}
+ const key=e.type==='gunner'?'gunner':e.type==='sniper'?'sniper':e.type==='melee'?'melee':e.type==='elite'||e.type==='armored'||e.type==='driver'?'gunner':null;
+ const prodKey=e.type==='gunner'?'enemyGunner':e.type==='melee'?'enemyMelee':e.type==='grenadier'?'enemyGrenadier':null;
+ if(!(prodKey&&drawProd(prodKey,e.x,e.y,72,72,1))&&!(key&&drawArt(key,e.x,e.y,58,72,1))){
+  ctx.fillStyle='#171812';ctx.beginPath();ctx.arc(e.x,e.y,e.r+3,0,6.28);ctx.fill();
+  ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,6.28);ctx.fill();
+  if(e.type==='grenadier'){ctx.fillStyle='#626b45';ctx.beginPath();ctx.arc(e.x-14,e.y-13,7,0,6.28);ctx.fill();ctx.strokeStyle='#e7c772';ctx.lineWidth=2;ctx.stroke()}
+ }
  text(e.type==='gunner'?'G':e.type==='grenadier'?'!':e.type==='elite'?'E':e.type==='armored'?'A':e.type==='sniper'?'S':e.type==='driver'?'D':'',e.x,e.y+7,e.type==='driver'?11:8,'#171912','center',900);
  if(e.type!=='melee')bar(e.x-18,e.y-e.r-18,36,4,e.hp/e.max,C.red)
 }
