@@ -11,8 +11,9 @@ Updated: 2026-09-22
 - Enemy road vehicles now emit dynamic rear-wheel dust with type-scaled density and a particle cap; the player's accepted road dust remains dynamic.
 - Combat FX batch: Canvas-drawn road bullets, cannon shells, rockets, enemy tracers, visible missile-van strike flight, distinct fire/EMP impacts, and updated Scavenge tracers/muzzle flashes. Heavy road explosions cause brief render-only shake; `prefers-reduced-motion` disables the shake. Boss victory waits 0.55 seconds so the final explosion is visible before results.
 - Grenadier recovery: the Scavenge grenade enemy now has its own production sprite, visually matched to gunner/melee, with a visible Canvas fallback if the sprite fails to load. The old atlas grenadier cell is no longer used in live combat.
+- Scene A10: all four Scavenge sites have production landmark buildings and site-specific cover props. Each map now has one landmark bound to an actual obstacle that blocks movement and shots; the former repeating non-solid landmark decals are removed. Fuel pumps and tire stacks have portrait props for narrow obstacles. Crates are selected from points outside obstacle footprints, and all site/layout variants retain a traversable path.
 - The original `enemy_truck.webp` is truncated and cannot be decoded by Pillow. `PROD_SOURCES` now points to `enemy_truck_v2.webp`; keep the versioned replacement until the owner accepts it.
-- Continue art work in small preview batches. The next remaining site landmarks are clinic, motel and junkyard. Treat site landmarks as setting and add readable solid props/cover linked to existing obstacle geometry before considering enterable interiors or new interactions.
+- Continue art work in small preview batches. Scene buildings are solid exterior cover, with no enterable interiors yet. Existing crate search remains the site interaction; future work can add site-specific search points after the owner reviews the new exterior readability.
 
 ## Read first
 
@@ -26,7 +27,7 @@ Current repository:
 - Active branch head at handoff: b8f8d1b43e93b978e15997d7a4f6494206c2111b
 - Draft PR #1: Art Reforge v1 — visual direction foundation
 - Stable preview: https://mastercook777.github.io/wasteland-survivor/preview/
-- Latest preview marker: ART REFORGE • ENEMY BUILD A9
+- Latest preview marker: ART REFORGE • SCENE BUILD A10
 - Production root on main should remain conservative until user explicitly approves the Art Reforge.
 - main/preview is the live evaluation mirror of the active branch.
 
