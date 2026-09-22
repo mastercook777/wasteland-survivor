@@ -49,6 +49,15 @@ const PROD_SOURCES={
  enemyWartruck:'assets/art/production/enemy_wartruck_v1.webp',
  enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
  siteGasStation:'assets/art/production/site_gas_station_v1.webp',
+ siteClinic:'assets/art/production/site_clinic_v1.webp',
+ siteMotel:'assets/art/production/site_motel_v1.webp',
+ siteJunkyard:'assets/art/production/site_junkyard_v1.webp',
+ propGasCover:'assets/art/production/prop_gas_cover_v1.webp',
+ propGasPump:'assets/art/production/prop_gas_pump_v1.webp',
+ propClinicCover:'assets/art/production/prop_clinic_cover_v1.webp',
+ propMotelCover:'assets/art/production/prop_motel_cover_v1.webp',
+ propJunkyardCover:'assets/art/production/prop_junkyard_cover_v1.webp',
+ propJunkyardTireStack:'assets/art/production/prop_junkyard_tire_stack_v1.webp',
  enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
  enemyMelee:'assets/art/production/enemy_melee_v1.webp',
  enemyGrenadier:'assets/art/production/enemy_grenadier_v1.webp',
@@ -549,7 +558,21 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  if(g.bossRoute&&g.bossDefeated){g.victoryDelay=Math.max(0,(g.victoryDelay||0)-dt);if(g.victoryDelay<=0)finishRoadSuccess();return}
  if(g.time<=0){if(g.bossRoute&&!g.bossDefeated){meta.arrived=false;finishRun(false);return}finishRoadSuccess();return}}
 
-function buildSiteLayout(site,variant){const obs=[];const add=(x,y,w,h)=>obs.push({x,y,w,h});if(site==='gas'){add(75,170,155,70);add(310,160,135,55);add(110,350,120,55);add(320,360,100,85);add(90,560,52,105);add(398,560,52,105)}else if(site==='clinic'){add(68,170,130,58);add(340,160,125,58);add(205,310,130,50);add(72,460,145,62);add(325,470,142,62);add(208,635,125,52)}else if(site==='motel'){add(55,150,170,100);add(315,150,170,100);add(55,370,170,105);add(315,370,170,105);add(185,585,170,70)}else{add(65,160,80,130);add(190,190,145,65);add(390,145,80,145);add(75,410,130,70);add(290,370,155,80);add(170,600,95,80);add(350,610,100,75)}if(variant===1)for(const o of obs)o.x=540-o.x-o.w;if(variant===2)for(let i=0;i<obs.length;i++)if(i%2)obs[i].y+=55;return obs}
+function buildSiteLayout(site,variant){
+ const obs=[],add=(x,y,w,h,kind='cover')=>obs.push({x,y,w,h,kind});
+ if(site==='gas'){
+  add(40,145,200,145,'landmark');add(310,160,135,55);add(110,350,120,55);add(320,360,100,85);add(90,560,52,105);add(398,560,52,105);
+ }else if(site==='clinic'){
+  add(40,145,200,145,'landmark');add(340,160,125,58);add(205,310,130,50);add(72,460,145,62);add(325,470,142,62);add(208,635,125,52);
+ }else if(site==='motel'){
+  add(35,145,210,150,'landmark');add(315,150,170,100);add(55,370,170,105);add(315,370,170,105);add(185,585,170,70);
+ }else{
+  add(45,160,80,130);add(185,145,160,125,'landmark');add(415,145,80,145);add(75,410,130,70);add(290,370,155,80);add(170,600,95,80);add(350,610,100,75);
+ }
+ if(variant===1)for(const o of obs)o.x=540-o.x-o.w;
+ if(variant===2)for(let i=0;i<obs.length;i++)if(i%2)obs[i].y+=55;
+ return obs;
+}
 const FINAL_WAVES=[
  [
   {type:'armored',x:105,y:900},{type:'armored',x:430,y:885},
@@ -625,8 +648,9 @@ function startScavenge(){
  },baseRule=rules[site]||{label:'STANDARD',extraCrates:0,pressure:1},rule={...baseRule,pressure:(baseRule.pressure||1)*(travelEffect?.pressure||1)};
  const obstacles=buildSiteLayout(site,Math.floor(Math.random()*3)).map(o=>({...o,y:Math.round(o.y*scaleY+yOffset)}));
  game={site,danger,special,rule,effectLabel:travelEffect?.label||'',time:90,elapsed:0,worldH,cameraY:0,player:{x:270,y:1240,r:15,hp:Math.max(1,b.maxHp-(travelEffect?.hpLoss||0)),max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges+(rule.med||0),bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1330,progress:0},search:null,spawn:.2};
- const spots=[[100,120],[270,135],[440,120],[105,300],[430,310],[90,690],[450,700],[270,530],[270,260]];
- shuffle(spots).slice(0,Math.min(spots.length,5+danger+(rule.extraCrates||0))).forEach((p,i)=>game.crates.push({x:p[0]+rnd(-12,12),y:Math.round(p[1]*scaleY+yOffset+rnd(-12,12)),opened:false,rare:special&&i===0,progress:0}));
+ const spots=[[100,120],[270,135],[440,120],[105,300],[430,310],[90,690],[450,700],[270,530],[270,260],[270,400],[150,480],[390,490],[270,700],[270,760]];
+ const clearSpots=shuffle(spots).map(([x,y])=>({x:x+rnd(-8,8),y:Math.round(y*scaleY+yOffset+rnd(-8,8))})).filter(p=>!obstacles.some(o=>collideCircleRect(p,26,o)));
+ clearSpots.slice(0,Math.min(clearSpots.length,5+danger+(rule.extraCrates||0))).forEach((p,i)=>game.crates.push({...p,opened:false,rare:special&&i===0,progress:0}));
  for(let i=0;i<4+danger*2+(site==='motel'?2:0)+(travelEffect?.extraEnemies||0);i++)spawnScavEnemy();
  if(special)spawnScavEnemy('elite');
  game.cameraY=clamp(game.player.y-620,0,game.worldH-H);
@@ -1011,7 +1035,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1188,6 +1212,32 @@ function drawScavFX(f){
  }
  ctx.restore();
 }
+const SITE_STRUCTURE_ART={gas:'siteGasStation',clinic:'siteClinic',motel:'siteMotel',junkyard:'siteJunkyard'};
+const SITE_COVER_ART={gas:'propGasCover',clinic:'propClinicCover',motel:'propMotelCover',junkyard:'propJunkyardCover',final:'propJunkyardCover'};
+function drawScavCover(o,site){
+ const x=o.x,y=o.y,w=o.w,h=o.h;
+ ctx.fillStyle='rgba(18,16,13,.28)';ctx.beginPath();ctx.ellipse(x+w/2,y+h*.84,w*.46,Math.max(6,h*.18),0,0,6.28);ctx.fill();
+ const tall=h>w*1.1,key=tall&&site==='gas'?'propGasPump':tall&&(site==='junkyard'||site==='final')?'propJunkyardTireStack':SITE_COVER_ART[site];
+ if(key&&drawProd(key,x+w/2,y+h/2,w,h,1))return;
+ ctx.fillStyle=site==='clinic'?'#77796b':site==='motel'?'#74523e':site==='junkyard'?'#575a51':'#806c48';roundRect(x,y,w,h,6,true,false);
+ ctx.strokeStyle='#282720';ctx.lineWidth=3;roundRect(x+1,y+1,w-2,h-2,6,false,true);
+ if(site==='gas'){
+  if(h>w){ctx.fillStyle='#b99850';roundRect(x+7,y+8,w-14,h-16,5,true,false);ctx.fillStyle='#343a32';ctx.fillRect(x+13,y+20,w-26,23);ctx.fillStyle='#c65d3f';ctx.fillRect(x+15,y+h-30,w-30,9)}
+  else{ctx.fillStyle='#4c4e3c';roundRect(x+10,y+8,w-20,h-16,10,true,false);ctx.strokeStyle='#bca567';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+18,y+h*.38);ctx.lineTo(x+w-18,y+h*.38);ctx.stroke();ctx.fillStyle='#c98142';for(let i=0;i<3;i++)ctx.fillRect(x+17+i*(w-34)/3,y+h-18,Math.max(8,(w-48)/3),6)}
+ }else if(site==='clinic'){
+  ctx.fillStyle='#a3a58c';roundRect(x+9,y+8,w-18,h-16,4,true,false);ctx.fillStyle='#696d60';ctx.fillRect(x+12,y+h*.55,w-24,5);ctx.fillStyle='#a04c42';ctx.fillRect(x+w*.5-4,y+13,8,25);ctx.fillRect(x+w*.5-13,y+22,26,7);ctx.strokeStyle='#45483d';ctx.lineWidth=2;ctx.strokeRect(x+7,y+7,w-14,h-14);
+ }else if(site==='motel'){
+  ctx.fillStyle='#9b6546';roundRect(x+9,y+8,w-18,h-16,4,true,false);ctx.strokeStyle='#3c2d24';ctx.lineWidth=5;for(let i=1;i<4;i++){const yy=y+i*h/4;ctx.beginPath();ctx.moveTo(x+10,yy);ctx.lineTo(x+w-10,yy-7);ctx.stroke()}ctx.fillStyle='#d6a15a';ctx.fillRect(x+15,y+13,Math.min(21,w*.2),7);
+ }else{
+  ctx.fillStyle='#77786b';ctx.beginPath();ctx.moveTo(x+8,y+h-9);ctx.lineTo(x+14,y+19);ctx.lineTo(x+w*.42,y+8);ctx.lineTo(x+w*.65,y+25);ctx.lineTo(x+w-10,y+10);ctx.lineTo(x+w-8,y+h-8);ctx.fill();ctx.strokeStyle='#342f29';ctx.lineWidth=4;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x+12,y+26+i*18);ctx.lineTo(x+w-11,y+14+i*18);ctx.stroke()}ctx.fillStyle='#b36e3f';ctx.fillRect(x+w*.33,y+h*.55,Math.max(9,w*.25),8);
+ }
+ ctx.fillStyle='rgba(245,222,174,.20)';ctx.fillRect(x+10,y+7,Math.max(8,w*.34),3);
+}
+function drawSiteStructure(o,site){
+ const x=o.x+o.w/2,y=o.y+o.h/2;
+ ctx.fillStyle='rgba(18,16,13,.36)';ctx.beginPath();ctx.ellipse(x,o.y+o.h-2,o.w*.48,10,0,0,6.28);ctx.fill();
+ if(!drawProd(SITE_STRUCTURE_ART[site],x,y,o.w,o.h,1)&&!drawArt(site,x,y,o.w,o.h,1))drawScavCover(o,site);
+}
 function drawScavenge(){
  const g=game,p=g.player,cam=g.cameraY||0,site=g.finalAssault?'final':g.site;
  const ground=site==='clinic'?'#756d5b':site==='motel'?'#806a4d':site==='junkyard'?'#625d50':site==='gas'?'#796a50':'#51483e';
@@ -1200,21 +1250,9 @@ function drawScavenge(){
  if(site==='clinic'){ctx.fillStyle='rgba(210,215,190,.09)';for(let y=190;y<g.worldH;y+=470){ctx.fillRect(38,y,180,38);ctx.fillRect(335,y+160,130,26)}}
  if(site==='motel'){ctx.fillStyle='rgba(112,48,35,.18)';for(let y=210;y<g.worldH;y+=500){ctx.fillRect(45,y,210,12);ctx.fillRect(300,y+115,165,10)}}
  if(site==='junkyard'){ctx.strokeStyle='rgba(33,31,27,.34)';ctx.lineWidth=5;for(let y=180;y<g.worldH;y+=330){ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(120,y+35);ctx.lineTo(205,y-5);ctx.stroke();ctx.beginPath();ctx.moveTo(350,y+95);ctx.lineTo(505,y+55);ctx.stroke()}}
- for(let y=250;y<g.worldH;y+=620){
-  const lx=site==='clinic'?390:site==='junkyard'?405:site==='motel'?135:site==='gas'?145:270;
-  const lw=site==='junkyard'?205:site==='clinic'?205:210;
-  if(!(site==='gas'&&drawProd('siteGasStation',lx,y+42,lw,162,.96))&&!drawArt(site,lx,y+42,lw,162,.96)){
-   if(site==='gas'){ctx.fillStyle='#4b3929';ctx.fillRect(25,y,150,72);ctx.fillStyle='#9d6e35';ctx.fillRect(38,y-18,124,24);text('GAS',100,y,11,'#211a12','center',900)}
-   if(site==='clinic'){ctx.fillStyle='#55584d';ctx.fillRect(315,y,190,82)}
-   if(site==='motel'){ctx.fillStyle='#59402f';ctx.fillRect(18,y,205,80)}
-   if(site==='junkyard'){ctx.fillStyle='#71513b';ctx.fillRect(360,y+10,125,36)}
-  }
- }
  for(const o of g.obstacles){
-  ctx.fillStyle=g.finalAssault?'#4a3d35':SITE[g.site].color;roundRect(o.x,o.y,o.w,o.h,5,true,false);
-  ctx.fillStyle='rgba(20,18,14,.34)';ctx.fillRect(o.x+7,o.y+7,o.w-14,o.h-14);
-  ctx.strokeStyle='rgba(235,215,171,.14)';ctx.lineWidth=2;ctx.strokeRect(o.x+3,o.y+3,o.w-6,o.h-6);
-  ctx.fillStyle='rgba(12,12,10,.22)';ctx.fillRect(o.x+o.w*.18,o.y+o.h*.18,Math.max(5,o.w*.12),Math.max(5,o.h*.12));
+  if(o.kind==='landmark')drawSiteStructure(o,site);
+  else drawScavCover(o,site);
  }
  for(const c of g.crates){if(c.opened)continue;ctx.fillStyle=c.rare?C.yellow:'#755d3f';roundRect(c.x-17,c.y-15,34,30,5,true,false);ctx.strokeStyle=c.rare?'#fff0a0':'#9a805f';ctx.lineWidth=2;ctx.strokeRect(c.x-13,c.y-11,26,22);if(c.progress>0)bar(c.x-28,c.y-32,56,7,c.progress,c.rare?C.yellow:C.green)}
  for(const l of g.loot){ctx.fillStyle=l.type==='gas'?C.gas:l.type==='food'?C.food:l.type==='med'?C.med:C.scrap;ctx.beginPath();ctx.arc(l.x,l.y,7,0,6.28);ctx.fill()}
