@@ -279,7 +279,7 @@ function startRoad(){
  const vs=vehicleStats(),cost=fuelCost(),dry=meta.vehicle.fuel<cost,finalRoute=meta.selectedNode?.type==='final',bossRoute=meta.selectedNode?.type==='boss'||finalRoute,threat=finalRoute?1.52:bossRoute?Math.max(1.12,roadThreat()):roadThreat(),duration=finalRoute?75:bossRoute?70:(dry?55:45);
  meta.vehicle.fuel=Math.max(0,meta.vehicle.fuel-cost);
  if(finalRoute)meta.finalFlags={mg:false,rocket:false,armor:false};
- roadGame={duration,time:duration,elapsed:0,scroll:0,spawn:.6,mine:4.8,boss:false,bossRoute,finalRoute,bossSpawned:false,bossDefeated:false,colossusY:-190,dry,cost,threat,build:vs,player:{x:270,y:800,w:52,h:78,hp:meta.vehicle.hull==null?vs.maxHull:Math.min(meta.vehicle.hull,vs.maxHull),max:vs.maxHull,speed:vs.speed*(dry?.76:1),inv:0,mg:0,flak:.55,arc:.8,cannon:.9,rocket:1.1,emp:1.6},enemies:[],bullets:[],enemyBullets:[],mines:[],strikes:[],barriers:[],barrierTimer:8.5,drops:[],fx:[],dust:[],debris:[],dustTimer:0,shake:0,kills:0,scrap:0,fuel:0,repairs:0};
+ roadGame={duration,time:duration,elapsed:0,scroll:0,spawn:.6,mine:4.8,boss:false,bossRoute,finalRoute,bossSpawned:false,bossDefeated:false,victoryDelay:0,colossusY:-190,dry,cost,threat,build:vs,player:{x:270,y:800,w:52,h:78,hp:meta.vehicle.hull==null?vs.maxHull:Math.min(meta.vehicle.hull,vs.maxHull),max:vs.maxHull,speed:vs.speed*(dry?.76:1),inv:0,mg:0,flak:.55,arc:.8,cannon:.9,rocket:1.1,emp:1.6},enemies:[],bullets:[],enemyBullets:[],mines:[],strikes:[],barriers:[],barrierTimer:8.5,drops:[],fx:[],dust:[],debris:[],dustTimer:0,shake:0,kills:0,scrap:0,fuel:0,repairs:0};
  state='roadcombat';
  spawnRoadEnemy('bike');
  if(!bossRoute&&threat>=.92)spawnRoadEnemy('buggy');
@@ -410,6 +410,7 @@ function killRoad(i){
   if(e.part==='engine'){g.bossDefeated=true;meta.runStats.bosses++}
   else if(e.part==='mg'||e.part==='rocket'||e.part==='armor')meta.finalFlags[e.part]=true;
  }
+ if(g.bossRoute&&(e.type==='dreadnought'||e.part==='engine')){g.victoryDelay=.55;g.player.inv=Math.max(g.player.inv,.65);g.spawn=999}
  meta.runStats.roadKills++;g.kills+=e.score;g.fx.push({x:e.x,y:e.y,r:e.w*.78,life:.46,color:'#dd8040',kind:'explosion'});
  const blastShake=e.group==='colossus'?(e.part==='engine'?15:7):e.type==='dreadnought'?14:e.type==='wartruck'?10:e.type==='truck'||e.type==='missilevan'?6:0;
  g.shake=Math.max(g.shake||0,blastShake);
@@ -540,7 +541,7 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  else if(!g.bossRoute&&!g.boss&&g.elapsed/g.duration>.76){g.boss=true;spawnRoadEnemy('boss')}
  if(g.spawn<=0){if(!g.bossRoute||!g.bossSpawned||g.enemies.filter(e=>e.group!=='colossus'&&e.type!=='dreadnought').length<(g.finalRoute?4:4)){spawnRoadEnemy();const extraChance=clamp((g.threat-.9)*.5,0,.30);if(!g.bossRoute&&g.elapsed/g.duration>.52&&Math.random()<extraChance)spawnRoadEnemy()}g.spawn=rnd(.95,1.35)/(meta.route.spawn||1)/g.threat}
  if(p.hp<=0){meta.arrived=false;finishRun(false);return}
- if(g.bossRoute&&g.bossDefeated){finishRoadSuccess();return}
+ if(g.bossRoute&&g.bossDefeated){g.victoryDelay=Math.max(0,(g.victoryDelay||0)-dt);if(g.victoryDelay<=0)finishRoadSuccess();return}
  if(g.time<=0){if(g.bossRoute&&!g.bossDefeated){meta.arrived=false;finishRun(false);return}finishRoadSuccess();return}}
 
 function buildSiteLayout(site,variant){const obs=[];const add=(x,y,w,h)=>obs.push({x,y,w,h});if(site==='gas'){add(75,170,155,70);add(310,160,135,55);add(110,350,120,55);add(320,360,100,85);add(90,560,52,105);add(398,560,52,105)}else if(site==='clinic'){add(68,170,130,58);add(340,160,125,58);add(205,310,130,50);add(72,460,145,62);add(325,470,142,62);add(208,635,125,52)}else if(site==='motel'){add(55,150,170,100);add(315,150,170,100);add(55,370,170,105);add(315,370,170,105);add(185,585,170,70)}else{add(65,160,80,130);add(190,190,145,65);add(390,145,80,145);add(75,410,130,70);add(290,370,155,80);add(170,600,95,80);add(350,610,100,75)}if(variant===1)for(const o of obs)o.x=540-o.x-o.w;if(variant===2)for(let i=0;i<obs.length;i++)if(i%2)obs[i].y+=55;return obs}
