@@ -2,6 +2,14 @@
 
 Updated: 2026-09-22
 
+## Codex art progress (2026-09-22)
+
+- The four-quadrant survivor body and rotating rifle are accepted by the owner. The same survivor art now renders in the walkable town.
+- Scavenge gunner and melee raider have production sprites. Other enemy types still use atlas fallback.
+- Current art batch adds production sprites for the road truck, wartruck and missile van, plus an isolated gas-station landmark. These are pending owner review on the stable phone preview.
+- The original `enemy_truck.webp` is truncated and cannot be decoded by Pillow. `PROD_SOURCES` now points to `enemy_truck_v2.webp`; keep the versioned replacement until the owner accepts it.
+- Continue art work in small preview batches. The next remaining site landmarks are clinic, motel and junkyard; additional Scavenge enemy classes and later bosses still need production art.
+
 ## Read first
 
 This repo is mastercook777/wasteland-survivor. The broader project is Wasteland Trader / 废土商人.

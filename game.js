@@ -43,7 +43,10 @@ const PROD_SOURCES={
  playerBodyDownRight:'assets/art/production/player_body_down_right_v2.webp',
  playerWeaponRifle:'assets/art/production/player_weapon_rifle.webp',
  enemyBike:'assets/art/production/enemy_bike.webp',
- enemyTruck:'assets/art/production/enemy_truck.webp',
+ enemyTruck:'assets/art/production/enemy_truck_v2.webp',
+ enemyWartruck:'assets/art/production/enemy_wartruck_v1.webp',
+ enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
+ siteGasStation:'assets/art/production/site_gas_station_v1.webp',
  enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
  enemyMelee:'assets/art/production/enemy_melee_v1.webp'
 };
@@ -988,7 +991,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyTruck','enemyGunner','enemyMelee'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','enemyGunner','enemyMelee'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1065,12 +1068,14 @@ function drawEnemyVehicle(e){
  let art=false;
  if(e.type==='bike')art=drawProd('enemyBike',e.x,e.y,78*sc,81*sc,1);
  else if(e.type==='truck')art=drawProd('enemyTruck',e.x,e.y,106*sc,104*sc,1);
+ else if(e.type==='missilevan')art=drawProd('enemyMissileVan',e.x,e.y,96,96,1);
+ else if(e.type==='wartruck'||boss)art=drawProd('enemyWartruck',e.x,e.y,boss?178:130,boss?174:128,1);
  if(!art&&key)art=drawArt(key,e.x,e.y,key==='bike'?80*sc:key==='wartruck'?126*sc:112*sc,key==='bike'?128*sc:138*sc,1);
  if(!art){
   const col=boss?'#4e3d36':e.type==='missilevan'?'#67536a':e.group==='colossus'?'#57433a':e.type==='wartruck'?'#6d594c':e.type==='truck'?'#75624c':e.type==='bike'?'#9a7049':'#806448';
   drawVehicle(e.x,e.y,sc,col,false)
  }
- if(e.group==='colossus')text(e.part==='mg'?'MG':e.part==='rocket'?'RKT':e.part==='armor'?'ARM':'ENG',e.x,e.y+5,10,C.yellow,'center',900);else if(e.type==='missilevan')text('MSL',e.x,e.y+7,9,C.yellow,'center',900);
+ if(e.group==='colossus')text(e.part==='mg'?'MG':e.part==='rocket'?'RKT':e.part==='armor'?'ARM':'ENG',e.x,e.y+5,10,C.yellow,'center',900);else if(e.type==='missilevan'&&!PROD.enemyMissileVan.ready)text('MSL',e.x,e.y+7,9,C.yellow,'center',900);
  if((e.disabled||0)>0){ctx.strokeStyle=C.teal;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,Math.max(e.w,e.h)*.42,0,6.28);ctx.stroke()}
  if(e.maxHp>4)bar(e.x-e.w*.45,e.y-e.h*.62,e.w*.9,boss||e.group==='colossus'?8:5,e.hp/e.maxHp,e.group==='colossus'?C.yellow:C.red)
 }
@@ -1113,7 +1118,7 @@ function drawScavenge(){
  for(let y=250;y<g.worldH;y+=620){
   const lx=site==='clinic'?390:site==='junkyard'?405:site==='motel'?135:site==='gas'?145:270;
   const lw=site==='junkyard'?205:site==='clinic'?205:210;
-  if(!drawArt(site,lx,y+42,lw,162,.96)){
+  if(!(site==='gas'&&drawProd('siteGasStation',lx,y+42,lw,162,.96))&&!drawArt(site,lx,y+42,lw,162,.96)){
    if(site==='gas'){ctx.fillStyle='#4b3929';ctx.fillRect(25,y,150,72);ctx.fillStyle='#9d6e35';ctx.fillRect(38,y-18,124,24);text('GAS',100,y,11,'#211a12','center',900)}
    if(site==='clinic'){ctx.fillStyle='#55584d';ctx.fillRect(315,y,190,82)}
    if(site==='motel'){ctx.fillStyle='#59402f';ctx.fillRect(18,y,205,80)}
