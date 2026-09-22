@@ -43,7 +43,9 @@ const PROD_SOURCES={
  playerBodyDownRight:'assets/art/production/player_body_down_right_v2.webp',
  playerWeaponRifle:'assets/art/production/player_weapon_rifle.webp',
  enemyBike:'assets/art/production/enemy_bike.webp',
- enemyTruck:'assets/art/production/enemy_truck.webp'
+ enemyTruck:'assets/art/production/enemy_truck.webp',
+ enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
+ enemyMelee:'assets/art/production/enemy_melee_v1.webp'
 };
 const PROD={};
 for(const [key,src] of Object.entries(PROD_SOURCES)){
@@ -912,7 +914,7 @@ function resolveEvent(choiceIndex){
  }
  meta.pendingRoadEvent=null;eventData=null;save();startScavenge();
 }
-function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,r:14},near:null};meta.arrived=false;if(meta.town.offerLeg!==meta.roadLeg){meta.town.demand=choice(['gas','food','scrap','med']);meta.town.gearOffers=shuffle(['ammo','scope','apammo','vest','medkit','boots','smg','shotgun','rifle']).slice(0,3).map(type=>({type,cost:Math.round(ITEM[type].sell*1.8),sold:false}));meta.town.moduleOffers=shuffle(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']).slice(0,3).map(type=>({type,credits:Math.round(VEH[type].sell*1.7),salvage:2+Math.floor(VEH[type].sell/10),sold:false}));meta.town.offerLeg=meta.roadLeg}save()}
+function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,r:14,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},near:null};meta.arrived=false;if(meta.town.offerLeg!==meta.roadLeg){meta.town.demand=choice(['gas','food','scrap','med']);meta.town.gearOffers=shuffle(['ammo','scope','apammo','vest','medkit','boots','smg','shotgun','rifle']).slice(0,3).map(type=>({type,cost:Math.round(ITEM[type].sell*1.8),sold:false}));meta.town.moduleOffers=shuffle(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']).slice(0,3).map(type=>({type,credits:Math.round(VEH[type].sell*1.7),salvage:2+Math.floor(VEH[type].sell/10),sold:false}));meta.town.offerLeg=meta.roadLeg}save()}
 function townPrice(t){const base={gas:5,food:4,scrap:6,med:9}[t];return Math.round(base*(meta.town.demand===t?1.7:1))}
 function say(s){notice=s;noticeT=1.5}
 const TOWN_SPOTS=[
@@ -930,6 +932,7 @@ function updateTown(dt){
  const speed=175,nx=clamp(p.x+dx*speed*dt,18,522),ny=clamp(p.y+dy*speed*dt,135,835);
  const blocked=(x,y)=>TOWN_SPOTS.some(a=>a.id!=='routes'&&a.id!=='gate'&&x>a.x-14&&x<a.x+a.w+14&&y>a.y-14&&y<a.y+a.h+14);
  if(!blocked(nx,p.y))p.x=nx;if(!blocked(p.x,ny))p.y=ny;townWorld.near=townNearest();
+ updateScavFacing(p,dx,dy,dt,null);
 }
 function townInteract(){if(townPanel||!townWorld)return;const a=townNearest();if(!a)return say('MOVE CLOSER');if(a.id==='gate'){completeDestination();state='route';townWorld=null}else townPanel=a.id}
 function townTap(p){
@@ -985,7 +988,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyTruck'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyTruck','enemyGunner','enemyMelee'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1166,7 +1169,8 @@ function drawSurvivor(p){
 }
 function drawScavEnemy(e){
  const key=e.type==='gunner'?'gunner':e.type==='grenadier'?'grenadier':e.type==='sniper'?'sniper':e.type==='melee'?'melee':e.type==='elite'||e.type==='armored'||e.type==='driver'?'gunner':null;
- if(!drawArt(key,e.x,e.y,58,72,1)){ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,6.28);ctx.fill()}
+ const prodKey=e.type==='gunner'?'enemyGunner':e.type==='melee'?'enemyMelee':null;
+ if(!(prodKey&&drawProd(prodKey,e.x,e.y,72,72,1))&&!drawArt(key,e.x,e.y,58,72,1)){ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,6.28);ctx.fill()}
  text(e.type==='gunner'?'G':e.type==='grenadier'?'!':e.type==='elite'?'E':e.type==='armored'?'A':e.type==='sniper'?'S':e.type==='driver'?'D':'',e.x,e.y+7,e.type==='driver'?11:8,'#171912','center',900);
  if(e.type!=='melee')bar(e.x-18,e.y-e.r-18,36,4,e.hp/e.max,C.red)
 }
@@ -1206,7 +1210,7 @@ function drawTown(){
  ctx.fillStyle='rgba(18,15,11,.55)';ctx.fillRect(0,125,W,34);text('RUSTWATER',24,148,16,C.cream,'left',900);text('SAFE ZONE',150,147,9,C.green,'left',900);
  const vs=vehicleStats();text(`¢${meta.credits}  FUEL ${meta.vehicle.fuel}/${vs.maxFuel}  S ${meta.vehicle.scrap}`,515,147,10,C.yellow,'right',900);
  drawVehicle(270,820,.66,C.yellow);
- if(townWorld){const p=townWorld.player;ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(p.x,p.y+11,15,6,0,0,6.28);ctx.fill();ctx.fillStyle=C.cream;ctx.beginPath();ctx.arc(p.x,p.y-5,7,0,6.28);ctx.fill();ctx.fillStyle='#5d6955';roundRect(p.x-8,p.y+2,16,22,5,true,false);ctx.fillStyle='#3a2f25';ctx.fillRect(p.x-9,p.y+22,7,13);ctx.fillRect(p.x+2,p.y+22,7,13)}
+ if(townWorld)drawSurvivor(townWorld.player);
  const near=townNearest();if(near&&!townPanel){ctx.fillStyle='rgba(20,18,13,.94)';roundRect(88,742,364,54,10,true,false);text(near.title,270,764,11,C.cream,'center',900);text('IN RANGE',270,784,9,C.green,'center',900);ctx.fillStyle=C.yellow;roundRect(315,850,195,70,12,true,false);text(near.id==='gate'?'LEAVE TOWN':'INTERACT',412,892,13,C.ink,'center',900)}
  text('PACK',472,95,10,C.muted,'center',900);if(!near)text('MOVE WITH JOYSTICK • WALK UP TO A SHOP',270,895,9,C.muted,'center',700);
  if(!townPanel)drawJoy();if(townPanel)drawTownPanel();drawNotice()
