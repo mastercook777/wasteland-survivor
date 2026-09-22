@@ -7,6 +7,8 @@ Updated: 2026-09-22
 - The four-quadrant survivor body and rotating rifle are accepted by the owner. The same survivor art now renders in the walkable town.
 - Scavenge gunner and melee raider have production sprites. Other enemy types still use atlas fallback.
 - Current art batch adds production sprites for the road truck, wartruck and missile van, plus an isolated gas-station landmark. These are pending owner review on the stable phone preview.
+- Follow-up: the frequently spawned road `buggy` type had no atlas or production sprite, so it was still a Canvas fallback. `enemy_buggy_v1.webp` now covers it.
+- Enemy road vehicles now emit dynamic rear-wheel dust with type-scaled density and a particle cap; the player's accepted road dust remains dynamic.
 - The original `enemy_truck.webp` is truncated and cannot be decoded by Pillow. `PROD_SOURCES` now points to `enemy_truck_v2.webp`; keep the versioned replacement until the owner accepts it.
 - Continue art work in small preview batches. The next remaining site landmarks are clinic, motel and junkyard; additional Scavenge enemy classes and later bosses still need production art.
 
