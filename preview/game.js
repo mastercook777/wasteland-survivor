@@ -699,11 +699,26 @@ function throwGrenade(e,p){
  game.grenades.push({sx:e.x,sy:e.y,x:e.x,y:e.y,tx:land.x,ty:land.y,phase:'air',flight:0,duration:.78,fuse:.55,r:54,z:0});
 }
 const SURVIVOR_BODY={
- up:{asset:'playerBodyUp',wx:0,wy:-7},
- down:{asset:'playerBodyDown',wx:0,wy:-3},
- downLeft:{asset:'playerBodyDownLeft',wx:-4,wy:-4},
- downRight:{asset:'playerBodyDownRight',wx:4,wy:-4}
+ // Opaque bounds (alpha >= 16) in the 128px source images. Keep feet on one
+ // ground line and normalize visible height instead of scaling transparent margins.
+ up:{asset:'playerBodyUp',box:[50,30,88,118],widthScale:1.1,wx:5,wy:-7},
+ down:{asset:'playerBodyDown',box:[33,12,92,117],wx:8,wy:-3},
+ downLeft:{asset:'playerBodyDownLeft',box:[39,10,89,117],wx:-7,wy:-4},
+ downRight:{asset:'playerBodyDownRight',box:[36,8,88,118],wx:7,wy:-4}
 };
+const SURVIVOR_VISIBLE_HEIGHT=53;
+const SURVIVOR_FOOT_Y=27;
+function drawScavBody(p,cfg,alpha){
+ const body=PROD[cfg.asset];if(!body?.ready)return false;
+ const [left,top,right,bottom]=cfg.box;
+ const scale=SURVIVOR_VISIBLE_HEIGHT/(bottom-top);
+ const scaleX=scale*(cfg.widthScale||1);
+ const x=p.x-(left+right)*.5*scaleX;
+ const y=p.y+SURVIVOR_FOOT_Y-bottom*scale;
+ ctx.save();ctx.globalAlpha=alpha;
+ ctx.drawImage(body.img,x,y,body.img.naturalWidth*scaleX,body.img.naturalHeight*scale);
+ ctx.restore();return true
+}
 function scavBodyDirFromVector(dx,dy){
  const ax=Math.abs(dx),ay=Math.abs(dy);
  if(dy<0&&ay>ax*.34)return 'up';
@@ -733,7 +748,7 @@ function drawScavWeapon(p,alpha=1){
  ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x+cfg.wx,p.y+cfg.wy);ctx.rotate(angle);
  const size=38;ctx.drawImage(a.img,-size/2,-size*.58,size,size);ctx.restore();return true
 }
-function fireScav(w,target){const p=game.player,base=Math.atan2(target.y-p.y,target.x-p.x);p.aimAngle=base;p.lastAimAngle=base;for(let i=0;i<w.pellets;i++){const a=base+(i-(w.pellets-1)/2)*(w.spread||0);game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,hitIds:[]})}}
+function fireScav(w,target){const p=game.player,base=Math.atan2(target.y-p.y,target.x-p.x);for(let i=0;i<w.pellets;i++){const a=base+(i-(w.pellets-1)/2)*(w.spread||0);game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,hitIds:[]})}}
 function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,(g.finalAssault?180:90)-g.elapsed);p.inv=Math.max(0,p.inv-dt);let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}
  const maxAimRange=Math.max(220,...g.weaponCd.map(w=>w.range||0));let facingTarget=null,facingDist=1e9;
  for(const e of g.enemies){const d=distance(p,e);if(d<maxAimRange&&d<facingDist){facingDist=d;facingTarget=e}}
@@ -1139,11 +1154,10 @@ function drawScavenge(){
 function drawSurvivor(p){
  const flash=p.inv>0&&Math.floor(performance.now()/70)%2?.35:1;
  const cfg=SURVIVOR_BODY[p.bodyDir||'up']||SURVIVOR_BODY.up;
- const body=PROD[cfg.asset],weaponBehind=Math.sin(p.aimAngle??-Math.PI/2)<-.18;
+ const weaponBehind=Math.sin(p.aimAngle??-Math.PI/2)<-.18;
  ctx.save();ctx.globalAlpha=flash*.28;ctx.fillStyle='#16140f';ctx.beginPath();ctx.ellipse(p.x,p.y+18,19,8,0,0,6.28);ctx.fill();ctx.restore();
  if(weaponBehind)drawScavWeapon(p,flash);
- if(body?.ready){ctx.save();ctx.globalAlpha=flash;ctx.drawImage(body.img,p.x-31,p.y-31,62,62);ctx.restore()}
- else{
+ if(!drawScavBody(p,cfg,flash)){
   ctx.save();ctx.globalAlpha=flash;
   if(!drawProd('playerSurvivor',p.x,p.y,56,58,1)&&!drawArt('survivor',p.x,p.y,62,76,1)){ctx.fillStyle='#2d342d';ctx.beginPath();ctx.arc(p.x,p.y,p.r+4,0,6.28);ctx.fill()}
   ctx.restore()
