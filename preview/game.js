@@ -58,6 +58,14 @@ const PROD_SOURCES={
  propMotelCover:'assets/art/production/prop_motel_cover_v1.webp',
  propJunkyardCover:'assets/art/production/prop_junkyard_cover_v1.webp',
  propJunkyardTireStack:'assets/art/production/prop_junkyard_tire_stack_v1.webp',
+ propGasCache:'assets/art/production/prop_gas_cache_v1.webp',
+ propClinicCache:'assets/art/production/prop_clinic_cache_v1.webp',
+ propMotelCache:'assets/art/production/prop_motel_cache_v1.webp',
+ propJunkyardCache:'assets/art/production/prop_junkyard_cache_v1.webp',
+ lootGas:'assets/art/production/loot_gas_v1.webp',
+ lootFood:'assets/art/production/loot_food_v1.webp',
+ lootScrap:'assets/art/production/loot_scrap_v1.webp',
+ lootMed:'assets/art/production/loot_med_v1.webp',
  enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
  enemyMelee:'assets/art/production/enemy_melee_v1.webp',
  enemyGrenadier:'assets/art/production/enemy_grenadier_v1.webp',
@@ -728,7 +736,18 @@ function moveActor(p,dt,speed,minX,maxX,minY,maxY){let mx=0,my=0;if(keys.has('a'
 function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='MEDKIT AUTO-USED';noticeT=1.2}}
 function chooseLoot(){const w=SITE[game.site].loot,r=Math.random();let a=0;for(const k of ['gas','food','scrap','med']){a+=w[k];if(r<a)return k}return'scrap'}
 function gearDrop(rare=false){const chance=.12+SITE[game.site].gear+game.build.luck+(rare?.35:0);if(Math.random()>chance)return null;const pool=['ammo','scope','apammo','vest','medkit','charm','boots','smg','shotgun','rifle'];return makeItem(choice(pool),rare&&Math.random()<.45?2:1)}
-function openCrate(c){c.opened=true;const n=c.rare?3:1+Math.floor(Math.random()*2);for(let i=0;i<n;i++){const t=chooseLoot();meta.cargo[t]++;game.loot.push({x:c.x+rnd(-18,18),y:c.y+rnd(-18,18),type:t,life:1.2})}const g=gearDrop(c.rare);if(g)game.haul.push(g);if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']),c.rare&&Math.random()<.25?2:1));notice=c.rare?'RARE CACHE OPENED':'SUPPLIES SECURED';noticeT=.8;save()}
+function openCrate(c){
+ c.opened=true;
+ const n=c.rare?3:1+Math.floor(Math.random()*2);
+ for(let i=0;i<n;i++){
+  const t=chooseLoot();meta.cargo[t]++;
+  game.loot.push({x:c.x+rnd(-18,18),y:c.y+rnd(-15,12),type:t,life:1.2,age:0})
+ }
+ game.fx.push({x:c.x,y:c.y,r:c.rare?36:28,life:.45,color:c.rare?'#ffe796':C.green,kind:'searchBurst'});
+ const g=gearDrop(c.rare);if(g)game.haul.push(g);
+ if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']),c.rare&&Math.random()<.25?2:1));
+ notice=c.rare?'RARE CACHE OPENED':'SUPPLIES SECURED';noticeT=.8;save()
+}
 function pointInObstacle(x,y,o,pad=0){return x>=o.x-pad&&x<=o.x+o.w+pad&&y>=o.y-pad&&y<=o.y+o.h+pad}
 function segmentHitsObstacle(x1,y1,x2,y2,obstacles,pad=0){
  if(!obstacles?.length)return false;
@@ -871,6 +890,7 @@ for(let i=g.grenades.length-1;i>=0;i--){
   if(gr.fuse<=0){if(distance(gr,p)<gr.r)hurtPlayer(gr.damage||2);g.fx.push({x:gr.x,y:gr.y,r:gr.r,life:.35,color:'#dd6d43'});g.grenades.splice(i,1)}
  }
 }
+ for(let i=g.loot.length-1;i>=0;i--){const l=g.loot[i];l.age=(l.age||0)+dt;l.life-=dt;if(l.life<=0)g.loot.splice(i,1)}
  if(g.finalAssault){
   updateFinalAssaultStage(g,dt);
   for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
@@ -1201,10 +1221,13 @@ function drawScavProjectile(b,hostile=false){
  ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,-2,b.sniper?3:2.5,b.sniper?8:6,0,0,6.28);ctx.fill();ctx.restore();
 }
 function drawScavFX(f){
- const duration=f.kind==='muzzle'?.1:f.r>18?.35:.15,t=clamp(f.life/duration,0,1),rr=Math.max(2,f.r*(.3+1-t));
+ const duration=f.kind==='muzzle'?.1:f.kind==='searchBurst'?.45:f.r>18?.35:.15,t=clamp(f.life/duration,0,1),rr=Math.max(2,f.r*(.3+1-t));
  ctx.save();ctx.translate(f.x,f.y);ctx.globalAlpha=t;
  if(f.kind==='muzzle'){
   ctx.fillStyle='#f8d989';ctx.beginPath();ctx.moveTo(0,-f.r);ctx.lineTo(f.r*.65,0);ctx.lineTo(0,f.r);ctx.lineTo(-f.r*.65,0);ctx.closePath();ctx.fill();ctx.fillStyle='#fff6cd';ctx.beginPath();ctx.arc(0,0,2,0,6.28);ctx.fill();
+ }else if(f.kind==='searchBurst'){
+  ctx.globalAlpha=t*.72;ctx.strokeStyle=f.color;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,5,rr,rr*.46,0,0,6.28);ctx.stroke();
+  for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.globalAlpha=t*(i%2?.55:.85);ctx.fillStyle=i%2?'#f5e5b9':f.color;ctx.beginPath();ctx.arc(Math.cos(a)*rr*.9,Math.sin(a)*rr*.42-4,2.2,0,6.28);ctx.fill()}
  }else{
   if(f.r>18){ctx.globalAlpha=t*.45;ctx.fillStyle='#46382c';ctx.beginPath();ctx.arc(0,0,rr*.8,0,6.28);ctx.fill();ctx.globalAlpha=t*.75;ctx.fillStyle='#df874c';ctx.beginPath();ctx.arc(0,0,rr*.45,0,6.28);ctx.fill()}
   ctx.globalAlpha=t;ctx.strokeStyle=f.color;ctx.lineWidth=f.r>18?3:2;ctx.beginPath();ctx.arc(0,0,rr,0,6.28);ctx.stroke();
@@ -1214,6 +1237,25 @@ function drawScavFX(f){
 }
 const SITE_STRUCTURE_ART={gas:'siteGasStation',clinic:'siteClinic',motel:'siteMotel',junkyard:'siteJunkyard'};
 const SITE_COVER_ART={gas:'propGasCover',clinic:'propClinicCover',motel:'propMotelCover',junkyard:'propJunkyardCover',final:'propJunkyardCover'};
+const SITE_CACHE_ART={gas:'propGasCache',clinic:'propClinicCache',motel:'propMotelCache',junkyard:'propJunkyardCache',final:'propJunkyardCache'};
+const SITE_CACHE_SIZE={gas:[42,34],clinic:[40,36],motel:[44,34],junkyard:[46,34],final:[46,34]};
+const LOOT_ART={gas:'lootGas',food:'lootFood',scrap:'lootScrap',med:'lootMed'};
+function drawScavCache(c,site){
+ const [w,h]=SITE_CACHE_SIZE[site]||SITE_CACHE_SIZE.junkyard,pulse=.5+.5*Math.sin(performance.now()/170+c.x);
+ ctx.fillStyle='rgba(13,12,10,.35)';ctx.beginPath();ctx.ellipse(c.x,c.y+h*.34,w*.42,5,0,0,6.28);ctx.fill();
+ if(c.rare){ctx.save();ctx.globalAlpha=.18+pulse*.12;ctx.fillStyle='#f5cd65';ctx.beginPath();ctx.ellipse(c.x,c.y+2,w*.66,h*.54,0,0,6.28);ctx.fill();ctx.globalAlpha=.65;ctx.strokeStyle='#ffe59a';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(c.x,c.y+3,w*.57,h*.44,0,0,6.28);ctx.stroke();ctx.restore()}
+ if(!drawProd(SITE_CACHE_ART[site]||SITE_CACHE_ART.junkyard,c.x,c.y,w,h,1)){
+  ctx.fillStyle=c.rare?C.yellow:'#755d3f';roundRect(c.x-w/2,c.y-h/2,w,h,5,true,false);ctx.strokeStyle=c.rare?'#fff0a0':'#9a805f';ctx.lineWidth=2;ctx.strokeRect(c.x-w*.38,c.y-h*.34,w*.76,h*.68)
+ }
+ if(c.progress>0)bar(c.x-28,c.y-h/2-15,56,7,c.progress,c.rare?C.yellow:C.green)
+}
+function drawScavLoot(l){
+ const rise=Math.min(14,(l.age||0)*17),y=l.y-rise,born=clamp((l.age||0)/.13,0,1),fade=clamp(l.life/.24,0,1),size=19*(.72+.28*born);
+ ctx.save();ctx.globalAlpha=fade;ctx.fillStyle='rgba(15,14,11,.3)';ctx.beginPath();ctx.ellipse(l.x,l.y+7,8,3,0,0,6.28);ctx.fill();
+ ctx.shadowColor=l.type==='gas'?C.gas:l.type==='food'?C.food:l.type==='med'?C.med:C.scrap;ctx.shadowBlur=7;
+ if(!drawProd(LOOT_ART[l.type],l.x,y,size,size,fade)){ctx.fillStyle=ctx.shadowColor;ctx.beginPath();ctx.arc(l.x,y,7,0,6.28);ctx.fill()}
+ ctx.restore()
+}
 function drawScavCover(o,site){
  const x=o.x,y=o.y,w=o.w,h=o.h;
  ctx.fillStyle='rgba(18,16,13,.28)';ctx.beginPath();ctx.ellipse(x+w/2,y+h*.84,w*.46,Math.max(6,h*.18),0,0,6.28);ctx.fill();
@@ -1254,8 +1296,8 @@ function drawScavenge(){
   if(o.kind==='landmark')drawSiteStructure(o,site);
   else drawScavCover(o,site);
  }
- for(const c of g.crates){if(c.opened)continue;ctx.fillStyle=c.rare?C.yellow:'#755d3f';roundRect(c.x-17,c.y-15,34,30,5,true,false);ctx.strokeStyle=c.rare?'#fff0a0':'#9a805f';ctx.lineWidth=2;ctx.strokeRect(c.x-13,c.y-11,26,22);if(c.progress>0)bar(c.x-28,c.y-32,56,7,c.progress,c.rare?C.yellow:C.green)}
- for(const l of g.loot){ctx.fillStyle=l.type==='gas'?C.gas:l.type==='food'?C.food:l.type==='med'?C.med:C.scrap;ctx.beginPath();ctx.arc(l.x,l.y,7,0,6.28);ctx.fill()}
+ for(const c of g.crates)if(!c.opened)drawScavCache(c,site);
+ for(const l of g.loot)drawScavLoot(l);
  for(const gr of g.grenades){
  ctx.save();
  if(gr.phase==='air'){
