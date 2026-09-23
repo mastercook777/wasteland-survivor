@@ -816,8 +816,19 @@ function drawScavWeapon(p,alpha=1){
  ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x+cfg.wx,p.y+cfg.wy);ctx.rotate(angle);
  const size=38;ctx.drawImage(a.img,-size/2,-size*.58,size,size);ctx.restore();return true
 }
-function fireScav(w,target){const p=game.player,base=Math.atan2(target.y-p.y,target.x-p.x),cfg=SURVIVOR_BODY[p.bodyDir||'upRight']||SURVIVOR_BODY.upRight;for(let i=0;i<w.pellets;i++){const a=base+(i-(w.pellets-1)/2)*(w.spread||0);game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,hitIds:[]})}game.fx.push({x:p.x+cfg.wx+Math.cos(base)*17,y:p.y+cfg.wy+Math.sin(base)*17,r:9,life:.1,color:C.yellow,kind:'muzzle'})}
-function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,(g.finalAssault?180:90)-g.elapsed);p.inv=Math.max(0,p.inv-dt);let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}
+function fireScav(w,target){
+ const p=game.player,base=Math.atan2(target.y-p.y,target.x-p.x),cfg=SURVIVOR_BODY[p.bodyDir||'upRight']||SURVIVOR_BODY.upRight;
+ const recoil=w.pellets>1?5.5:w.damage>=2?4.5:w.interval<.3?2.6:3.4;
+ p.recoilX=clamp((p.recoilX||0)-Math.cos(base)*recoil,-6.5,6.5);p.recoilY=clamp((p.recoilY||0)-Math.sin(base)*recoil,-6.5,6.5);
+ const knock=w.pellets>1?10:w.damage>=2?9:w.interval<.3?5:7,stagger=w.pellets>1?.14:w.damage>=2?.12:.09;
+ for(let i=0;i<w.pellets;i++){
+  const a=base+(i-(w.pellets-1)/2)*(w.spread||0);
+  game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,knock,stagger,hitIds:[]})
+ }
+ game.fx.push({x:p.x+(p.recoilX||0)+cfg.wx+Math.cos(base)*17,y:p.y+(p.recoilY||0)+cfg.wy+Math.sin(base)*17,r:9,life:.1,color:C.yellow,kind:'muzzle'})
+}
+const SCAV_STAGGER_IMMUNE=new Set(['armored','elite','driver']);
+function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,(g.finalAssault?180:90)-g.elapsed);p.inv=Math.max(0,p.inv-dt);const recoilReturn=Math.exp(-dt*15);p.recoilX=(p.recoilX||0)*recoilReturn;p.recoilY=(p.recoilY||0)*recoilReturn;let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}
  const maxAimRange=Math.max(220,...g.weaponCd.map(w=>w.range||0));let facingTarget=null,facingDist=1e9;
  for(const e of g.enemies){const d=distance(p,e);if(d<maxAimRange&&d<facingDist){facingDist=d;facingTarget=e}}
  updateScavFacing(p,mx,my,dt,facingTarget);
@@ -832,6 +843,10 @@ function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.ma
   if((e.type==='elite'||e.type==='armored'||e.type==='driver')&&b.eliteBonus)dmg*=1+b.eliteBonus;
   e.hp-=dmg;(b.hitIds||(b.hitIds=[])).push(e.eid);
    g.fx.push({x:b.x,y:b.y,r:7,life:.15,color:b.ap>0?C.teal:C.yellow,kind:'impact'});
+  if(e.hp>0&&!SCAV_STAGGER_IMMUNE.has(e.type)){
+   e.stun=Math.max(e.stun||0,b.stagger||.09);
+   if((e.knockLock||0)<=0){const push=norm(b.vx,b.vy);moveWithObstacles(e,push.x*(b.knock||7),push.y*(b.knock||7),e.r,g.obstacles,[25,515,170,g.worldH-80]);e.knockLock=.07}
+  }
   if(e.hp<=0){meta.runStats.scavKills++;if(e.type==='driver')g.driverDefeated=true;if(!g.finalAssault&&Math.random()<.08+g.build.luck){const gear=gearDrop(false);if(gear)g.haul.push(gear)}g.enemies.splice(j,1)}
   if((b.pierce||0)>0)b.pierce--;else hit=true;
   break
@@ -839,6 +854,8 @@ function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.ma
 }if(hit||b.life<=0)g.bullets.splice(i,1)}
  for(let i=g.enemies.length-1;i>=0;i--){
  const e=g.enemies[i],d=distance(e,p),bounds=[25,515,170,g.worldH-80];
+ e.knockLock=Math.max(0,(e.knockLock||0)-dt);
+ if((e.stun||0)>0){e.stun=Math.max(0,e.stun-dt);continue}
  e.cd-=dt;
  const blocked=segmentHitsObstacle(e.x,e.y,p.x,p.y,g.obstacles,e.r*.45);
  if(e.type==='driver'){
@@ -1328,6 +1345,7 @@ function drawSurvivor(p){
  const flash=p.inv>0&&Math.floor(performance.now()/70)%2?.35:1;
  const cfg=SURVIVOR_BODY[p.bodyDir||'upRight']||SURVIVOR_BODY.upRight;
  const weaponBehind=Math.sin(p.aimAngle??-Math.PI/2)<-.18;
+ ctx.save();ctx.translate(p.recoilX||0,p.recoilY||0);
  ctx.save();ctx.globalAlpha=flash*.28;ctx.fillStyle='#16140f';ctx.beginPath();ctx.ellipse(p.x,p.y+18,19,8,0,0,6.28);ctx.fill();ctx.restore();
  if(weaponBehind)drawScavWeapon(p,flash);
  if(!drawScavBody(p,cfg,flash)){
@@ -1335,7 +1353,8 @@ function drawSurvivor(p){
   if(!drawProd('playerSurvivor',p.x,p.y,56,58,1)&&!drawArt('survivor',p.x,p.y,62,76,1)){ctx.fillStyle='#2d342d';ctx.beginPath();ctx.arc(p.x,p.y,p.r+4,0,6.28);ctx.fill()}
   ctx.restore()
  }
- if(!weaponBehind)drawScavWeapon(p,flash)
+ if(!weaponBehind)drawScavWeapon(p,flash);
+ ctx.restore()
 }
 const SCAV_ENEMY_SPRITES={gunner:['enemyGunner',72],melee:['enemyMelee',72],grenadier:['enemyGrenadier',72],sniper:['enemySniper',72],armored:['enemyArmored',80],elite:['enemyElite',84],driver:['enemyDriver',104]};
 function drawScavEnemy(e){
