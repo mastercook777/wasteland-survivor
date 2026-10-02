@@ -48,6 +48,7 @@ const PROD_SOURCES={
  enemyTruck:'assets/art/production/enemy_truck_v2.webp',
  enemyWartruck:'assets/art/production/enemy_wartruck_v1.webp',
  enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
+ enemyColossus:'assets/art/production/enemy_colossus_v1.webp',
  siteGasStation:'assets/art/production/site_gas_station_v1.webp',
  siteClinic:'assets/art/production/site_clinic_v1.webp',
  siteMotel:'assets/art/production/site_motel_v1.webp',
@@ -579,6 +580,10 @@ function buildSiteLayout(site,variant){
  }
  if(variant===1)for(const o of obs)o.x=540-o.x-o.w;
  if(variant===2)for(let i=0;i<obs.length;i++)if(i%2)obs[i].y+=55;
+ // Landmarks need a real walkable lane between their collision box and the
+ // world edge. Keep the art and solid footprint together instead of creating
+ // a visually empty strip that still blocks the player.
+ for(const o of obs)if(o.kind==='landmark')o.x=clamp(o.x,60,540-60-o.w);
  return obs;
 }
 const FINAL_WAVES=[
@@ -1072,7 +1077,7 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','enemyColossus','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
  const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
@@ -1081,7 +1086,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,15,12,.92)';roundRect(85,865,370,42,12,true,false);text(notice,270,891,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('v0.14.1 SECONDARY DIVERSITY',270,855,10,'#66695b','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('ART REFORGE • COLOSSUS A13',270,855,10,'#66695b','center',700)}
 function drawRoute(){drawDunes();
  ctx.fillStyle='rgba(12,14,11,.58)';ctx.fillRect(0,0,W,H);
  ctx.save();ctx.globalAlpha=.18;ctx.strokeStyle='#c49a58';ctx.lineWidth=1;for(let x=35;x<W;x+=47){ctx.beginPath();ctx.moveTo(x,155);ctx.lineTo(x-70,735);ctx.stroke()}for(let y=175;y<735;y+=54){ctx.beginPath();ctx.moveTo(18,y);ctx.lineTo(522,y+20);ctx.stroke()}ctx.restore();
@@ -1099,6 +1104,22 @@ function drawRoute(){drawDunes();
  }
 }
 
+function drawColossusDamage(x,y,rx,ry,seed=0){
+ ctx.save();ctx.translate(x,y);ctx.rotate((seed-.5)*.08);
+ ctx.fillStyle='rgba(13,12,10,.82)';ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,0,6.28);ctx.fill();
+ ctx.strokeStyle='rgba(225,104,54,.78)';ctx.lineWidth=3;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*rx*.28,-ry*.72);ctx.lineTo(-i*rx*.18,0);ctx.lineTo(i*rx*.36,ry*.68);ctx.stroke()}
+ ctx.restore()
+}
+function drawColossus(g){
+ const x=270,y=g.colossusY+20;
+ ctx.fillStyle='rgba(12,11,9,.34)';ctx.beginPath();ctx.ellipse(x,g.colossusY+197,122,17,0,0,6.28);ctx.fill();
+ if(!drawProd('enemyColossus',x,y,250,375,1)){
+  ctx.fillStyle='#302923';roundRect(128,g.colossusY-95,284,255,24,true,false);ctx.fillStyle='#46372f';roundRect(155,g.colossusY-72,230,210,18,true,false)
+ }
+ if(meta.finalFlags.armor)drawColossusDamage(270,g.colossusY-58,48,25,.25);
+ if(meta.finalFlags.mg)drawColossusDamage(175,g.colossusY+8,32,28,.7);
+ if(meta.finalFlags.rocket)drawColossusDamage(365,g.colossusY+8,32,28,.35)
+}
 function drawRoad(){const g=roadGame,p=g.player;
  ctx.fillStyle='#806747';ctx.fillRect(0,0,W,H);
  ctx.fillStyle='#4e4434';ctx.fillRect(0,0,18,H);ctx.fillRect(522,0,18,H);
@@ -1108,7 +1129,7 @@ function drawRoad(){const g=roadGame,p=g.player;
  ctx.fillStyle='#b9a56b';ctx.fillRect(18,0,5,H);ctx.fillRect(517,0,5,H);
  ctx.save();ctx.globalAlpha=.35;for(let y=-100+(g.scroll%170);y<H;y+=170){ctx.fillStyle='#9a7448';ctx.fillRect(2,y,14,48);ctx.fillRect(524,y+82,14,38);ctx.fillStyle='#2b2922';ctx.fillRect(5,y-10,5,18);ctx.fillRect(530,y+68,5,18)}ctx.restore();
  ctx.strokeStyle='rgba(222,195,137,.13)';ctx.lineWidth=2;for(let y=-60+(g.scroll%115);y<H;y+=115){ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(78,y+30);ctx.stroke();ctx.beginPath();ctx.moveTo(510,y+45);ctx.lineTo(468,y+72);ctx.stroke()}
- if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated){ctx.fillStyle='#302923';roundRect(128,g.colossusY-95,284,255,24,true,false);ctx.fillStyle='#46372f';roundRect(155,g.colossusY-72,230,210,18,true,false);}ctx.save();ctx.strokeStyle='#b8aa72';ctx.lineWidth=5;ctx.setLineDash([35,38]);ctx.lineDashOffset=g.scroll%73;ctx.beginPath();ctx.moveTo(270,0);ctx.lineTo(270,H);ctx.stroke();ctx.restore();for(const br of g.barriers){
+ ctx.save();ctx.strokeStyle='#b8aa72';ctx.lineWidth=5;ctx.setLineDash([35,38]);ctx.lineDashOffset=g.scroll%73;ctx.beginPath();ctx.moveTo(270,0);ctx.lineTo(270,H);ctx.stroke();ctx.restore();for(const br of g.barriers){
  ctx.fillStyle='#6b553e';ctx.fillRect(18,br.y,Math.max(0,br.gapX-br.gapW/2-18),br.h);
  ctx.fillRect(br.gapX+br.gapW/2,br.y,Math.max(0,522-(br.gapX+br.gapW/2)),br.h);
  ctx.fillStyle=C.yellow;for(let x=28;x<512;x+=42){if(x>br.gapX-br.gapW/2-18&&x<br.gapX+br.gapW/2)continue;ctx.fillRect(x,br.y+5,22,5)}
@@ -1121,7 +1142,7 @@ for(const m of g.mines)drawMine(m);for(const d of g.drops){
  ctx.fillStyle=d.type==='fuel'?C.gas:d.type==='repair'?C.green:C.scrap;
  ctx.beginPath();ctx.arc(d.x,d.y,12,0,6.28);ctx.fill();
  text(d.type==='fuel'?'F':d.type==='repair'?'+':'S',d.x,d.y+4,10,'#171912','center',900)
-}drawRoadAtmosphere(g);
+}drawRoadAtmosphere(g);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated)drawColossus(g);
  for(const e of g.enemies)drawEnemyVehicle(e);
  for(const st of g.strikes)drawRoadStrikeMissile(st);
  for(const b of g.bullets)drawRoadProjectile(b);
@@ -1150,6 +1171,11 @@ function drawVehicle(x,y,s=1,color=C.yellow,production=true){
  ctx.strokeStyle='rgba(242,228,196,.28)';ctx.lineWidth=1;roundRect(-23,-32,46,62,4,false,true);ctx.restore()
 }
 function drawEnemyVehicle(e){
+ if(e.group==='colossus'){
+  text(e.part==='mg'?'MG':e.part==='rocket'?'RKT':e.part==='armor'?'ARM':'ENG',e.x,e.y+5,10,C.yellow,'center',900);
+  if((e.disabled||0)>0){ctx.strokeStyle=C.teal;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,Math.max(e.w,e.h)*.42,0,6.28);ctx.stroke()}
+  bar(e.x-e.w*.45,e.y-e.h*.62,e.w*.9,8,e.hp/e.maxHp,C.yellow);return
+ }
  const boss=e.type==='dreadnought',sc=e.group==='colossus'?1.05:boss?1.55:e.type==='wartruck'?1.2:e.type==='bike'?.72:.92;
  const key=e.type==='bike'?'bike':e.type==='missilevan'?'missilevan':e.type==='wartruck'||boss?'wartruck':e.type==='truck'?'truck':null;
  let art=false;
@@ -1163,7 +1189,7 @@ function drawEnemyVehicle(e){
   const col=boss?'#4e3d36':e.type==='missilevan'?'#67536a':e.group==='colossus'?'#57433a':e.type==='wartruck'?'#6d594c':e.type==='truck'?'#75624c':e.type==='bike'?'#9a7049':'#806448';
   drawVehicle(e.x,e.y,sc,col,false)
  }
- if(e.group==='colossus')text(e.part==='mg'?'MG':e.part==='rocket'?'RKT':e.part==='armor'?'ARM':'ENG',e.x,e.y+5,10,C.yellow,'center',900);else if(e.type==='missilevan'&&!PROD.enemyMissileVan.ready)text('MSL',e.x,e.y+7,9,C.yellow,'center',900);
+ if(e.type==='missilevan'&&!PROD.enemyMissileVan.ready)text('MSL',e.x,e.y+7,9,C.yellow,'center',900);
  if((e.disabled||0)>0){ctx.strokeStyle=C.teal;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,Math.max(e.w,e.h)*.42,0,6.28);ctx.stroke()}
  if(e.maxHp>4)bar(e.x-e.w*.45,e.y-e.h*.62,e.w*.9,boss||e.group==='colossus'?8:5,e.hp/e.maxHp,e.group==='colossus'?C.yellow:C.red)
 }
@@ -1253,6 +1279,9 @@ function drawScavFX(f){
  ctx.restore();
 }
 const SITE_STRUCTURE_ART={gas:'siteGasStation',clinic:'siteClinic',motel:'siteMotel',junkyard:'siteJunkyard'};
+// Normalized opaque bounds (alpha >= 16) of the 256x192 landmark sources.
+// Shadows use the visible feet rather than the larger transparent image box.
+const SITE_STRUCTURE_BOUNDS={gas:[.031,.042,.969,.958],clinic:[.031,.083,.969,.911],motel:[.031,.063,.969,.938],junkyard:[.031,.099,.969,.901]};
 const SITE_COVER_ART={gas:'propGasCover',clinic:'propClinicCover',motel:'propMotelCover',junkyard:'propJunkyardCover',final:'propJunkyardCover'};
 const SITE_CACHE_ART={gas:'propGasCache',clinic:'propClinicCache',motel:'propMotelCache',junkyard:'propJunkyardCache',final:'propJunkyardCache'};
 const SITE_CACHE_SIZE={gas:[42,34],clinic:[40,36],motel:[44,34],junkyard:[46,34],final:[46,34]};
@@ -1293,8 +1322,8 @@ function drawScavCover(o,site){
  ctx.fillStyle='rgba(245,222,174,.20)';ctx.fillRect(x+10,y+7,Math.max(8,w*.34),3);
 }
 function drawSiteStructure(o,site){
- const x=o.x+o.w/2,y=o.y+o.h/2;
- ctx.fillStyle='rgba(18,16,13,.36)';ctx.beginPath();ctx.ellipse(x,o.y+o.h-2,o.w*.48,10,0,0,6.28);ctx.fill();
+ const x=o.x+o.w/2,y=o.y+o.h/2,b=SITE_STRUCTURE_BOUNDS[site]||[0,0,1,1],visibleW=o.w*(b[2]-b[0]),groundY=o.y+o.h*b[3]-1;
+ ctx.fillStyle='rgba(18,16,13,.36)';ctx.beginPath();ctx.ellipse(x,groundY,visibleW*.46,Math.max(6,o.h*.045),0,0,6.28);ctx.fill();
  if(!drawProd(SITE_STRUCTURE_ART[site],x,y,o.w,o.h,1)&&!drawArt(site,x,y,o.w,o.h,1))drawScavCover(o,site);
 }
 function drawScavenge(){
