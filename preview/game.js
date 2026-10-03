@@ -127,6 +127,8 @@ const VEH={
  flak:{name:'高射机关炮',w:2,h:1,kind:'weapon',tag:'高射',color:'#8e7650',sell:18},
  arc:{name:'电弧发射器',w:2,h:1,kind:'weapon',tag:'电弧',color:'#5f8c9b',sell:21}
 };
+const GEAR_REWARD_POOL=['pistol','ammo','scope','apammo','vest','medkit','charm','boots','smg','shotgun','rifle'];
+const VEH_REWARD_POOL=['mg','cannon','belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc'];
 const SYNERGY_STYLE={
  rapid:{color:'#e2ad4e',label:'射速'},range:{color:'#69a8d8',label:'射程'},pierce:{color:'#d86b5e',label:'穿甲'},
  reload:{color:'#d98754',label:'装填'},electric:{color:'#69d7df',label:'电能'},drive:{color:'#7d9fe0',label:'动力'}
@@ -193,8 +195,8 @@ function freshMeta(){return{
  backpack:[{id:1,type:'pistol',level:1,gx:1,gy:1,locked:false},{id:2,type:'ammo',level:1,gx:3,gy:1,locked:false}],
  vehiclePack:[{id:1,type:'engine',level:1,gx:0,gy:1,locked:true},{id:2,type:'turbo',level:1,gx:2,gy:1},{id:3,type:'mg',level:1,gx:3,gy:0,locked:false},{id:4,type:'belt',level:1,gx:5,gy:0},{id:5,type:'cannon',level:1,gx:3,gy:2,locked:false},{id:6,type:'loader',level:1,gx:5,gy:2},{id:7,type:'armor',level:1,gx:0,gy:3}],
  pendingHaul:[],pendingVehicle:[],pack:{cols:6,rows:5,tier:1},vehicleGrid:{cols:6,rows:4,tier:1},
- roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},
- route:{...ROUTES[0]},town:{name:'锈水镇',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
+ roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},gearUpgradeGap:0,vehicleUpgradeGap:0,
+ route:{...ROUTES[0]},town:{name:'锈水镇',demand:'med',locker:[],offerLeg:0,upgradeOfferLeg:0,gearOffers:[],moduleOffers:[]},
  finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0,events:0},runEnded:null,pendingRoadEvent:null,nextSearchEffect:null,eventGap:0,chassis:'junker',
  vehicle:{name:'破烂车 一型',scrap:0,fuel:18,hull:null}
 }}
@@ -229,6 +231,15 @@ function startNewRun(){resetSave()}
 function touching(a,b,defs){const A=defs[a.type],B=defs[b.type];const xOverlap=a.gx<b.gx+B.w&&a.gx+A.w>b.gx;const yOverlap=a.gy<b.gy+B.h&&a.gy+A.h>b.gy;const vertical=(a.gx+A.w===b.gx||b.gx+B.w===a.gx)&&yOverlap;const horizontal=(a.gy+A.h===b.gy||b.gy+B.h===a.gy)&&xOverlap;return vertical||horizontal;}
 function makeItem(type,level=1){return{id:meta.nextId++,type,level,gx:null,gy:null,locked:false}}
 function makeVehicle(type,level=1){return{id:meta.nextVid++,type,level,gx:null,gy:null,locked:false}}
+function upgradableWeaponTypes(list,defs){return[...new Set(list.filter(it=>!it.locked&&(it.level||1)<3&&defs[it.type]?.kind==='weapon').map(it=>it.type))]}
+function pickUpgradeReward(base,list,defs,gapKey){
+ const upgrades=upgradableWeaponTypes(list,defs),force=upgrades.length&&((meta[gapKey]||0)>=2||Math.random()<.42),type=force?choice(upgrades):choice(base);
+ if(upgrades.includes(type))meta[gapKey]=0;else if(upgrades.length)meta[gapKey]=(meta[gapKey]||0)+1;return type
+}
+function shopOfferTypes(base,list,defs){
+ const upgrades=upgradableWeaponTypes(list,defs),first=upgrades.length?choice(upgrades):null,rest=shuffle([...base]).filter(type=>type!==first);return first?[first,...rest].slice(0,3):rest.slice(0,3)
+}
+function fusionTarget(type,list){return list.find(it=>it.type===type&&!it.locked&&(it.level||1)<3)||null}
 
 function activeWeapons(list,defs,max=2){
  return list.filter(i=>defs[i.type]?.kind==='weapon'&&i.gx!=null&&i.gy!=null)
@@ -484,11 +495,11 @@ function finishRoadSuccess(){
   if(forced||Math.random()<chance){meta.pendingRoadEvent={id:choice(WORLD_EVENTS).id,forced};meta.eventGap=0}
  }
  const bf=meta.route.id==='salt'?2:0,bs=meta.route.id==='raider'?2:0;meta.vehicle.scrap+=g.scrap+bs;meta.vehicle.fuel=Math.min(g.build.maxFuel,meta.vehicle.fuel+g.fuel+bf);g.scrap+=bs;g.fuel+=bf;
- const pool=['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc'],final=meta.selectedNode?.type==='final',boss=meta.selectedNode?.type==='boss',t=choice(pool),lv=boss?2:(meta.selectedNode?.danger===3&&Math.random()<.25?2:1);
+ const pool=VEH_REWARD_POOL,final=meta.selectedNode?.type==='final',boss=meta.selectedNode?.type==='boss',t=pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),lv=boss?2:(meta.selectedNode?.danger===3&&Math.random()<.25?2:1);
  if(final){g.reward='armor';g.rewardLv=3;roadResultReveal=0;state='roadresult';save();return}
  meta.pendingVehicle.push(makeVehicle(t,lv));g.reward=t;g.rewardLv=lv;
- if(boss){meta.pendingVehicle.push(makeVehicle(choice(pool),2));meta.credits+=35}
- else if(meta.route.id==='raider'&&Math.random()<.55)meta.pendingVehicle.push(makeVehicle(choice(pool),1));
+ if(boss){meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),2));meta.credits+=35}
+ else if(meta.route.id==='raider'&&Math.random()<.55)meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),1));
  roadResultReveal=0;state='roadresult';save();
 }
 function roadHitDamage(g,e,kind,base){
@@ -770,7 +781,7 @@ function moveEnemyAwaySmart(e,tx,ty,dt,speed,obs,bounds){
 function moveActor(p,dt,speed,minX,maxX,minY,maxY){let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);p.x+=n.x*speed*dt;p.y+=n.y*speed*dt}p.x=clamp(p.x,minX,maxX);p.y=clamp(p.y,minY,maxY)}
 function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='已自动使用医疗包';noticeT=1.2}}
 function chooseLoot(){const w=SITE[game.site].loot,r=Math.random();let a=0;for(const k of ['gas','food','scrap','med']){a+=w[k];if(r<a)return k}return'scrap'}
-function gearDrop(rare=false){const chance=.12+SITE[game.site].gear+game.build.luck+(rare?.35:0);if(Math.random()>chance)return null;const pool=['ammo','scope','apammo','vest','medkit','charm','boots','smg','shotgun','rifle'];return makeItem(choice(pool),rare&&Math.random()<.45?2:1)}
+function gearDrop(rare=false){const chance=.12+SITE[game.site].gear+game.build.luck+(rare?.35:0);if(Math.random()>chance)return null;return makeItem(pickUpgradeReward(GEAR_REWARD_POOL,meta.backpack,ITEM,'gearUpgradeGap'),rare&&Math.random()<.45?2:1)}
 function openCrate(c){
  c.opened=true;
  const n=c.rare?3:1+Math.floor(Math.random()*2);
@@ -780,7 +791,7 @@ function openCrate(c){
  }
  game.fx.push({x:c.x,y:c.y,r:c.rare?36:28,life:.45,color:c.rare?'#ffe796':C.green,kind:'searchBurst'});
  const g=gearDrop(c.rare);if(g)game.haul.push(g);
- if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']),c.rare&&Math.random()<.25?2:1));
+ if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(VEH_REWARD_POOL,meta.vehiclePack,VEH,'vehicleUpgradeGap'),c.rare&&Math.random()<.25?2:1));
  notice=c.rare?'已开启稀有储藏箱':'补给已收入囊中';noticeT=.8;save()
 }
 function pointInObstacle(x,y,o,pad=0){return x>=o.x-pad&&x<=o.x+o.w+pad&&y>=o.y-pad&&y<=o.y+o.h+pad}
@@ -1033,7 +1044,7 @@ function resolveEvent(choiceIndex){
  }
  meta.pendingRoadEvent=null;eventData=null;save();startScavenge();
 }
-function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,r:14,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},near:null};meta.arrived=false;if(meta.town.offerLeg!==meta.roadLeg){meta.town.demand=choice(['gas','food','scrap','med']);meta.town.gearOffers=shuffle(['ammo','scope','apammo','vest','medkit','boots','smg','shotgun','rifle']).slice(0,3).map(type=>({type,cost:Math.round(ITEM[type].sell*1.8),sold:false}));meta.town.moduleOffers=shuffle(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']).slice(0,3).map(type=>({type,credits:Math.round(VEH[type].sell*1.7),salvage:2+Math.floor(VEH[type].sell/10),sold:false}));meta.town.offerLeg=meta.roadLeg}save()}
+function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,r:14,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},near:null};meta.arrived=false;if(meta.town.offerLeg!==meta.roadLeg||meta.town.upgradeOfferLeg!==meta.roadLeg){meta.town.demand=choice(['gas','food','scrap','med']);meta.town.gearOffers=shopOfferTypes(GEAR_REWARD_POOL,meta.backpack,ITEM).map(type=>({type,cost:Math.round(ITEM[type].sell*1.8),sold:false}));meta.town.moduleOffers=shopOfferTypes(VEH_REWARD_POOL,meta.vehiclePack,VEH).map(type=>({type,credits:Math.round(VEH[type].sell*1.7),salvage:2+Math.floor(VEH[type].sell/10),sold:false}));meta.town.offerLeg=meta.roadLeg;meta.town.upgradeOfferLeg=meta.roadLeg}save()}
 function townPrice(t){const base={gas:5,food:4,scrap:6,med:9}[t];return Math.round(base*(meta.town.demand===t?1.7:1))}
 function say(s){notice=s;noticeT=1.5}
 const TOWN_SPOTS=[
@@ -1056,7 +1067,7 @@ function updateTown(dt){
 function townInteract(){if(townPanel||!townWorld)return;const a=townNearest();if(!a)return say('再靠近一点');if(a.id==='gate'){completeDestination();state='route';townWorld=null}else townPanel=a.id}
 function townTap(p){
  if(townPanel){townPanelTap(p);return}
- if(p.y<100&&p.x>390){startPack('town',false,[]);return}
+ if(p.x>=430&&p.y>=105&&p.y<=145){startPack('town',false,[]);return}
  if(p.y>500){joyStart({pointerId:-99},p);return}
  const a=townNearest();if(a&&p.y>115&&p.y<500)townInteract();
 }
@@ -1070,7 +1081,7 @@ function townPanelTap(p){
   const cap=vehicleStats().maxFuel;if(p.y>360&&p.y<432){if(meta.cargo.gas>0&&meta.vehicle.fuel<cap){meta.cargo.gas--;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+3);say('燃料 +3')}else say('没有油罐 / 油箱已满')}if(p.y>460&&p.y<532){if(meta.credits>=5&&meta.vehicle.fuel<cap){meta.credits-=5;meta.vehicle.fuel++;say('燃料 +1')}else say('无法购买')}if(p.y>560&&p.y<632){if(meta.credits>=22&&meta.vehicle.fuel<cap){meta.credits-=22;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+5);say('燃料 +5')}else say('无法购买')}save();return
  }
  if(townPanel==='garage'){
-  const vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);if(p.y>205&&p.y<270){if(h<vs.maxHull&&meta.credits>=6){meta.credits-=6;meta.vehicle.hull=h+1;say('车体 +1')}else say('无需维修')}if(p.y>290&&p.y<355){const miss=vs.maxHull-h,cost=miss*6;if(miss&&meta.credits>=cost){meta.credits-=cost;meta.vehicle.hull=vs.maxHull;say('车体已完全修复')}else say('无法维修')}if(p.y>390&&p.y<455){if(meta.vehicleGrid.tier<3){const co=meta.vehicleGrid.tier===1?[40,4]:[70,7];if(meta.credits>=co[0]&&meta.vehicle.scrap>=co[1]){meta.credits-=co[0];meta.vehicle.scrap-=co[1];meta.vehicleGrid.tier++;if(meta.vehicleGrid.tier===2)meta.vehicleGrid.cols=7;else meta.vehicleGrid.rows=5;say('载具舱已扩建')}else say('资源不足')}}if(p.y>500&&p.y<565){startVehicleBay('town');return}for(let i=0;i<3;i++){const y=610+i*75;if(p.y>=y&&p.y<=y+62){const o=meta.town.moduleOffers[i];if(o&&!o.sold&&meta.credits>=o.credits&&meta.vehicle.scrap>=o.salvage){meta.credits-=o.credits;meta.vehicle.scrap-=o.salvage;o.sold=true;meta.pendingVehicle.push(makeVehicle(o.type));say('已购买模块')}else say('无法购买');save();return}}save();return
+  const vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);if(p.y>=270&&p.y<=332){if(h<vs.maxHull&&meta.credits>=6){meta.credits-=6;meta.vehicle.hull=h+1;say('车体 +1')}else say('无需维修')}if(p.y>=345&&p.y<=407){const miss=vs.maxHull-h,cost=miss*6;if(miss&&meta.credits>=cost){meta.credits-=cost;meta.vehicle.hull=vs.maxHull;say('车体已完全修复')}else say('无法维修')}if(p.y>=420&&p.y<=482){if(meta.vehicleGrid.tier<3){const co=meta.vehicleGrid.tier===1?[40,4]:[70,7];if(meta.credits>=co[0]&&meta.vehicle.scrap>=co[1]){meta.credits-=co[0];meta.vehicle.scrap-=co[1];meta.vehicleGrid.tier++;if(meta.vehicleGrid.tier===2)meta.vehicleGrid.cols=7;else meta.vehicleGrid.rows=5;say('载具舱已扩建')}else say('资源不足')}}if(p.y>=495&&p.y<=557){startVehicleBay('town');return}for(let i=0;i<3;i++){const y=595+i*75;if(p.y>=y&&p.y<=y+62){const o=meta.town.moduleOffers[i];if(o&&!o.sold&&meta.credits>=o.credits&&meta.vehicle.scrap>=o.salvage){meta.credits-=o.credits;meta.vehicle.scrap-=o.salvage;o.sold=true;meta.pendingVehicle.push(makeVehicle(o.type));say('已购买模块')}else say('无法购买');save();return}}save();return
  }
  if(townPanel==='armory'){
   if(p.y>205&&p.y<270){if(meta.pack.tier<3){const cost=meta.pack.tier===1?35:60;if(meta.credits>=cost){meta.credits-=cost;meta.pack.tier++;if(meta.pack.tier===2)meta.pack.cols=7;else meta.pack.rows=6;say('背包已扩容')}else say('信用点不足')}}if(p.y>300&&p.y<365){startPack('town',false,[]);return}for(let i=0;i<3;i++){const y=435+i*90;if(p.y>=y&&p.y<=y+72){const o=meta.town.gearOffers[i];if(o&&!o.sold&&meta.credits>=o.cost){meta.credits-=o.cost;o.sold=true;meta.pendingHaul.push(makeItem(o.type));say('已购买装备')}else say('无法购买');save();return}}save();return
@@ -1097,7 +1108,7 @@ addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 canvas.addEventListener('pointerdown',e=>{
  const p=canvasPoint(e);
  if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}
- if(state==='town'&&!townPanel){const near=townNearest();if(near&&p.x>=315&&p.x<=510&&p.y>=850&&p.y<=920){townInteract();return}if(p.y>500)joyStart(e,p);return}
+ if(state==='town'&&!townPanel){if(p.x>=430&&p.y>=105&&p.y<=145){startPack('town',false,[]);return}const near=townNearest();if(near&&p.x>=315&&p.x<=510&&p.y>=850&&p.y<=920){townInteract();return}if(p.y>500)joyStart(e,p);return}
  if(state==='menu'){state='route';ensureChoices();return}
  if(state==='route'){routeTap(p);return}
  if(state==='roadresult'){
@@ -1170,7 +1181,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,22,21,.96)';roundRect(75,858,390,50,12,true,false);fitText(notice,270,889,350,UI.body,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('电磁武器与搭配提示 • A20',270,856,UI.caption,'#777b6c','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('初始武器升级与城镇 UI • A21',270,856,UI.caption,'#777b6c','center',700)}
 function drawProdCover(key,x,y,w,h,alpha=1){
  const a=PROD[key];if(!a?.ready)return false;const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale,sx=(iw-sw)/2,sy=(ih-sh)/2;
@@ -1602,12 +1613,12 @@ function drawTown(){
   fitText(a.title,a.x+a.w/2,a.y+30,a.w-34,UI.caption,11,near?.id===a.id?C.yellow:C.cream,'center',900);
   if(near?.id===a.id){ctx.strokeStyle=C.yellow;ctx.lineWidth=2;roundRect(a.x,a.y,a.w,a.h,8,false,true)}
  }
- ctx.fillStyle='rgba(14,20,19,.90)';ctx.fillRect(0,122,W,46);text('锈水镇',24,152,18,C.cream,'left',900);uiPill(105,133,58,'安全区','#385b47','#d9ead8');
- const vs=vehicleStats();fitText(`¢${meta.credits}  燃料 ${meta.vehicle.fuel}/${vs.maxFuel}  废料 ${meta.vehicle.scrap}`,515,152,320,UI.caption,11,C.yellow,'right',900);
+ ctx.fillStyle='rgba(14,20,19,.94)';roundRect(12,42,516,62,12,true,false);text('锈水镇',28,70,18,C.cream,'left',900);uiPill(108,52,64,'安全区','#385b47','#d9ead8');
+ const vs=vehicleStats();fitText(`¢${meta.credits}  ·  燃料 ${meta.vehicle.fuel}/${vs.maxFuel}  ·  废料 ${meta.vehicle.scrap}`,512,94,300,UI.caption,11,C.yellow,'right',900);
  drawVehicle(270,820,.66,C.yellow);
  if(townWorld)drawSurvivor(townWorld.player);
  if(near&&!townPanel){ctx.fillStyle='rgba(16,24,23,.96)';roundRect(88,734,364,66,12,true,false);text(near.title,270,762,UI.label,C.cream,'center',900);text(near.sub||'已进入交互范围',270,785,UI.caption,C.green,'center',800);ctx.fillStyle=C.yellow;roundRect(315,850,195,70,12,true,false);text(near.id==='gate'?'离开城镇':'互动',412,892,UI.label,C.ink,'center',900)}
- text('背包',472,96,UI.caption,C.muted,'center',900);if(!near)text('拖动摇杆移动 · 靠近建筑互动',270,896,UI.caption,C.muted,'center',700);
+ uiPill(440,112,72,'背包','#26322f',C.cream);if(!near)text('拖动摇杆移动 · 靠近建筑互动',270,896,UI.caption,C.muted,'center',700);
  if(!townPanel)drawJoy();if(townPanel)drawTownPanel();drawNotice()
 }
 function drawTownPanel(){ctx.fillStyle='rgba(8,12,11,.86)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#1d2927';roundRect(18,94,504,824,18,true,false);ctx.fillStyle='#34423e';roundRect(462,111,44,44,12,true,false);text('×',484,142,25,C.cream,'center',900);if(townPanel==='market')drawMarket();if(townPanel==='fuel')drawFuel();if(townPanel==='garage')drawGarage();if(townPanel==='armory')drawArmory();if(townPanel==='routes')drawRoutes()}
@@ -1620,11 +1631,11 @@ function drawFuel(){
  [['倒入货运油罐',`持有油罐 ${meta.cargo.gas}`],['购买 1 点燃料','花费 ¢5'],['购买 5 点燃料','花费 ¢22']].forEach((r,i)=>{const y=360+i*100;ctx.fillStyle='#303b37';roundRect(85,y,370,72,12,true,false);text(r[0],270,y+31,UI.label,C.cream,'center',900);text(r[1],270,y+56,UI.caption,C.yellow,'center',800)})
 }
 function drawGarage(){
- panelHead('修车厂','购买模块后，用同色外框相邻激活增益');const v=vehicleStats(),h=Math.min(meta.vehicle.hull??v.maxHull,v.maxHull);text(`车体 ${h}/${v.maxHull}`,55,202,UI.body,C.cream,'left',900);bar(165,191,320,14,h/v.maxHull,h/v.maxHull>.4?C.green:C.red);
- [['维修 +1 · ¢6',205],['完全修复',290],[`扩建载具舱 ${meta.vehicleGrid.cols}×${meta.vehicleGrid.rows}`,390],['打开载具舱',500]].forEach((r,i)=>{ctx.fillStyle=i===3?'#31575a':'#303b37';roundRect(55,r[1],430,65,10,true,false);fitText(r[0],270,r[1]+40,390,UI.label,13,i===3?'#d9f0ec':C.cream,'center',900)});text('可购买模块',55,595,UI.body,C.muted,'left',900);(meta.town.moduleOffers||[]).forEach((o,i)=>{const d=VEH[o.type],y=610+i*75,it={id:-100-i,type:o.type,gx:null,gy:null};ctx.fillStyle='#293330';roundRect(55,y,430,62,9,true,false);drawSynergyFrame(it,55,y,430,62,VEH,meta.vehiclePack,o.sold?.35:1);fitText(o.sold?'已售出':d.name,75,y+27,245,UI.body,12,o.sold?'#6e776f':C.cream,'left',900);text(`¢${o.credits} + ${o.salvage} 废料`,75,y+50,11,C.yellow);const roles=synergyRoles(it,VEH);if(roles.length)text(SYNERGY_STYLE[roles[0]].label,395,y+53,10,SYNERGY_STYLE[roles[0]].color,'center',900);uiPill(397,y+19,72,o.sold?'售罄':'购买',o.sold?'#404642':'#59634f',o.sold?C.muted:C.cream)})
+ panelHead('修车厂','购买模块后，用同色外框相邻激活增益');const v=vehicleStats(),h=Math.min(meta.vehicle.hull??v.maxHull,v.maxHull);ctx.fillStyle='#27312e';roundRect(55,200,430,56,10,true,false);text(`车体 ${h}/${v.maxHull}`,75,233,UI.body,C.cream,'left',900);bar(185,218,280,16,h/v.maxHull,h/v.maxHull>.4?C.green:C.red);
+ [['维修 +1 · ¢6',270],['完全修复',345],[`扩建载具舱 ${meta.vehicleGrid.cols}×${meta.vehicleGrid.rows}`,420],['打开载具舱',495]].forEach((r,i)=>{ctx.fillStyle=i===3?'#31575a':'#303b37';roundRect(55,r[1],430,62,10,true,false);fitText(r[0],270,r[1]+38,390,UI.label,13,i===3?'#d9f0ec':C.cream,'center',900)});text('可购买模块',55,580,UI.body,C.muted,'left',900);(meta.town.moduleOffers||[]).forEach((o,i)=>{const d=VEH[o.type],y=595+i*75,it={id:-100-i,type:o.type,gx:null,gy:null},fuse=fusionTarget(o.type,meta.vehiclePack);ctx.fillStyle='#293330';roundRect(55,y,430,62,9,true,false);drawSynergyFrame(it,55,y,430,62,VEH,meta.vehiclePack,o.sold?.35:1);fitText(o.sold?'已售出':d.name,75,y+27,245,UI.body,12,o.sold?'#6e776f':C.cream,'left',900);text(`¢${o.credits} + ${o.salvage} 废料`,75,y+50,11,C.yellow);const roles=synergyRoles(it,VEH),hint=fuse?`可融合→${(fuse.level||1)+1}级`:roles.length?SYNERGY_STYLE[roles[0]].label:'';if(hint)fitText(hint,395,y+53,92,10,9,fuse?C.yellow:SYNERGY_STYLE[roles[0]].color,'center',900);uiPill(397,y+19,72,o.sold?'售罄':'购买',o.sold?'#404642':'#59634f',o.sold?C.muted:C.cream)})
 }
 function drawArmory(){
- panelHead('军械库','同色外框相邻，让武器获得射速、射程或穿甲增益');ctx.fillStyle='#303b37';roundRect(55,205,430,65,10,true,false);text(`扩充背包 ${meta.pack.cols}×${meta.pack.rows}`,270,245,UI.label,C.cream,'center',900);ctx.fillStyle='#31575a';roundRect(55,300,430,65,10,true,false);text(`打开背包 · 待处理 ${meta.pendingHaul.length}`,270,340,UI.label,'#d9f0ec','center',900);text('可购买装备',55,422,UI.body,C.muted,'left',900);(meta.town.gearOffers||[]).forEach((o,i)=>{const d=ITEM[o.type],y=435+i*90,it={id:-200-i,type:o.type,gx:null,gy:null};ctx.fillStyle='#293330';roundRect(55,y,430,72,9,true,false);drawSynergyFrame(it,55,y,430,72,ITEM,meta.backpack,o.sold?.35:1);fitText(o.sold?'已售出':d.name,75,y+31,245,UI.label,12,o.sold?'#6e776f':C.cream,'left',900);text(`¢${o.cost} · 占用 ${d.w}×${d.h}`,75,y+57,UI.caption,C.yellow);const roles=synergyRoles(it,ITEM);if(roles.length)text(roles.length>1?'可受增益':SYNERGY_STYLE[roles[0]].label,395,y+61,10,roles.length>1?C.muted:SYNERGY_STYLE[roles[0]].color,'center',900);uiPill(397,y+24,72,o.sold?'售罄':'购买',o.sold?'#404642':'#59634f',o.sold?C.muted:C.cream)})
+ panelHead('军械库','同色外框相邻，让武器获得射速、射程或穿甲增益');ctx.fillStyle='#303b37';roundRect(55,205,430,65,10,true,false);text(`扩充背包 ${meta.pack.cols}×${meta.pack.rows}`,270,245,UI.label,C.cream,'center',900);ctx.fillStyle='#31575a';roundRect(55,300,430,65,10,true,false);text(`打开背包 · 待处理 ${meta.pendingHaul.length}`,270,340,UI.label,'#d9f0ec','center',900);text('可购买装备',55,422,UI.body,C.muted,'left',900);(meta.town.gearOffers||[]).forEach((o,i)=>{const d=ITEM[o.type],y=435+i*90,it={id:-200-i,type:o.type,gx:null,gy:null},fuse=fusionTarget(o.type,meta.backpack);ctx.fillStyle='#293330';roundRect(55,y,430,72,9,true,false);drawSynergyFrame(it,55,y,430,72,ITEM,meta.backpack,o.sold?.35:1);fitText(o.sold?'已售出':d.name,75,y+31,245,UI.label,12,o.sold?'#6e776f':C.cream,'left',900);text(`¢${o.cost} · 占用 ${d.w}×${d.h}`,75,y+57,UI.caption,C.yellow);const roles=synergyRoles(it,ITEM),hint=fuse?`可融合→${(fuse.level||1)+1}级`:roles.length>1?'可受增益':roles.length?SYNERGY_STYLE[roles[0]].label:'';if(hint)fitText(hint,395,y+61,92,10,9,fuse?C.yellow:roles.length>1?C.muted:SYNERGY_STYLE[roles[0]].color,'center',900);uiPill(397,y+24,72,o.sold?'售罄':'购买',o.sold?'#404642':'#59634f',o.sold?C.muted:C.cream)})
 }
 function drawRoutes(){
  panelHead('路线牌','选择公路风格，改变油耗与战斗压力');ROUTES.forEach((r,i)=>{const y=255+i*150,sel=meta.route.id===r.id;ctx.fillStyle=sel?'#3d493e':'#293330';roundRect(55,y,430,116,12,true,false);ctx.strokeStyle=sel?C.yellow:'#52605a';ctx.lineWidth=sel?3:1;roundRect(55,y,430,116,12,false,true);fitText(r.name,75,y+38,260,18,15,sel?C.yellow:C.cream,'left',900);fitText(r.risk,455,y+38,120,UI.caption,11,r.id==='raider'?C.red:C.muted,'right',900);wrap(r.bonus,75,y+70,350,20,UI.caption,C.muted,2)})
