@@ -1,42 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#11130f" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Wasteland Survivor" />
+  <meta name="apple-mobile-web-app-title" content="废土幸存者" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="../icon-192.png" />
-  <script>document.write(`<link rel="stylesheet" href="style.css?cb=${Date.now()}">`)</script>
-  <title>Wasteland Survivor — Art Reforge Preview</title>
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <title>废土幸存者</title>
 </head>
 <body>
-  <div style="position:fixed;top:8px;right:8px;z-index:9999;padding:6px 9px;border:1px solid rgba(217,165,43,.7);border-radius:7px;background:rgba(16,15,11,.9);color:#d9a52b;font:700 10px ui-monospace,monospace;letter-spacing:.04em;pointer-events:none">ART REFORGE • COMBAT FEEDBACK A12</div>
   <main id="app">
     <div id="game-shell">
-      <canvas id="game" width="540" height="960" aria-label="Wasteland Survivor portrait game canvas"></canvas>
+      <canvas id="game" width="540" height="960" aria-label="废土幸存者竖屏游戏画布"></canvas>
     </div>
-    <div id="landscape-note">PORTRAIT MODE RECOMMENDED</div>
+    <div id="landscape-note">建议使用竖屏模式</div>
   </main>
-  <script>document.write(`<script src="game.js?cb=${Date.now()}"><\/script>`)</script>
+  <script src="game.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      addEventListener('load', async () => {
-        try {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.filter(r => r.scope.includes('/wasteland-survivor/preview/')).map(r => r.unregister()));
-          if ('caches' in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.filter(k => k.includes('wasteland-survivor-art-reforge-preview')).map(k => caches.delete(k)));
-          }
-        } catch (_) {}
-      });
-    }
+    if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
   </script>
 </body>
 </html>
