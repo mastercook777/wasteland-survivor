@@ -333,20 +333,11 @@ function spawnColossus(){
  for(const q of parts)g.enemies.push({rid:Math.random().toString(36).slice(2),group:'colossus',sway:phase,spd:0,x:q.baseX,y:g.colossusY+q.offY,baseX:q.baseX,offY:q.offY,type:q.type,part:q.part,hp:q.hp,maxHp:q.hp,w:q.w,h:q.h,shoot:q.shoot,shootCd:q.shoot,ram:0,score:q.score,shootScale:1});
 }
 function roadTarget(g,p,max=520){
- const parts=g.enemies.filter(e=>e.group==='colossus'&&e.y<=p.y+20&&distance(p,e)<max);
- if(g.finalRoute&&parts.length){
-  const armorAlive=parts.some(e=>e.part==='armor');let best=null,score=1e9;
-  for(const e of parts){
-   let s=Math.abs(e.x-p.x)*1.65+Math.abs(e.y-p.y)*.12;
-   if(e.part==='engine'&&armorAlive)s+=180;
-   if(p.x<205&&e.part==='mg')s-=120;
-   if(p.x>335&&e.part==='rocket')s-=120;
-   if(p.x>=205&&p.x<=335&&e.part==='armor')s-=90;
-   if(s<score){score=s;best=e}
-  }
-  if(best)return best;
- }
- let t=null,b=1e9;for(const e of g.enemies){if(e.y>p.y+20)continue;const d=distance(p,e);if(d<max&&d<b){t=e;b=d}}return t;
+ const armorAlive=g.finalRoute&&g.enemies.some(e=>e.group==='colossus'&&e.part==='armor');
+ let t=null,b=1e9;for(const e of g.enemies){
+  if(e.y>p.y+20||armorAlive&&e.group==='colossus'&&e.part==='engine')continue;
+  const d=distance(p,e);if(d<max&&d<b){t=e;b=d}
+ }return t;
 }
 function roadIntercept(target,sx,sy,projSpeed,kind){
  const rx=target.x-sx,ry=target.y-sy,vx=target.vx||0,vy=target.vy||target.spd||0;
@@ -1087,7 +1078,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,15,12,.92)';roundRect(85,865,370,42,12,true,false);text(notice,270,891,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('ART REFORGE • COLOSSUS A14',270,855,10,'#66695b','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('ART REFORGE • COLOSSUS A15',270,855,10,'#66695b','center',700)}
 function drawRoute(){drawDunes();
  ctx.fillStyle='rgba(12,14,11,.58)';ctx.fillRect(0,0,W,H);
  ctx.save();ctx.globalAlpha=.18;ctx.strokeStyle='#c49a58';ctx.lineWidth=1;for(let x=35;x<W;x+=47){ctx.beginPath();ctx.moveTo(x,155);ctx.lineTo(x-70,735);ctx.stroke()}for(let y=175;y<735;y+=54){ctx.beginPath();ctx.moveTo(18,y);ctx.lineTo(522,y+20);ctx.stroke()}ctx.restore();
