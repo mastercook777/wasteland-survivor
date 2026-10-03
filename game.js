@@ -49,6 +49,7 @@ const PROD_SOURCES={
  enemyWartruck:'assets/art/production/enemy_wartruck_v1.webp',
  enemyMissileVan:'assets/art/production/enemy_missile_van_v1.webp',
  enemyColossus:'assets/art/production/enemy_colossus_v1.webp',
+ townRustwater:'assets/art/production/town_rustwater_v1.webp',
  siteGasStation:'assets/art/production/site_gas_station_v1.webp',
  siteClinic:'assets/art/production/site_clinic_v1.webp',
  siteMotel:'assets/art/production/site_motel_v1.webp',
@@ -96,82 +97,83 @@ const choice=a=>a[Math.floor(Math.random()*a.length)];
 const shuffle=a=>[...a].sort(()=>Math.random()-.5);
 
 const ITEM={
- pistol:{name:'9MM PISTOL',w:2,h:1,kind:'weapon',tag:'PST',color:'#a98554',sell:10,interval:.43,damage:1,range:220,speed:470,pellets:1},
- smg:{name:'SCRAP SMG',w:2,h:2,kind:'weapon',tag:'SMG',color:'#9f774c',sell:18,interval:.24,damage:1,range:205,speed:500,pellets:1},
- shotgun:{name:'SAWED-OFF',w:2,h:2,kind:'weapon',tag:'SG',color:'#8b6548',sell:22,interval:.82,damage:1,range:175,speed:430,pellets:5,spread:.34},
- rifle:{name:'SCOUT RIFLE',w:3,h:1,kind:'weapon',tag:'RFL',color:'#6f7658',sell:26,interval:.88,damage:2,range:360,speed:650,pellets:1},
- ammo:{name:'AMMO POUCH',w:1,h:2,kind:'support',tag:'AM',color:'#b28c45',sell:9},
- scope:{name:'OPTIC',w:1,h:1,kind:'support',tag:'OPT',color:'#6e8790',sell:12},
- apammo:{name:'AP ROUNDS',w:1,h:2,kind:'support',tag:'AP',color:'#897b59',sell:15},
- vest:{name:'KEVLAR VEST',w:2,h:2,kind:'armor',tag:'AR',color:'#567161',sell:16},
- medkit:{name:'FIELD MEDKIT',w:1,h:2,kind:'utility',tag:'MED',color:'#a94e45',sell:13},
- charm:{name:'LUCKY CHARM',w:1,h:1,kind:'trinket',tag:'★',color:'#7f6c91',sell:14},
- boots:{name:'RUNNER BOOTS',w:1,h:2,kind:'gear',tag:'BT',color:'#536c82',sell:12}
+ pistol:{name:'9毫米手枪',w:2,h:1,kind:'weapon',tag:'手枪',color:'#a98554',sell:10,interval:.43,damage:1,range:220,speed:470,pellets:1},
+ smg:{name:'废料冲锋枪',w:2,h:2,kind:'weapon',tag:'冲锋',color:'#9f774c',sell:18,interval:.24,damage:1,range:205,speed:500,pellets:1},
+ shotgun:{name:'短管霰弹枪',w:2,h:2,kind:'weapon',tag:'霰弹',color:'#8b6548',sell:22,interval:.82,damage:1,range:175,speed:430,pellets:5,spread:.34},
+ rifle:{name:'侦察步枪',w:3,h:1,kind:'weapon',tag:'步枪',color:'#6f7658',sell:26,interval:.88,damage:2,range:360,speed:650,pellets:1},
+ ammo:{name:'弹药袋',w:1,h:2,kind:'support',tag:'弹药',color:'#b28c45',sell:9},
+ scope:{name:'瞄准镜',w:1,h:1,kind:'support',tag:'瞄具',color:'#6e8790',sell:12},
+ apammo:{name:'穿甲弹',w:1,h:2,kind:'support',tag:'穿甲',color:'#897b59',sell:15},
+ vest:{name:'防弹背心',w:2,h:2,kind:'armor',tag:'护甲',color:'#567161',sell:16},
+ medkit:{name:'战地医疗包',w:1,h:2,kind:'utility',tag:'医疗',color:'#a94e45',sell:13},
+ charm:{name:'幸运护符',w:1,h:1,kind:'trinket',tag:'★',color:'#7f6c91',sell:14},
+ boots:{name:'疾行战靴',w:1,h:2,kind:'gear',tag:'战靴',color:'#536c82',sell:12}
 };
 const VEH={
- mg:{name:'TWIN MACHINE GUN',w:2,h:1,kind:'weapon',tag:'MG',color:'#9a8456',sell:14},
- cannon:{name:'105MM CANNON',w:2,h:2,kind:'weapon',tag:'105',color:'#8b7450',sell:22},
- engine:{name:'V6 ENGINE',w:2,h:2,kind:'core',tag:'V6',color:'#58675c',sell:20},
- belt:{name:'BELT FEED',w:1,h:2,kind:'support',tag:'BELT',color:'#b28c45',sell:10},
- loader:{name:'AUTOLOADER',w:1,h:2,kind:'support',tag:'LOAD',color:'#6d7b73',sell:13},
- turbo:{name:'TURBO',w:1,h:2,kind:'support',tag:'T',color:'#657f91',sell:12},
- armor:{name:'ARMOR PLATE',w:2,h:1,kind:'armor',tag:'ARM',color:'#6a6d63',sell:11},
- fueltank:{name:'AUX FUEL TANK',w:2,h:1,kind:'utility',tag:'FUEL',color:'#9d8244',sell:14},
- rocket:{name:'ROCKET POD',w:2,h:1,kind:'weapon',tag:'RKT',color:'#8a5c4c',sell:18},
- emp:{name:'EMP COIL',w:2,h:1,kind:'weapon',tag:'EMP',color:'#5d8f91',sell:20},
- capacitor:{name:'CAPACITOR BANK',w:1,h:2,kind:'support',tag:'CAP',color:'#648a83',sell:13},
- flak:{name:'FLAK AUTOCANNON',w:2,h:1,kind:'weapon',tag:'FLK',color:'#8e7650',sell:18},
- arc:{name:'ARC EMITTER',w:2,h:1,kind:'weapon',tag:'ARC',color:'#5f8c9b',sell:21}
+ mg:{name:'双联机枪',w:2,h:1,kind:'weapon',tag:'机枪',color:'#9a8456',sell:14},
+ cannon:{name:'105毫米火炮',w:2,h:2,kind:'weapon',tag:'火炮',color:'#8b7450',sell:22},
+ engine:{name:'六缸引擎',w:2,h:2,kind:'core',tag:'引擎',color:'#58675c',sell:20},
+ belt:{name:'弹链供弹器',w:1,h:2,kind:'support',tag:'弹链',color:'#b28c45',sell:10},
+ loader:{name:'自动装填机',w:1,h:2,kind:'support',tag:'装填',color:'#6d7b73',sell:13},
+ turbo:{name:'涡轮增压器',w:1,h:2,kind:'support',tag:'涡轮',color:'#657f91',sell:12},
+ armor:{name:'装甲板',w:2,h:1,kind:'armor',tag:'装甲',color:'#6a6d63',sell:11},
+ fueltank:{name:'副油箱',w:2,h:1,kind:'utility',tag:'油箱',color:'#9d8244',sell:14},
+ rocket:{name:'火箭巢',w:2,h:1,kind:'weapon',tag:'火箭',color:'#8a5c4c',sell:18},
+ emp:{name:'电磁脉冲线圈',w:2,h:1,kind:'weapon',tag:'电磁',color:'#5d8f91',sell:20},
+ capacitor:{name:'电容组',w:1,h:2,kind:'support',tag:'电容',color:'#648a83',sell:13},
+ flak:{name:'高射机关炮',w:2,h:1,kind:'weapon',tag:'高射',color:'#8e7650',sell:18},
+ arc:{name:'电弧发射器',w:2,h:1,kind:'weapon',tag:'电弧',color:'#5f8c9b',sell:21}
 };
 const EVOLUTIONS={
  pistol:[
-  {id:'gunslinger',name:'GUNSLINGER',desc:'Fire rate +35% • damage -10%'},
-  {id:'magnum',name:'MAGNUM',desc:'Damage +70% • fire rate -22%'}
+  {id:'gunslinger',name:'快枪手',desc:'射速 +35% • 伤害 -10%'},
+  {id:'magnum',name:'马格南',desc:'伤害 +70% • 射速 -22%'}
  ],
  smg:[
-  {id:'minigun',name:'MINIGUN',desc:'Fire rate +45% • damage -25%'},
-  {id:'heavybolt',name:'HEAVY BOLT',desc:'Damage +55% • pierces 1 target'}
+  {id:'minigun',name:'加特林',desc:'射速 +45% • 伤害 -25%'},
+  {id:'heavybolt',name:'重型枪机',desc:'伤害 +55% • 穿透 1 个目标'}
  ],
  shotgun:[
-  {id:'scatter',name:'WIDE SCATTER',desc:'+3 pellets • wider spread • lower damage'},
-  {id:'slug',name:'SLUG',desc:'Single heavy round • range +45%'}
+  {id:'scatter',name:'广域散射',desc:'弹丸 +3 • 扩散更广 • 单发伤害降低'},
+  {id:'slug',name:'独头弹',desc:'单枚重弹 • 射程 +45%'}
  ],
  rifle:[
-  {id:'rail',name:'RAIL SCOPE',desc:'Range +35% • pierces 2 targets'},
-  {id:'hunter',name:'HUNTER',desc:'+75% damage vs elite / armored'}
+  {id:'rail',name:'导轨瞄具',desc:'射程 +35% • 穿透 2 个目标'},
+  {id:'hunter',name:'猎手',desc:'对精英与装甲敌人伤害 +75%'}
  ]
 };
 
 const SITE={
- gas:{name:'ABANDONED GAS',short:'GAS STATION',icon:'G',focus:'FUEL / SCRAP',color:'#8f805f',loot:{gas:.44,food:.14,scrap:.30,med:.12},gear:.03,enemy:['melee','melee','gunner']},
- clinic:{name:'DESERT CLINIC',short:'CLINIC',icon:'+',focus:'MED / GEAR',color:'#77877d',loot:{gas:.07,food:.13,scrap:.22,med:.58},gear:.11,enemy:['gunner','grenadier','gunner','melee']},
- motel:{name:'SUNSET MOTEL',short:'MOTEL',icon:'M',focus:'FOOD / TRADE',color:'#8a6f59',loot:{gas:.11,food:.50,scrap:.25,med:.14},gear:.05,enemy:['melee','melee','grenadier']},
- junkyard:{name:'IRON GRAVEYARD',short:'JUNKYARD',icon:'J',focus:'SCRAP / MODULES',color:'#6c706a',loot:{gas:.16,food:.07,scrap:.63,med:.14},gear:.14,enemy:['gunner','melee','grenadier','gunner']}
+ gas:{name:'废弃加油站',short:'加油站',icon:'油',focus:'燃料 / 废料',color:'#8f805f',loot:{gas:.44,food:.14,scrap:.30,med:.12},gear:.03,enemy:['melee','melee','gunner']},
+ clinic:{name:'荒漠诊所',short:'诊所',icon:'+',focus:'医疗 / 装备',color:'#77877d',loot:{gas:.07,food:.13,scrap:.22,med:.58},gear:.11,enemy:['gunner','grenadier','gunner','melee']},
+ motel:{name:'落日旅馆',short:'旅馆',icon:'住',focus:'食物 / 交易',color:'#8a6f59',loot:{gas:.11,food:.50,scrap:.25,med:.14},gear:.05,enemy:['melee','melee','grenadier']},
+ junkyard:{name:'钢铁坟场',short:'废车场',icon:'废',focus:'废料 / 模块',color:'#6c706a',loot:{gas:.16,food:.07,scrap:.63,med:.14},gear:.14,enemy:['gunner','melee','grenadier','gunner']}
 };
+const CARGO_NAME={gas:'燃料',food:'食物',scrap:'废料',med:'药品'};
 const ROUTES=[
- {id:'old',name:'OLD HIGHWAY',risk:'STANDARD',bonus:'Balanced road',fuel:0,spawn:1},
- {id:'salt',name:'SALT FLATS',risk:'LEAN',bonus:'+2 fuel on arrival',fuel:1,spawn:.95},
- {id:'raider',name:'RAIDER CAUSEWAY',risk:'HIGH',bonus:'+2 salvage, better modules',fuel:2,spawn:1.22}
+ {id:'old',name:'旧公路',risk:'标准',bonus:'路况与压力均衡',fuel:0,spawn:1},
+ {id:'salt',name:'盐碱滩',risk:'节省',bonus:'抵达时燃料 +2',fuel:1,spawn:.95},
+ {id:'raider',name:'掠夺者堤道',risk:'高危',bonus:'废料 +2，模块品质更高',fuel:2,spawn:1.22}
 ];
 
 const WORLD_EVENTS=[
- {id:'convoy',name:'STRANDED CONVOY',short:'CONVOY',icon:'C',desc:'A merchant convoy sits dead on the shoulder. Their radiator is gone, but their cargo is intact.'},
- {id:'signal',name:'BLACK RADIO SIGNAL',short:'SIGNAL',icon:'?',desc:'A repeating distress signal comes from an abandoned relay tower. It could be bait. It could be treasure.'},
- {id:'mechanic',name:'LONE MECHANIC',short:'MECHANIC',icon:'W',desc:'A grease-covered mechanic waves you down beside a half-buried service truck.'},
- {id:'wreck',name:'FRESH WRECK',short:'WRECK',icon:'X',desc:'Smoke still rises from a raider wreck. Whoever won the fight left in a hurry.'}
+ {id:'convoy',name:'搁浅商队',short:'商队',icon:'商',desc:'一支商队瘫在路肩上。散热器已经报废，但货物仍完好无损。'},
+ {id:'signal',name:'黑频信号',short:'信号',icon:'?',desc:'废弃中继塔不断重复求救信号。可能是陷阱，也可能藏着宝物。'},
+ {id:'mechanic',name:'独行技师',short:'技师',icon:'修',desc:'一名满身油污的技师在半埋的维修车旁向你招手。'},
+ {id:'wreck',name:'新鲜残骸',short:'残骸',icon:'残',desc:'掠夺者残骸仍在冒烟。胜者显然走得很匆忙。'}
 ];
 
 const START_KITS=[
- {id:'gunslinger',name:'GUNSLINGER',desc:'Pistol + Ammo Pouch',cost:0},
- {id:'breacher',name:'BREACHER',desc:'Shotgun + Runner Boots',cost:2},
- {id:'hunter',name:'HUNTER',desc:'Scout Rifle + Optic',cost:2},
- {id:'mechanic',name:'MECHANIC',desc:'Pistol + Medkit • stronger vehicle supports',cost:2}
+ {id:'gunslinger',name:'快枪手',desc:'手枪 + 弹药袋',cost:0},
+ {id:'breacher',name:'破门者',desc:'霰弹枪 + 疾行战靴',cost:2},
+ {id:'hunter',name:'猎手',desc:'侦察步枪 + 瞄准镜',cost:2},
+ {id:'mechanic',name:'技师',desc:'手枪 + 医疗包 • 载具辅助更强',cost:2}
 ];
 const CHASSIS=[
- {id:'junker',name:'JUNKER',desc:'Balanced',cost:0},
- {id:'scout',name:'SCOUT',desc:'Fast • light hull',cost:3},
- {id:'mule',name:'MULE',desc:'Big bay • high fuel',cost:3},
- {id:'bruiser',name:'BRUISER',desc:'Heavy hull • slower',cost:3}
+ {id:'junker',name:'破烂车',desc:'性能均衡',cost:0},
+ {id:'scout',name:'侦察车',desc:'速度快 • 车体轻',cost:3},
+ {id:'mule',name:'骡子',desc:'舱位大 • 油量高',cost:3},
+ {id:'bruiser',name:'重锤',desc:'重装车体 • 速度较慢',cost:3}
 ];
 
 let eventData=null;
@@ -183,9 +185,9 @@ function freshMeta(){return{
  vehiclePack:[{id:1,type:'engine',level:1,gx:0,gy:1,locked:true},{id:2,type:'turbo',level:1,gx:2,gy:1},{id:3,type:'mg',level:1,gx:3,gy:0,locked:false},{id:4,type:'belt',level:1,gx:5,gy:0},{id:5,type:'cannon',level:1,gx:3,gy:2,locked:false},{id:6,type:'loader',level:1,gx:5,gy:2},{id:7,type:'armor',level:1,gx:0,gy:3}],
  pendingHaul:[],pendingVehicle:[],pack:{cols:6,rows:5,tier:1},vehicleGrid:{cols:6,rows:4,tier:1},
  roadLeg:1,runStep:0,selectedNode:null,mapChoices:[],arrived:false,credits:28,cargo:{gas:0,food:0,scrap:0,med:0},
- route:{...ROUTES[0]},town:{name:'RUSTWATER',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
+ route:{...ROUTES[0]},town:{name:'锈水镇',demand:'med',locker:[],offerLeg:0,gearOffers:[],moduleOffers:[]},
  finalFlags:{mg:false,rocket:false,armor:false},runStats:{roadKills:0,scavKills:0,bosses:0,events:0},runEnded:null,pendingRoadEvent:null,nextSearchEffect:null,eventGap:0,chassis:'junker',
- vehicle:{name:'JUNKER MK.I',scrap:0,fuel:18,hull:null}
+ vehicle:{name:'破烂车 一型',scrap:0,fuel:18,hull:null}
 }}
 let profile={marks:0,runs:0,wins:0,selectedKit:'gunslinger',selectedChassis:'junker',unlockedKits:['gunslinger'],unlockedChassis:['junker']};
 try{const p=localStorage.getItem('ws-meta-v012');if(p)profile={...profile,...JSON.parse(p)}}catch(e){}
@@ -277,12 +279,12 @@ function ensureChoices(force=false){
  if(meta.mapChoices.length&&!force)return;
  const types=shuffle(Object.keys(SITE)),finalDue=meta.runStep>=9,townDue=meta.runStep>0&&meta.runStep%3===2,bossDue=meta.runStep>0&&meta.runStep%5===4,arr=[];
  if(finalDue){
-  arr.push({id:'final-'+meta.roadLeg,type:'final',name:'RUST CATHEDRAL',short:'CATHEDRAL',icon:'Ω',focus:'FINAL ASSAULT',danger:3,special:true});
+  arr.push({id:'final-'+meta.roadLeg,type:'final',name:'锈蚀圣堂',short:'圣堂',icon:'Ω',focus:'最终突袭',danger:3,special:true});
  }else if(bossDue){
-  arr.push({id:'boss-'+meta.roadLeg,type:'boss',name:'IRON JACKAL',short:'IRON JACKAL',icon:'B',focus:'BOSS / RARE MODULE',danger:3,special:true});
+  arr.push({id:'boss-'+meta.roadLeg,type:'boss',name:'钢铁豺狼',short:'钢铁豺狼',icon:'首',focus:'首领 / 稀有模块',danger:3,special:true});
   for(const t of types.slice(0,2))arr.push({id:t+'-'+meta.roadLeg+'-'+Math.random(),type:'scavenge',site:t,name:SITE[t].name,short:SITE[t].short,icon:SITE[t].icon,focus:SITE[t].focus,danger:2+Math.floor(Math.random()*2),special:Math.random()<.25});
  }else{
-  if(townDue)arr.push({id:'town-'+meta.roadLeg,type:'town',name:'RUSTWATER',short:'RUSTWATER',icon:'T',focus:'TRADE / REPAIR',danger:0,special:false});
+  if(townDue)arr.push({id:'town-'+meta.roadLeg,type:'town',name:'锈水镇',short:'锈水镇',icon:'镇',focus:'交易 / 维修',danger:0,special:false});
   const slots=3-arr.length;
   for(const t of types.slice(0,slots)){const danger=1+Math.floor(Math.random()*3);arr.push({id:t+'-'+meta.roadLeg+'-'+Math.random(),type:'scavenge',site:t,name:SITE[t].name,short:SITE[t].short,icon:SITE[t].icon,focus:SITE[t].focus,danger,special:Math.random()<.17});}
  }
@@ -290,7 +292,7 @@ function ensureChoices(force=false){
 }
 function selectNode(i){ensureChoices();meta.selectedNode=meta.mapChoices[i]||meta.mapChoices[0];save();}
 function fuelCost(){const n=meta.selectedNode;if(!n)return 0;if(n.type==='town')return 2;if(n.type==='final')return 6+(meta.route.fuel||0);if(n.type==='boss')return 5+(meta.route.fuel||0);return 2+(n.danger||1)+(meta.route.fuel||0)}
-function destinationName(){return meta.selectedNode?.name||'UNKNOWN'}
+function destinationName(){return meta.selectedNode?.name||'未知地点'}
 function completeDestination(){meta.arrived=false;meta.selectedNode=null;meta.mapChoices=[];meta.roadLeg++;meta.runStep++;ensureChoices(true);save();}
 
 function roadThreat(){
@@ -391,7 +393,7 @@ function fireArc(){
   e.hp-=damage*mult;e.disabled=Math.max(e.disabled||0,.22);g.fx.push({x:e.x,y:e.y,r:26,life:.16,color:C.teal,kind:'emp'});
  }
  for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
- notice=`ARC CHAIN ×${chain.length}`;noticeT=.45;return true;
+ notice=`电弧连锁 ×${chain.length}`;noticeT=.45;return true;
 }
 function fireEMP(){
  const g=roadGame,p=g.player;
@@ -408,7 +410,7 @@ function fireEMP(){
  g.enemyBullets=g.enemyBullets.filter(b=>!centers.some(e=>Math.hypot(b.x-e.x,b.y-e.y)<175));
  g.mines=g.mines.filter(m=>!centers.some(e=>Math.hypot(m.x-e.x,m.y-e.y)<135));
  if(g.strikes){const ids=new Set(hit.map(e=>e.rid));g.strikes=g.strikes.filter(st=>!ids.has(st.ownerId)&&!centers.some(e=>Math.hypot(st.x-e.x,st.y-e.y)<190));}
- notice=`EMP PULSE • ${hit.length} TARGET${hit.length>1?'S':''}`;noticeT=.8;return true;
+ notice=`电磁脉冲 • 命中 ${hit.length} 个目标`;noticeT=.8;return true;
 }
 function fireRoad(kind,target){
  const g=roadGame,p=g.player,cfg=kind==='mg'?{spd:840,dmg:1,r:5}:kind==='cannon'?{spd:720,dmg:8.5,r:10}:{spd:570,dmg:2.2,r:8};
@@ -551,7 +553,7 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
   if(br.y>1020)g.barriers.splice(i,1);
  }
  if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(55,485),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(55,485),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f',kind:'mineImpact'});g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
- for(let i=g.drops.length-1;i>=0;i--){const d=g.drops[i];d.y+=145*dt;if(distance(d,p)<42){if(d.type==='scrap')g.scrap++;else if(d.type==='fuel')g.fuel++;else if(d.type==='repair'){const before=p.hp;p.hp=Math.min(p.max,p.hp+2);if(p.hp>before){g.repairs++;notice='FIELD REPAIR +2 HULL';noticeT=1.1}}g.drops.splice(i,1);continue}if(d.y>980)g.drops.splice(i,1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
+ for(let i=g.drops.length-1;i>=0;i--){const d=g.drops[i];d.y+=145*dt;if(distance(d,p)<42){if(d.type==='scrap')g.scrap++;else if(d.type==='fuel')g.fuel++;else if(d.type==='repair'){const before=p.hp;p.hp=Math.min(p.max,p.hp+2);if(p.hp>before){g.repairs++;notice='战地维修：车体 +2';noticeT=1.1}}g.drops.splice(i,1);continue}if(d.y>980)g.drops.splice(i,1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
  if(g.bossRoute&&!g.bossSpawned&&g.elapsed>6){g.bossSpawned=true;g.boss=true;if(g.finalRoute)spawnColossus();else spawnRoadEnemy('dreadnought')}
  else if(!g.bossRoute&&!g.boss&&g.elapsed/g.duration>.76){g.boss=true;spawnRoadEnemy('boss')}
  if(g.spawn<=0){if(!g.bossRoute||!g.bossSpawned||g.enemies.filter(e=>e.group!=='colossus'&&e.type!=='dreadnought').length<(g.finalRoute?4:4)){spawnRoadEnemy();const extraChance=clamp((g.threat-.9)*.5,0,.30);if(!g.bossRoute&&g.elapsed/g.duration>.52&&Math.random()<extraChance)spawnRoadEnemy()}g.spawn=rnd(.95,1.35)/(meta.route.spawn||1)/g.threat}
@@ -597,7 +599,7 @@ const FINAL_WAVES=[
  ]
 ];
 function spawnFinalWave(idx){
- const g=game,w=FINAL_WAVES[idx]||[];g.wave=idx+1;g.finalLabel=['OUTER YARD','WORKSHOP','COMMAND HALL'][idx]||'THE DRIVER';
+ const g=game,w=FINAL_WAVES[idx]||[];g.wave=idx+1;g.finalLabel=['外围庭院','维修工坊','指挥大厅'][idx]||'车手';
  for(const q of w){let e=makeScavEnemy(q.type,q.x,q.y);let tries=0;while(!validScavSpawn(e)&&tries++<20){e.x=clamp(e.x+rnd(-35,35),45,495);e.y=clamp(e.y+rnd(-35,35),230,g.worldH-120)}if(validScavSpawn(e))g.enemies.push(e)}
  notice=g.finalLabel;noticeT=1.4;
 }
@@ -608,17 +610,17 @@ function startFinalBreach(){
   {x:180,y:735,w:180,h:60},{x:55,y:570,w:145,h:62},{x:340,y:560,w:145,h:62},
   {x:205,y:380,w:130,h:65},{x:65,y:260,w:120,h:60},{x:355,y:255,w:120,h:60}
  ];
- game={site:'junkyard',finalAssault:true,finalLabel:'OUTER YARD',wave:0,driverSpawned:false,driverDefeated:false,driverAdds1:false,driverAdds2:false,time:180,elapsed:0,worldH,cameraY:290,player:{x:270,y:1120,r:15,hp:b.maxHp,max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1180,progress:0},search:null,spawn:999,supportMg:.7,supportRocket:1.7};
+ game={site:'junkyard',finalAssault:true,finalLabel:'外围庭院',wave:0,driverSpawned:false,driverDefeated:false,driverAdds1:false,driverAdds2:false,time:180,elapsed:0,worldH,cameraY:290,player:{x:270,y:1120,r:15,hp:b.maxHp,max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1180,progress:0},search:null,spawn:999,supportMg:.7,supportRocket:1.7};
  spawnFinalWave(0);state='finalassault';
 }
 function spawnDriverAdds(kind){
  const g=game,defs=kind===1?[{type:'armored',x:105,y:520},{type:'gunner',x:430,y:520},{type:'melee',x:270,y:600}]:
  [{type:'grenadier',x:105,y:420},{type:'armored',x:430,y:430},{type:'melee',x:190,y:560},{type:'melee',x:355,y:560}];
  for(const q of defs){let e=makeScavEnemy(q.type,q.x,q.y);let tries=0;while(!validScavSpawn(e)&&tries++<20){e.x=clamp(e.x+rnd(-30,30),45,495);e.y=clamp(e.y+rnd(-30,30),230,g.worldH-120)}if(validScavSpawn(e))g.enemies.push(e)}
- notice=kind===1?'DRIVER CALLS REINFORCEMENTS':'LAST STAND';noticeT=1.4;
+ notice=kind===1?'车手呼叫增援':'背水一战';noticeT=1.4;
 }
 function spawnDriver(){
- const g=game,e=makeScavEnemy('driver',270,255);g.driverSpawned=true;g.finalLabel='THE DRIVER';e.attackSeq=0;g.enemies.push(e);notice='THE DRIVER';noticeT=1.5;
+ const g=game,e=makeScavEnemy('driver',270,255);g.driverSpawned=true;g.finalLabel='车手';e.attackSeq=0;g.enemies.push(e);notice='车手';noticeT=1.5;
 }
 function updateFinalAssaultStage(g,dt){
  if(!meta.finalFlags.mg){
@@ -639,18 +641,18 @@ function updateFinalAssaultStage(g,dt){
   if(d&&!g.driverAdds2&&d.hp/d.max<=.36){g.driverAdds2=true;spawnDriverAdds(2)}
  }
  if(g.driverDefeated){finishRun(true);return}
- if(g.time<=0){notice='CATHEDRAL OVERRUN';noticeT=1;finishRun(false)}
+ if(g.time<=0){notice='圣堂防线失守';noticeT=1;finishRun(false)}
 }
 function startScavenge(){
  const site=meta.selectedNode?.site||'gas',danger=meta.selectedNode?.danger||1,special=!!meta.selectedNode?.special,b=buildStats(),travelEffect=meta.nextSearchEffect;
  meta.nextSearchEffect=null;
  const worldH=1450,scaleY=1.35,yOffset=130;
  const rules={
-  gas:{label:'FUEL CACHE',extraCrates:2,pressure:1},
-  clinic:{label:'TRIAGE',extraCrates:0,pressure:1,med:1},
-  motel:{label:'AMBUSH',extraCrates:1,pressure:1.28},
-  junkyard:{label:'SALVAGE FIELD',extraCrates:0,pressure:1,moduleBoost:2}
- },baseRule=rules[site]||{label:'STANDARD',extraCrates:0,pressure:1},rule={...baseRule,pressure:(baseRule.pressure||1)*(travelEffect?.pressure||1)};
+  gas:{label:'燃料储藏点',extraCrates:2,pressure:1},
+  clinic:{label:'紧急救治',extraCrates:0,pressure:1,med:1},
+  motel:{label:'伏击区',extraCrates:1,pressure:1.28},
+  junkyard:{label:'回收场',extraCrates:0,pressure:1,moduleBoost:2}
+ },baseRule=rules[site]||{label:'标准区域',extraCrates:0,pressure:1},rule={...baseRule,pressure:(baseRule.pressure||1)*(travelEffect?.pressure||1)};
  const obstacles=buildSiteLayout(site,Math.floor(Math.random()*3)).map(o=>({...o,y:Math.round(o.y*scaleY+yOffset)}));
  game={site,danger,special,rule,effectLabel:travelEffect?.label||'',time:90,elapsed:0,worldH,cameraY:0,player:{x:270,y:1240,r:15,hp:Math.max(1,b.maxHp-(travelEffect?.hpLoss||0)),max:b.maxHp,speed:b.speed,inv:0,med:b.medCharges+(rule.med||0),bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},build:b,obstacles,crates:[],loot:[],enemies:[],bullets:[],enemyBullets:[],grenades:[],fx:[],haul:[],weaponCd:b.weapons.map(w=>({...w,cd:rnd(0,.25)})),exit:{x:270,y:1330,progress:0},search:null,spawn:.2};
  const spots=[[100,120],[270,135],[440,120],[105,300],[430,310],[90,690],[450,700],[270,530],[270,260],[270,400],[150,480],[390,490],[270,700],[270,760]];
@@ -730,7 +732,7 @@ function moveEnemyAwaySmart(e,tx,ty,dt,speed,obs,bounds){
  moveEnemySmart(e,e.x+dx/d*180,e.y+dy/d*180,dt,speed,obs,bounds);
 }
 function moveActor(p,dt,speed,minX,maxX,minY,maxY){let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);p.x+=n.x*speed*dt;p.y+=n.y*speed*dt}p.x=clamp(p.x,minX,maxX);p.y=clamp(p.y,minY,maxY)}
-function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='MEDKIT AUTO-USED';noticeT=1.2}}
+function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='已自动使用医疗包';noticeT=1.2}}
 function chooseLoot(){const w=SITE[game.site].loot,r=Math.random();let a=0;for(const k of ['gas','food','scrap','med']){a+=w[k];if(r<a)return k}return'scrap'}
 function gearDrop(rare=false){const chance=.12+SITE[game.site].gear+game.build.luck+(rare?.35:0);if(Math.random()>chance)return null;const pool=['ammo','scope','apammo','vest','medkit','charm','boots','smg','shotgun','rifle'];return makeItem(choice(pool),rare&&Math.random()<.45?2:1)}
 function openCrate(c){
@@ -743,7 +745,7 @@ function openCrate(c){
  game.fx.push({x:c.x,y:c.y,r:c.rare?36:28,life:.45,color:c.rare?'#ffe796':C.green,kind:'searchBurst'});
  const g=gearDrop(c.rare);if(g)game.haul.push(g);
  if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','rocket','emp','capacitor','flak','arc']),c.rare&&Math.random()<.25?2:1));
- notice=c.rare?'RARE CACHE OPENED':'SUPPLIES SECURED';noticeT=.8;save()
+ notice=c.rare?'已开启稀有储藏箱':'补给已收入囊中';noticeT=.8;save()
 }
 function pointInObstacle(x,y,o,pad=0){return x>=o.x-pad&&x<=o.x+o.w+pad&&y>=o.y-pad&&y<=o.y+o.h+pad}
 function segmentHitsObstacle(x1,y1,x2,y2,obstacles,pad=0){
@@ -927,7 +929,7 @@ function chooseEvolution(index){
  if(!evolutionChoice)return;
  const it=meta.backpack.find(x=>x.id===evolutionChoice.itemId),opts=EVOLUTIONS[evolutionChoice.type]||[];
  if(!it||!opts[index]){evolutionChoice=null;return}
- it.evolution=opts[index].id;evolutionChoice=null;notice=`EVOLVED: ${opts[index].name}`;noticeT=1.5;save();
+ it.evolution=opts[index].id;evolutionChoice=null;notice=`进化完成：${opts[index].name}`;noticeT=1.5;save();
 }
 function evolutionTap(p){
  if(!evolutionChoice)return false;
@@ -936,18 +938,18 @@ function evolutionTap(p){
  return true;
 }
 function packDown(p){if(evolutionChoice){evolutionTap(p);return}const g=packGeom();if(p.x>=298&&p.x<=512&&p.y>=822&&p.y<=888){finishPack();return}let it=hitGridItem(p,meta.backpack,ITEM,g);if(it){packDrag={source:'grid',item:it,ox:p.x-(g.x+it.gx*g.cell),oy:p.y-(g.y+it.gy*g.cell),gx:it.gx,gy:it.gy,x:p.x,y:p.y};return}for(const c of packPendingCards())if(p.x>=c.x&&p.x<=c.x+c.w&&p.y>=c.y&&p.y<=c.y+c.h){packDrag={source:'pending',item:c.it,ox:g.cell*.45,oy:g.cell*.45,x:p.x,y:p.y};return}}
-function packUp(p){if(!packDrag)return;const g=packGeom(),it=packDrag.item,d=ITEM[it.type];const target=hitGridItem(p,meta.backpack,ITEM,g);if(target&&target.id!==it.id&&target.type===it.type&&(target.level||1)<3&&!it.locked){target.level++;if(packDrag.source==='grid')meta.backpack=meta.backpack.filter(x=>x.id!==it.id);else meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);notice=`FUSED ${d.name} → L${target.level}`;noticeT=1.5;if(target.level>=3&&ITEM[target.type].kind==='weapon'&&EVOLUTIONS[target.type]&&!target.evolution)evolutionChoice={itemId:target.id,type:target.type};packDrag=null;save();return}if(p.y>820&&p.x<245){if(it.locked){notice='STARTER ITEM LOCKED';noticeT=1}else{if(packDrag.source==='grid')meta.backpack=meta.backpack.filter(x=>x.id!==it.id);else meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);if(packReturn==='town'){const gain=d.sell*(it.level||1);meta.credits+=gain;notice=`SOLD +¢${gain}`}else notice='LEFT BEHIND';noticeT=1.2}packDrag=null;save();return}const gx=Math.floor((p.x-packDrag.ox-g.x+g.cell*.5)/g.cell),gy=Math.floor((p.y-packDrag.oy-g.y+g.cell*.5)/g.cell);if(packDrag.source==='pending'&&ITEM[it.type].kind==='weapon'&&weaponCount(meta.backpack,ITEM)>=2){notice='2 WEAPON CORES MAX';noticeT=1.2}
- else if(occupiedCanPlace(it,gx,gy,meta.backpack,ITEM,g.cols,g.rows,packDrag.source==='grid'?it.id:null)){it.gx=gx;it.gy=gy;if(packDrag.source==='pending'){meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);meta.backpack.push(it)}notice='BUILD UPDATED';noticeT=.7}else if(packDrag.source==='grid'){it.gx=packDrag.gx;it.gy=packDrag.gy}packDrag=null;save()}
+ function packUp(p){if(!packDrag)return;const g=packGeom(),it=packDrag.item,d=ITEM[it.type];const target=hitGridItem(p,meta.backpack,ITEM,g);if(target&&target.id!==it.id&&target.type===it.type&&(target.level||1)<3&&!it.locked){target.level++;if(packDrag.source==='grid')meta.backpack=meta.backpack.filter(x=>x.id!==it.id);else meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);notice=`已融合 ${d.name} → ${target.level}级`;noticeT=1.5;if(target.level>=3&&ITEM[target.type].kind==='weapon'&&EVOLUTIONS[target.type]&&!target.evolution)evolutionChoice={itemId:target.id,type:target.type};packDrag=null;save();return}if(p.y>820&&p.x<245){if(it.locked){notice='初始物品无法丢弃';noticeT=1}else{if(packDrag.source==='grid')meta.backpack=meta.backpack.filter(x=>x.id!==it.id);else meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);if(packReturn==='town'){const gain=d.sell*(it.level||1);meta.credits+=gain;notice=`已出售 +¢${gain}`}else notice='已留在原地';noticeT=1.2}packDrag=null;save();return}const gx=Math.floor((p.x-packDrag.ox-g.x+g.cell*.5)/g.cell),gy=Math.floor((p.y-packDrag.oy-g.y+g.cell*.5)/g.cell);if(packDrag.source==='pending'&&ITEM[it.type].kind==='weapon'&&weaponCount(meta.backpack,ITEM)>=2){notice='最多装备 2 个武器核心';noticeT=1.2}
+ else if(occupiedCanPlace(it,gx,gy,meta.backpack,ITEM,g.cols,g.rows,packDrag.source==='grid'?it.id:null)){it.gx=gx;it.gy=gy;if(packDrag.source==='pending'){meta.pendingHaul=meta.pendingHaul.filter(x=>x.id!==it.id);meta.backpack.push(it)}notice='配置已更新';noticeT=.7}else if(packDrag.source==='grid'){it.gx=packDrag.gx;it.gy=packDrag.gy}packDrag=null;save()}
 
 function startVehicleBay(returnState='route'){vehicleReturn=returnState;vehicleDrag=null;state='vehicle'}
 function vehicleCards(){const g=vehicleGeom(),y=Math.min(g.bottom+20,650);return meta.pendingVehicle.slice(0,4).map((it,i)=>({it,x:35+(i%2)*240,y:y+Math.floor(i/2)*72,w:225,h:58}))}
 function vehicleDown(p){const g=vehicleGeom();if(p.x>=298&&p.x<=512&&p.y>=822&&p.y<=888){state=vehicleReturn;save();return}let it=hitGridItem(p,meta.vehiclePack,VEH,g);if(it){vehicleDrag={source:'grid',item:it,ox:p.x-(g.x+it.gx*g.cell),oy:p.y-(g.y+it.gy*g.cell),gx:it.gx,gy:it.gy,x:p.x,y:p.y};return}for(const c of vehicleCards())if(p.x>=c.x&&p.x<=c.x+c.w&&p.y>=c.y&&p.y<=c.y+c.h){vehicleDrag={source:'pending',item:c.it,ox:g.cell*.45,oy:g.cell*.45,x:p.x,y:p.y};return}}
-function vehicleUp(p){if(!vehicleDrag)return;const g=vehicleGeom(),it=vehicleDrag.item,d=VEH[it.type];const target=hitGridItem(p,meta.vehiclePack,VEH,g);if(target&&target.id!==it.id&&target.type===it.type&&(target.level||1)<3&&!it.locked){target.level++;if(vehicleDrag.source==='grid')meta.vehiclePack=meta.vehiclePack.filter(x=>x.id!==it.id);else meta.pendingVehicle=meta.pendingVehicle.filter(x=>x.id!==it.id);notice=`FUSED ${d.name} → L${target.level}`;noticeT=1.5;vehicleDrag=null;save();return}if(p.y>820&&p.x<245){if(it.locked){notice='CORE MODULE LOCKED';noticeT=1}else{if(vehicleDrag.source==='grid')meta.vehiclePack=meta.vehiclePack.filter(x=>x.id!==it.id);else meta.pendingVehicle=meta.pendingVehicle.filter(x=>x.id!==it.id);if(vehicleReturn==='town'){const gain=d.sell*(it.level||1);meta.credits+=gain;notice=`SOLD +¢${gain}`}else{meta.vehicle.scrap+=1;notice='+1 SALVAGE'}noticeT=1}vehicleDrag=null;save();return}const gx=Math.floor((p.x-vehicleDrag.ox-g.x+g.cell*.5)/g.cell),gy=Math.floor((p.y-vehicleDrag.oy-g.y+g.cell*.5)/g.cell);if(vehicleDrag.source==='pending'&&VEH[it.type].kind==='weapon'&&weaponCount(meta.vehiclePack,VEH)>=2){notice='2 HARDPOINTS MAX';noticeT=1.2}
+function vehicleUp(p){if(!vehicleDrag)return;const g=vehicleGeom(),it=vehicleDrag.item,d=VEH[it.type];const target=hitGridItem(p,meta.vehiclePack,VEH,g);if(target&&target.id!==it.id&&target.type===it.type&&(target.level||1)<3&&!it.locked){target.level++;if(vehicleDrag.source==='grid')meta.vehiclePack=meta.vehiclePack.filter(x=>x.id!==it.id);else meta.pendingVehicle=meta.pendingVehicle.filter(x=>x.id!==it.id);notice=`已融合 ${d.name} → ${target.level}级`;noticeT=1.5;vehicleDrag=null;save();return}if(p.y>820&&p.x<245){if(it.locked){notice='核心模块无法拆除';noticeT=1}else{if(vehicleDrag.source==='grid')meta.vehiclePack=meta.vehiclePack.filter(x=>x.id!==it.id);else meta.pendingVehicle=meta.pendingVehicle.filter(x=>x.id!==it.id);if(vehicleReturn==='town'){const gain=d.sell*(it.level||1);meta.credits+=gain;notice=`已出售 +¢${gain}`}else{meta.vehicle.scrap+=1;notice='废料 +1'}noticeT=1}vehicleDrag=null;save();return}const gx=Math.floor((p.x-vehicleDrag.ox-g.x+g.cell*.5)/g.cell),gy=Math.floor((p.y-vehicleDrag.oy-g.y+g.cell*.5)/g.cell);if(vehicleDrag.source==='pending'&&VEH[it.type].kind==='weapon'&&weaponCount(meta.vehiclePack,VEH)>=2){notice='最多装备 2 个武器挂点';noticeT=1.2}
  else if(occupiedCanPlace(it,gx,gy,meta.vehiclePack,VEH,g.cols,g.rows,vehicleDrag.source==='grid'?it.id:null)){it.gx=gx;it.gy=gy;if(vehicleDrag.source==='pending'){meta.pendingVehicle=meta.pendingVehicle.filter(x=>x.id!==it.id);meta.vehiclePack.push(it)}}else if(vehicleDrag.source==='grid'){it.gx=vehicleDrag.gx;it.gy=vehicleDrag.gy}vehicleDrag=null;save()}
 
 function buildIdentity(){
  const ws=activeWeapons(meta.backpack,ITEM,2),e=ws.find(w=>w.evolution);if(e)return (EVOLUTIONS[e.type]?.find(x=>x.id===e.evolution)?.name||ITEM[e.type].name);
- return ws.map(w=>ITEM[w.type].name).join(' + ')||'UNARMED';
+ return ws.map(w=>ITEM[w.type].name).join(' + ')||'徒手';
 }
 function makeRunSummary(victory){return{victory,leg:meta.roadLeg,roadKills:meta.runStats.roadKills||0,scavKills:meta.runStats.scavKills||0,bosses:meta.runStats.bosses||0,events:meta.runStats.events||0,build:buildIdentity(),credits:meta.credits,pack:meta.backpack.length,vehicle:meta.vehiclePack.length,kit:profile.selectedKit||'gunslinger',chassis:meta.chassis||profile.selectedChassis||'junker',flags:{...meta.finalFlags}}}
 function finishRun(victory){
@@ -963,34 +965,34 @@ function enterEvent(){
 function resolveEvent(choiceIndex){
  const id=eventData?.id,vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);meta.runStats.events=(meta.runStats.events||0)+1;
  if(id==='convoy'){
-  if(choiceIndex===0){
-   if(meta.vehicle.fuel<4)return say('NEED 4 FUEL');
-   meta.vehicle.fuel-=4;meta.credits+=45;meta.pendingHaul.push(makeItem(choice(['scope','apammo','medkit','boots']),2));say('CONVOY TRADE: BIG PAYOUT');
+ if(choiceIndex===0){
+   if(meta.vehicle.fuel<4)return say('需要 4 点燃料');
+   meta.vehicle.fuel-=4;meta.credits+=45;meta.pendingHaul.push(makeItem(choice(['scope','apammo','medkit','boots']),2));say('商队交易：丰厚回报');
   }else{
    meta.vehicle.scrap+=3;meta.pendingHaul.push(makeItem(choice(['smg','shotgun','rifle']),2));meta.vehicle.hull=Math.max(1,h-2);
-   meta.nextSearchEffect={pressure:1.20,extraEnemies:2,label:'CONVOY RETALIATION'};say('CARGO TAKEN • HULL -2');
+   meta.nextSearchEffect={pressure:1.20,extraEnemies:2,label:'商队报复'};say('已夺取货物 • 车体 -2');
   }
  }else if(id==='signal'){
   if(choiceIndex===0){
    meta.pendingHaul.push(makeItem(choice(['smg','shotgun','rifle']),Math.random()<.28?3:2));meta.credits+=20;
-   meta.nextSearchEffect={hpLoss:2,pressure:1.38,extraEnemies:3,label:'SIGNAL AMBUSH'};say('CACHE FOUND • AMBUSH AHEAD');
+   meta.nextSearchEffect={hpLoss:2,pressure:1.38,extraEnemies:3,label:'信号伏击'};say('发现储藏点 • 前方有伏击');
   }else{
-   meta.vehicle.fuel=Math.min(vs.maxFuel,meta.vehicle.fuel+4);meta.credits+=8;say('+4 FUEL • +¢8');
+   meta.vehicle.fuel=Math.min(vs.maxFuel,meta.vehicle.fuel+4);meta.credits+=8;say('燃料 +4 • ¢ +8');
   }
  }else if(id==='mechanic'){
   if(choiceIndex===0){
-   if(meta.credits<30)return say('NEED ¢30');
-   meta.credits-=30;meta.vehicle.hull=vs.maxHull;meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','emp','capacitor','flak','arc']),2));say('FULL OVERHAUL + LV2 MODULE');
+   if(meta.credits<30)return say('需要 ¢30');
+   meta.credits-=30;meta.vehicle.hull=vs.maxHull;meta.pendingVehicle.push(makeVehicle(choice(['belt','loader','turbo','armor','fueltank','emp','capacitor','flak','arc']),2));say('全面检修 + 2级模块');
   }else{
    meta.vehicle.scrap+=4;meta.vehicle.fuel=Math.max(0,meta.vehicle.fuel-2);
-   meta.nextSearchEffect={pressure:1.18,extraEnemies:1,label:'NOISY SALVAGE'};say('+4 SALVAGE • FUEL -2');
+   meta.nextSearchEffect={pressure:1.18,extraEnemies:1,label:'高噪回收'};say('废料 +4 • 燃料 -2');
   }
  }else if(id==='wreck'){
   if(choiceIndex===0){
    meta.pendingVehicle.push(makeVehicle(choice(['rocket','armor','fueltank','loader','belt','emp','capacitor','flak','arc']),2));meta.pendingHaul.push(makeItem(choice(['ammo','scope','apammo','vest']),2));
-   meta.vehicle.hull=Math.max(1,h-3);meta.nextSearchEffect={pressure:1.25,extraEnemies:2,label:'RAIDER PURSUIT'};say('DOUBLE LOOT • HULL -3');
+   meta.vehicle.hull=Math.max(1,h-3);meta.nextSearchEffect={pressure:1.25,extraEnemies:2,label:'掠夺者追击'};say('双份战利品 • 车体 -3');
   }else{
-   meta.credits+=28;meta.vehicle.fuel=Math.min(vs.maxFuel,meta.vehicle.fuel+1);say('+¢28 • +1 FUEL');
+   meta.credits+=28;meta.vehicle.fuel=Math.min(vs.maxFuel,meta.vehicle.fuel+1);say('¢ +28 • 燃料 +1');
   }
  }
  meta.pendingRoadEvent=null;eventData=null;save();startScavenge();
@@ -999,12 +1001,12 @@ function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,
 function townPrice(t){const base={gas:5,food:4,scrap:6,med:9}[t];return Math.round(base*(meta.town.demand===t?1.7:1))}
 function say(s){notice=s;noticeT=1.5}
 const TOWN_SPOTS=[
- {id:'market',x:28,y:190,w:210,h:145,title:'SCRAP MARKET',sub:'SELL CARGO',sign:'¢'},
- {id:'fuel',x:302,y:180,w:210,h:150,title:'FUEL DEPOT',sub:'REFUEL JUNKER',sign:'F'},
- {id:'garage',x:22,y:395,w:225,h:155,title:'GARAGE',sub:'REPAIR / MODULES',sign:'W'},
- {id:'armory',x:305,y:390,w:215,h:155,title:'ARMORY',sub:'GEAR / PACK',sign:'G'},
- {id:'routes',x:36,y:610,w:170,h:105,title:'ROUTE BOARD',sub:'ROAD STYLE',sign:'R'},
- {id:'gate',x:390,y:620,w:120,h:105,title:'EAST GATE',sub:'LEAVE TOWN',sign:'→'}
+ {id:'market',x:28,y:190,w:210,h:145,title:'废料市场',sub:'出售货物',sign:'¢'},
+ {id:'fuel',x:302,y:180,w:210,h:150,title:'燃料站',sub:'补充燃料',sign:'油'},
+ {id:'garage',x:22,y:395,w:225,h:155,title:'修车厂',sub:'维修 / 模块',sign:'修'},
+ {id:'armory',x:305,y:390,w:215,h:155,title:'军械库',sub:'装备 / 背包',sign:'械'},
+ {id:'routes',x:36,y:610,w:170,h:105,title:'路线牌',sub:'道路风格',sign:'路'},
+ {id:'gate',x:390,y:620,w:120,h:105,title:'东门',sub:'离开城镇',sign:'→'}
 ];
 function townSpotDistance(a,p){const cx=clamp(p.x,a.x,a.x+a.w),cy=clamp(p.y,a.y,a.y+a.h);return Math.hypot(p.x-cx,p.y-cy)}
 function townNearest(){if(!townWorld)return null;let best=null,bd=999;for(const a of TOWN_SPOTS){const d=townSpotDistance(a,townWorld.player);if(d<bd){bd=d;best=a}}return bd<58?best:null}
@@ -1015,7 +1017,7 @@ function updateTown(dt){
  if(!blocked(nx,p.y))p.x=nx;if(!blocked(p.x,ny))p.y=ny;townWorld.near=townNearest();
  updateScavFacing(p,dx,dy,dt,null);
 }
-function townInteract(){if(townPanel||!townWorld)return;const a=townNearest();if(!a)return say('MOVE CLOSER');if(a.id==='gate'){completeDestination();state='route';townWorld=null}else townPanel=a.id}
+function townInteract(){if(townPanel||!townWorld)return;const a=townNearest();if(!a)return say('再靠近一点');if(a.id==='gate'){completeDestination();state='route';townWorld=null}else townPanel=a.id}
 function townTap(p){
  if(townPanel){townPanelTap(p);return}
  if(p.y<100&&p.x>390){startPack('town',false,[]);return}
@@ -1023,7 +1025,7 @@ function townTap(p){
  const a=townNearest();if(a&&p.y>115&&p.y<500)townInteract();
 }
 function townCards(){return TOWN_SPOTS}
-function townPanelTap(p){if(p.y<145&&p.x>450){townPanel=null;return}if(townPanel==='market'){const ts=['gas','food','scrap','med'];for(let i=0;i<4;i++){const y=220+i*95;if(p.y>=y&&p.y<=y+65){const t=ts[i];if(meta.cargo[t]<=0)return say('NOTHING TO SELL');const all=p.x>350,n=all?meta.cargo[t]:1;meta.cargo[t]-=n;meta.credits+=townPrice(t)*n;say(`SOLD ${n} ${t.toUpperCase()}`);save();return}}}if(townPanel==='fuel'){const cap=vehicleStats().maxFuel;if(p.y>360&&p.y<430){if(meta.cargo.gas>0&&meta.vehicle.fuel<cap){meta.cargo.gas--;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+3);say('+3 FUEL')}else say('NO CANISTER / TANK FULL')}if(p.y>460&&p.y<530){if(meta.credits>=5&&meta.vehicle.fuel<cap){meta.credits-=5;meta.vehicle.fuel++;say('+1 FUEL')}else say('CANNOT BUY')}if(p.y>560&&p.y<630){if(meta.credits>=22&&meta.vehicle.fuel<cap){meta.credits-=22;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+5);say('+5 FUEL')}else say('CANNOT BUY')}save();return}if(townPanel==='garage'){const vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);if(p.y>205&&p.y<270){if(h<vs.maxHull&&meta.credits>=6){meta.credits-=6;meta.vehicle.hull=h+1;say('HULL +1')}else say('NO REPAIR')}if(p.y>290&&p.y<355){const miss=vs.maxHull-h,cost=miss*6;if(miss&&meta.credits>=cost){meta.credits-=cost;meta.vehicle.hull=vs.maxHull;say('FULL REPAIR')}else say('NO REPAIR')}if(p.y>390&&p.y<455){if(meta.vehicleGrid.tier<3){const co=meta.vehicleGrid.tier===1?[40,4]:[70,7];if(meta.credits>=co[0]&&meta.vehicle.scrap>=co[1]){meta.credits-=co[0];meta.vehicle.scrap-=co[1];meta.vehicleGrid.tier++;if(meta.vehicleGrid.tier===2)meta.vehicleGrid.cols=7;else meta.vehicleGrid.rows=5;say('BAY EXPANDED')}else say('NEED MORE RESOURCES')}}if(p.y>500&&p.y<565){startVehicleBay('town');return}for(let i=0;i<3;i++){const y=610+i*75;if(p.y>=y&&p.y<=y+60){const o=meta.town.moduleOffers[i];if(o&&!o.sold&&meta.credits>=o.credits&&meta.vehicle.scrap>=o.salvage){meta.credits-=o.credits;meta.vehicle.scrap-=o.salvage;o.sold=true;meta.pendingVehicle.push(makeVehicle(o.type));say('MODULE BOUGHT')}else say('CANNOT BUY');save();return}}save();return}if(townPanel==='armory'){if(p.y>205&&p.y<270){if(meta.pack.tier<3){const cost=meta.pack.tier===1?35:60;if(meta.credits>=cost){meta.credits-=cost;meta.pack.tier++;if(meta.pack.tier===2)meta.pack.cols=7;else meta.pack.rows=6;say('PACK EXPANDED')}else say('NOT ENOUGH CREDITS')}}if(p.y>300&&p.y<365){startPack('town',false,[]);return}for(let i=0;i<3;i++){const y=435+i*90;if(p.y>=y&&p.y<=y+70){const o=meta.town.gearOffers[i];if(o&&!o.sold&&meta.credits>=o.cost){meta.credits-=o.cost;o.sold=true;meta.pendingHaul.push(makeItem(o.type));say('GEAR BOUGHT')}else say('CANNOT BUY');save();return}}save();return}if(townPanel==='routes'){for(let i=0;i<3;i++){const y=255+i*150;if(p.y>=y&&p.y<=y+110){meta.route={...ROUTES[i]};say(`${meta.route.name} SELECTED`);save();return}}}}
+function townPanelTap(p){if(p.y<145&&p.x>450){townPanel=null;return}if(townPanel==='market'){const ts=['gas','food','scrap','med'];for(let i=0;i<4;i++){const y=220+i*95;if(p.y>=y&&p.y<=y+65){const t=ts[i];if(meta.cargo[t]<=0)return say('没有可出售的货物');const all=p.x>350,n=all?meta.cargo[t]:1;meta.cargo[t]-=n;meta.credits+=townPrice(t)*n;say(`已出售 ${n} 份${CARGO_NAME[t]}`);save();return}}}if(townPanel==='fuel'){const cap=vehicleStats().maxFuel;if(p.y>360&&p.y<430){if(meta.cargo.gas>0&&meta.vehicle.fuel<cap){meta.cargo.gas--;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+3);say('燃料 +3')}else say('没有油罐 / 油箱已满')}if(p.y>460&&p.y<530){if(meta.credits>=5&&meta.vehicle.fuel<cap){meta.credits-=5;meta.vehicle.fuel++;say('燃料 +1')}else say('无法购买')}if(p.y>560&&p.y<630){if(meta.credits>=22&&meta.vehicle.fuel<cap){meta.credits-=22;meta.vehicle.fuel=Math.min(cap,meta.vehicle.fuel+5);say('燃料 +5')}else say('无法购买')}save();return}if(townPanel==='garage'){const vs=vehicleStats(),h=Math.min(meta.vehicle.hull??vs.maxHull,vs.maxHull);if(p.y>205&&p.y<270){if(h<vs.maxHull&&meta.credits>=6){meta.credits-=6;meta.vehicle.hull=h+1;say('车体 +1')}else say('无需维修')}if(p.y>290&&p.y<355){const miss=vs.maxHull-h,cost=miss*6;if(miss&&meta.credits>=cost){meta.credits-=cost;meta.vehicle.hull=vs.maxHull;say('车体已完全修复')}else say('无法维修')}if(p.y>390&&p.y<455){if(meta.vehicleGrid.tier<3){const co=meta.vehicleGrid.tier===1?[40,4]:[70,7];if(meta.credits>=co[0]&&meta.vehicle.scrap>=co[1]){meta.credits-=co[0];meta.vehicle.scrap-=co[1];meta.vehicleGrid.tier++;if(meta.vehicleGrid.tier===2)meta.vehicleGrid.cols=7;else meta.vehicleGrid.rows=5;say('载具舱已扩建')}else say('资源不足')}}if(p.y>500&&p.y<565){startVehicleBay('town');return}for(let i=0;i<3;i++){const y=610+i*75;if(p.y>=y&&p.y<=y+60){const o=meta.town.moduleOffers[i];if(o&&!o.sold&&meta.credits>=o.credits&&meta.vehicle.scrap>=o.salvage){meta.credits-=o.credits;meta.vehicle.scrap-=o.salvage;o.sold=true;meta.pendingVehicle.push(makeVehicle(o.type));say('已购买模块')}else say('无法购买');save();return}}save();return}if(townPanel==='armory'){if(p.y>205&&p.y<270){if(meta.pack.tier<3){const cost=meta.pack.tier===1?35:60;if(meta.credits>=cost){meta.credits-=cost;meta.pack.tier++;if(meta.pack.tier===2)meta.pack.cols=7;else meta.pack.rows=6;say('背包已扩容')}else say('信用点不足')}}if(p.y>300&&p.y<365){startPack('town',false,[]);return}for(let i=0;i<3;i++){const y=435+i*90;if(p.y>=y&&p.y<=y+70){const o=meta.town.gearOffers[i];if(o&&!o.sold&&meta.credits>=o.cost){meta.credits-=o.cost;o.sold=true;meta.pendingHaul.push(makeItem(o.type));say('已购买装备')}else say('无法购买');save();return}}save();return}if(townPanel==='routes'){for(let i=0;i<3;i++){const y=255+i*150;if(p.y>=y&&p.y<=y+110){meta.route={...ROUTES[i]};say(`已选择${meta.route.name}`);save();return}}}}
 
 function update(dt){noticeT=Math.max(0,noticeT-dt);if(state==='roadcombat')updateRoad(dt);else if(state==='play'||state==='finalassault')updateScavenge(dt);else if(state==='town')updateTown(dt)}
 
@@ -1051,8 +1053,9 @@ function routeTap(p){
 function routeNodePositions(){const n=meta.mapChoices.length;return n===1?[{x:270,y:355}]:n===3?[{x:105,y:430},{x:270,y:325},{x:435,y:430}]:[{x:175,y:380},{x:365,y:380}]}
 
 function roundRect(x,y,w,h,r,fill=true,stroke=false){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill)ctx.fill();if(stroke)ctx.stroke()}
-function text(s,x,y,size=14,color=C.cream,align='left',weight=700){ctx.font=`${weight} ${size}px ui-monospace,monospace`;ctx.fillStyle=color;ctx.textAlign=align;ctx.fillText(s,x,y);ctx.textAlign='left'}
-function wrap(s,x,y,w,line=17,size=11,color=C.muted){ctx.font=`600 ${size}px ui-monospace,monospace`;ctx.fillStyle=color;const words=s.split(' ');let lineS='';for(const word of words){const test=lineS+word+' ';if(ctx.measureText(test).width>w){ctx.fillText(lineS,x,y);y+=line;lineS=word+' '}else lineS=test}ctx.fillText(lineS,x,y)}
+const FONT_STACK='"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",system-ui,sans-serif';
+function text(s,x,y,size=14,color=C.cream,align='left',weight=700){ctx.font=`${weight} ${size}px ${FONT_STACK}`;ctx.fillStyle=color;ctx.textAlign=align;ctx.fillText(s,x,y);ctx.textAlign='left'}
+function wrap(s,x,y,w,line=17,size=11,color=C.muted){ctx.font=`600 ${size}px ${FONT_STACK}`;ctx.fillStyle=color;const cjk=/[\u3400-\u9fff]/.test(s),words=cjk?Array.from(s):s.split(' '),gap=cjk?'':' ';let lineS='';for(const word of words){const test=lineS+word+gap;if(lineS&&ctx.measureText(test).width>w){ctx.fillText(lineS,x,y);y+=line;lineS=word+gap}else lineS=test}ctx.fillText(lineS,x,y)}
 function bar(x,y,w,h,v,color,bg='#3a3d31'){ctx.fillStyle=bg;roundRect(x,y,w,h,h/2,true,false);ctx.fillStyle=color;roundRect(x,y,w*clamp(v,0,1),h,h/2,true,false)}
 function title(s,sub){text(s,28,56,28,C.cream,'left',900);if(sub)text(sub,29,80,10,C.muted,'left',700)}
 function btn(x,y,w,h,label,enabled=true){ctx.fillStyle=enabled?C.yellow:'#3a3d31';roundRect(x,y,w,h,12,true,false);text(label,x+w/2,y+h/2+5,14,enabled?'#171912':'#777a6b','center',900)}
@@ -1069,30 +1072,30 @@ function drawDunes(){
 }
 function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
- const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','enemyColossus','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
+ const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','enemyColossus','townRustwater','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
- const label=ready?'PROD ART ON':error?'PROD ART ERROR':'PROD ART LOADING';
+ const label=ready?'美术已就绪':error?'美术加载失败':'美术加载中';
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
  text(label,458,26,8,ready?C.green:error?C.red:C.yellow,'center',900)
 }
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,15,12,.92)';roundRect(85,865,370,42,12,true,false);text(notice,270,891,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('WASTELAND',270,270,48,C.cream,'center',900);text('SURVIVOR',270,320,48,C.yellow,'center',900);text('PORTRAIT PROTOTYPE',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'TAP TO START');text('ONE THUMB • BUILD • ROAD • SCAVENGE',270,825,10,C.muted,'center',800);text('ART REFORGE • COLOSSUS A15',270,855,10,'#66695b','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,12,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,10,C.muted,'center',800);text('美术重制 • 锈水镇 A16',270,855,10,'#66695b','center',700)}
 function drawRoute(){drawDunes();
  ctx.fillStyle='rgba(12,14,11,.58)';ctx.fillRect(0,0,W,H);
  ctx.save();ctx.globalAlpha=.18;ctx.strokeStyle='#c49a58';ctx.lineWidth=1;for(let x=35;x<W;x+=47){ctx.beginPath();ctx.moveTo(x,155);ctx.lineTo(x-70,735);ctx.stroke()}for(let y=175;y<735;y+=54){ctx.beginPath();ctx.moveTo(18,y);ctx.lineTo(522,y+20);ctx.stroke()}ctx.restore();
- ctx.fillStyle='rgba(112,72,40,.20)';ctx.beginPath();ctx.moveTo(0,610);ctx.lineTo(145,570);ctx.lineTo(235,620);ctx.lineTo(355,565);ctx.lineTo(540,605);ctx.lineTo(540,760);ctx.lineTo(0,760);ctx.fill();title('THE ROAD',`LEG ${meta.roadLeg}  •  BUILD IDENTITY RUN`);const vs=vehicleStats();text(`PACK`,28,104,10,C.muted);text(`${meta.backpack.length}`,28,124,15,C.cream);text(`FUEL ${meta.vehicle.fuel}/${vs.maxFuel}`,155,104,10,C.muted);bar(155,113,120,9,meta.vehicle.fuel/vs.maxFuel,C.yellow);text(`HULL`,315,104,10,C.muted);bar(315,113,90,9,(meta.vehicle.hull??vs.maxHull)/vs.maxHull,C.green);text(`¢${meta.credits}`,505,120,15,C.yellow,'right',900);
+ ctx.fillStyle='rgba(112,72,40,.20)';ctx.beginPath();ctx.moveTo(0,610);ctx.lineTo(145,570);ctx.lineTo(235,620);ctx.lineTo(355,565);ctx.lineTo(540,605);ctx.lineTo(540,760);ctx.lineTo(0,760);ctx.fill();title('荒野公路',`第 ${meta.roadLeg} 段  •  构筑身份之旅`);const vs=vehicleStats();text(`背包`,28,104,10,C.muted);text(`${meta.backpack.length}`,28,124,15,C.cream);text(`燃料 ${meta.vehicle.fuel}/${vs.maxFuel}`,155,104,10,C.muted);bar(155,113,120,9,meta.vehicle.fuel/vs.maxFuel,C.yellow);text(`车体`,315,104,10,C.muted);bar(315,113,90,9,(meta.vehicle.hull??vs.maxHull)/vs.maxHull,C.green);text(`¢${meta.credits}`,505,120,15,C.yellow,'right',900);
  ensureChoices();const pos=routeNodePositions();ctx.strokeStyle='#575a4d';ctx.lineWidth=5;for(const p of pos){ctx.beginPath();ctx.moveTo(270,720);ctx.lineTo(p.x,p.y+35);ctx.stroke()}ctx.fillStyle='#34372d';ctx.beginPath();ctx.arc(270,720,34,0,6.28);ctx.fill();drawVehicle(270,720,.62,C.yellow);
  for(let i=0;i<meta.mapChoices.length;i++){const n=meta.mapChoices[i],p=pos[i],sel=meta.selectedNode?.id===n.id;ctx.fillStyle=sel?'#5a5032':'#292c24';ctx.strokeStyle=sel?C.yellow:'#5b5f50';ctx.lineWidth=sel?4:2;ctx.beginPath();ctx.arc(p.x,p.y,56,0,6.28);ctx.fill();ctx.stroke();text(n.icon,p.x,p.y+8,25,n.type==='town'?C.green:n.danger===3?C.red:C.cream,'center',900);text(n.short,p.x,p.y+82,11,sel?C.yellow:C.cream,'center',900);if(n.type!=='town')text('▲'.repeat(n.danger),p.x,p.y+100,9,n.danger===3?C.red:C.muted,'center',900)}
- const n=meta.selectedNode;ctx.fillStyle='#20231c';roundRect(30,760,480,68,14,true,false);if(n){text(n.name,48,785,15,C.cream,'left',900);text(n.type==='town'?'SAFE • TRADE / REPAIR':n.type==='event'?'ROADSIDE EVENT • CHOICE':n.type==='final'?'FINAL ASSAULT • NO TURNING BACK':n.type==='boss'?`${n.focus} • KILL REQUIRED`:`${n.focus} • DANGER ${n.danger}${n.special?' • RARE SIGNAL':''}`,48,808,10,n.type==='boss'||n.type==='final'?C.red:n.type==='event'||n.special?C.yellow:C.muted);text(`FUEL COST ${fuelCost()}`,480,796,12,meta.vehicle.fuel<fuelCost()?C.red:C.yellow,'right',900)}else text('TAP A NODE',270,800,14,C.muted,'center',900);btn(55,842,430,70,n?`DRIVE TO ${n.short}`:'SELECT A DESTINATION',!!n);text('PACK',65,66,10,C.muted,'center',900);text('RESTART',270,66,10,C.red,'center',900);text('VEHICLE',472,66,10,C.muted,'center',900);
+ const n=meta.selectedNode;ctx.fillStyle='#20231c';roundRect(30,760,480,68,14,true,false);if(n){text(n.name,48,785,15,C.cream,'left',900);text(n.type==='town'?'安全区 • 交易 / 维修':n.type==='event'?'路边事件 • 做出选择':n.type==='final'?'最终突袭 • 无法回头':n.type==='boss'?`${n.focus} • 必须击杀`:`${n.focus} • 危险 ${n.danger}${n.special?' • 稀有信号':''}`,48,808,10,n.type==='boss'||n.type==='final'?C.red:n.type==='event'||n.special?C.yellow:C.muted);text(`燃料消耗 ${fuelCost()}`,480,796,12,meta.vehicle.fuel<fuelCost()?C.red:C.yellow,'right',900)}else text('点击选择地点',270,800,14,C.muted,'center',900);btn(55,842,430,70,n?`驶向${n.short}`:'选择目的地',!!n);text('背包',65,66,10,C.muted,'center',900);text('重开',270,66,10,C.red,'center',900);text('载具',472,66,10,C.muted,'center',900);
  if(restartConfirm){
   ctx.fillStyle='rgba(8,9,7,.78)';ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#20231c';roundRect(45,360,450,310,18,true,false);
-  text('RESTART RUN?',270,420,26,C.red,'center',900);
-  wrap('This clears the current run, backpack, vehicle modules, credits and route progress.',90,465,360,22,12,C.muted);
-  btn(65,565,190,65,'CANCEL');
-  ctx.fillStyle=C.red;roundRect(285,565,190,65,12,true,false);text('RESET RUN',380,603,13,'#171912','center',900);
+  text('重新开始本轮？',270,420,26,C.red,'center',900);
+  wrap('这会清除当前轮次、背包、载具模块、信用点和路线进度。',90,465,360,22,12,C.muted);
+  btn(65,565,190,65,'取消');
+  ctx.fillStyle=C.red;roundRect(285,565,190,65,12,true,false);text('确认重开',380,603,13,'#171912','center',900);
  }
 }
 
@@ -1166,17 +1169,17 @@ for(const st of g.strikes){
 for(const m of g.mines)drawMine(m);for(const d of g.drops){
  ctx.fillStyle=d.type==='fuel'?C.gas:d.type==='repair'?C.green:C.scrap;
  ctx.beginPath();ctx.arc(d.x,d.y,12,0,6.28);ctx.fill();
- text(d.type==='fuel'?'F':d.type==='repair'?'+':'S',d.x,d.y+4,10,'#171912','center',900)
+ text(d.type==='fuel'?'油':d.type==='repair'?'+':'废',d.x,d.y+4,10,'#171912','center',900)
 }drawRoadAtmosphere(g);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated)drawColossus(g);
  for(const e of g.enemies)drawEnemyVehicle(e);
  for(const st of g.strikes)drawRoadStrikeMissile(st);
  for(const b of g.bullets)drawRoadProjectile(b);
  for(const b of g.enemyBullets)drawEnemyRoadProjectile(b);
  for(const f of g.fx)drawRoadFX(f);
- drawVehicle(p.x,p.y,1,p.inv>0&&Math.floor(performance.now()/80)%2?'#fff':C.yellow);ctx.fillStyle='rgba(18,20,16,.9)';roundRect(18,20,504,100,14,true,false);text(`${Math.ceil(g.time)}s`,36,60,28,g.time<10?C.red:C.cream,'left',900);text(destinationName(),36,85,11,C.muted);text(`FUEL -${g.cost}${g.dry?' • DRY RUN':''}`,500,58,11,g.dry?C.red:C.yellow,'right',900);bar(36,96,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`HULL ${p.hp}/${p.max}`,255,105,10,C.cream);bar(305,96,195,10,g.elapsed/g.duration,C.yellow);text(`THREAT ${Math.round(g.threat*100)}%`,500,105,9,g.threat>1.05?C.red:C.muted,'right',900);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated){
- text('THE COLOSSUS',270,150,17,C.red,'center',900);
- const lock=roadTarget(g,p,660);if(lock?.group==='colossus')text(`LOCK: ${lock.part==='engine'?'CORE':lock.part.toUpperCase()}   •   LEFT MG / CENTER ARMOR / RIGHT RKT`,270,172,9,C.yellow,'center',800);
-}else if(g.bossRoute&&g.bossSpawned&&!g.bossDefeated)text('IRON JACKAL',270,150,16,C.red,'center',900);else if(g.boss&&g.enemies.some(e=>e.type==='wartruck'))text('WAR TRUCK',270,150,15,C.red,'center',900);drawJoy()}
+ drawVehicle(p.x,p.y,1,p.inv>0&&Math.floor(performance.now()/80)%2?'#fff':C.yellow);ctx.fillStyle='rgba(18,20,16,.9)';roundRect(18,20,504,100,14,true,false);text(`${Math.ceil(g.time)}秒`,36,60,28,g.time<10?C.red:C.cream,'left',900);text(destinationName(),36,85,11,C.muted);text(`燃料 -${g.cost}${g.dry?' • 燃料不足':''}`,500,58,11,g.dry?C.red:C.yellow,'right',900);bar(36,96,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`车体 ${p.hp}/${p.max}`,255,105,10,C.cream);bar(305,96,195,10,g.elapsed/g.duration,C.yellow);text(`威胁 ${Math.round(g.threat*100)}%`,500,105,9,g.threat>1.05?C.red:C.muted,'right',900);if(g.finalRoute&&g.bossSpawned&&!g.bossDefeated){
+ text('巨像',270,150,17,C.red,'center',900);
+ const lock=roadTarget(g,p,660);if(lock?.group==='colossus')text(`锁定：${lock.part==='engine'?'核心':lock.part==='armor'?'装甲':lock.part==='rocket'?'火箭巢':'机枪'}   •   左机枪 / 中装甲 / 右火箭`,270,172,9,C.yellow,'center',800);
+}else if(g.bossRoute&&g.bossSpawned&&!g.bossDefeated)text('钢铁豺狼',270,150,16,C.red,'center',900);else if(g.boss&&g.enemies.some(e=>e.type==='wartruck'))text('战争卡车',270,150,15,C.red,'center',900);drawJoy()}
 function drawVehicle(x,y,s=1,color=C.yellow,production=true){
  if(production&&drawProd('playerJunker',x,y,116*s,118*s,color==='#fff'?.45:1))return;
  if(drawArt('junker',x,y,122*s,145*s,color==='#fff'?.45:1))return;
@@ -1197,7 +1200,7 @@ function drawVehicle(x,y,s=1,color=C.yellow,production=true){
 }
 function drawEnemyVehicle(e){
  if(e.group==='colossus'){
-  text(e.part==='mg'?'MG':e.part==='rocket'?'RKT':e.part==='armor'?'ARM':'CORE',e.x,e.y+5,10,C.yellow,'center',900);
+  text(e.part==='mg'?'机':e.part==='rocket'?'箭':e.part==='armor'?'甲':'核',e.x,e.y+5,10,C.yellow,'center',900);
   if((e.disabled||0)>0){ctx.strokeStyle=C.teal;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,Math.max(e.w,e.h)*.42,0,6.28);ctx.stroke()}
   bar(e.x-e.w*.45,e.y-e.h*.62,e.w*.9,8,e.hp/e.maxHp,C.yellow);return
  }
@@ -1214,7 +1217,7 @@ function drawEnemyVehicle(e){
   const col=boss?'#4e3d36':e.type==='missilevan'?'#67536a':e.group==='colossus'?'#57433a':e.type==='wartruck'?'#6d594c':e.type==='truck'?'#75624c':e.type==='bike'?'#9a7049':'#806448';
   drawVehicle(e.x,e.y,sc,col,false)
  }
- if(e.type==='missilevan'&&!PROD.enemyMissileVan.ready)text('MSL',e.x,e.y+7,9,C.yellow,'center',900);
+ if(e.type==='missilevan'&&!PROD.enemyMissileVan.ready)text('导弹',e.x,e.y+7,9,C.yellow,'center',900);
  if((e.disabled||0)>0){ctx.strokeStyle=C.teal;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,Math.max(e.w,e.h)*.42,0,6.28);ctx.stroke()}
  if(e.maxHp>4)bar(e.x-e.w*.45,e.y-e.h*.62,e.w*.9,boss||e.group==='colossus'?8:5,e.hp/e.maxHp,e.group==='colossus'?C.yellow:C.red)
 }
@@ -1276,11 +1279,11 @@ function drawRoadFX(f){
  ctx.restore()
 }
 function drawMine(m){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(m.x,m.y+6,m.r+5,8,0,0,6.28);ctx.fill();ctx.fillStyle='#24251f';ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,6.28);ctx.fill();ctx.strokeStyle='#aa503e';ctx.lineWidth=3;ctx.beginPath();ctx.arc(m.x,m.y,m.r-5,0,6.28);ctx.stroke();ctx.fillStyle='#d39b3e';for(let a=0;a<6;a++){const q=a*Math.PI/3;ctx.fillRect(m.x+Math.cos(q)*(m.r-3)-2,m.y+Math.sin(q)*(m.r-3)-2,4,4)}}
-function drawRoadResult(fail=false){drawDunes();ctx.fillStyle='rgba(11,13,10,.72)';ctx.fillRect(0,0,W,H);text(fail?'WRECKED':'DESTINATION REACHED',270,230,30,fail?C.red:C.yellow,'center',900);if(!fail){text(destinationName(),270,275,18,C.cream,'center',900);const rows=[['RAIDERS',roadGame.kills],['SALVAGE',roadGame.scrap],['FIELD REPAIRS',roadGame.repairs||0],['HULL',`${roadGame.player.hp}/${roadGame.player.max}`]];rows.forEach((r,i)=>{ctx.fillStyle='#24271f';roundRect(75,340+i*70,390,50,10,true,false);text(r[0],95,370,11,C.muted);text(String(r[1]),445,371,18,C.cream,'right',900)});if(meta.selectedNode?.type==='final'){
- ctx.fillStyle='#302f25';roundRect(75,640,390,90,12,true,false);text('COLOSSUS DISABLED',95,670,10,C.yellow,'left',900);
- text(`${meta.finalFlags.mg?'MG DOWN':'MG ACTIVE'} • ${meta.finalFlags.rocket?'RKT DOWN':'RKT ACTIVE'} • ${meta.finalFlags.armor?'ARMOR DOWN':'ARMOR ACTIVE'}`,95,700,10,C.cream,'left',900);
- }else{const d=VEH[roadGame.reward];ctx.fillStyle='#302f25';roundRect(75,640,390,90,12,true,false);text('MODULE SALVAGED',95,670,10,C.yellow,'left',900);text(`${d.name}  L${roadGame.rewardLv}`,95,700,15,C.cream,'left',900)}
- btn(75,790,390,70,meta.selectedNode?.type==='town'?'ENTER TOWN':meta.pendingRoadEvent?'ROADSIDE EVENT':meta.selectedNode?.type==='final'?'BREACH THE CATHEDRAL':meta.selectedNode?.type==='boss'?'CLAIM TROPHY':'GET OUT & SCAVENGE')}else{wrap('The Junker could not make the route. Your run continues from the road map for prototype testing.',80,360,380,22,13,C.muted);btn(75,640,390,70,'BACK TO ROAD MAP')}}
+function drawRoadResult(fail=false){drawDunes();ctx.fillStyle='rgba(11,13,10,.72)';ctx.fillRect(0,0,W,H);text(fail?'载具损毁':'已抵达目的地',270,230,30,fail?C.red:C.yellow,'center',900);if(!fail){text(destinationName(),270,275,18,C.cream,'center',900);const rows=[['击杀',roadGame.kills],['废料',roadGame.scrap],['战地维修',roadGame.repairs||0],['车体',`${roadGame.player.hp}/${roadGame.player.max}`]];rows.forEach((r,i)=>{ctx.fillStyle='#24271f';roundRect(75,340+i*70,390,50,10,true,false);text(r[0],95,370,11,C.muted);text(String(r[1]),445,371,18,C.cream,'right',900)});if(meta.selectedNode?.type==='final'){
+ ctx.fillStyle='#302f25';roundRect(75,640,390,90,12,true,false);text('巨像已瘫痪',95,670,10,C.yellow,'left',900);
+ text(`${meta.finalFlags.mg?'机枪已毁':'机枪完好'} • ${meta.finalFlags.rocket?'火箭已毁':'火箭完好'} • ${meta.finalFlags.armor?'装甲已毁':'装甲完好'}`,95,700,10,C.cream,'left',900);
+ }else{const d=VEH[roadGame.reward];ctx.fillStyle='#302f25';roundRect(75,640,390,90,12,true,false);text('已回收模块',95,670,10,C.yellow,'left',900);text(`${d.name}  ${roadGame.rewardLv}级`,95,700,15,C.cream,'left',900)}
+ btn(75,790,390,70,meta.selectedNode?.type==='town'?'进入城镇':meta.pendingRoadEvent?'处理路边事件':meta.selectedNode?.type==='final'?'攻入圣堂':meta.selectedNode?.type==='boss'?'领取战利品':'下车搜刮')}else{wrap('破烂车没能跑完这段路。原型测试中可从路线图继续本轮。',80,360,380,22,13,C.muted);btn(75,640,390,70,'返回路线图')}}
 
 function drawScavProjectile(b,hostile=false){
  const color=hostile?(b.sniper?'#f2d6bd':'#df6b51'):(b.ap>0?'#a2e0ca':'#f4e5b6');
@@ -1389,10 +1392,10 @@ function drawScavenge(){
  for(const f of g.fx)drawScavFX(f);
  drawExit(g.exit);drawSurvivor(p);ctx.restore();
  ctx.fillStyle='rgba(15,17,13,.92)';roundRect(18,18,504,110,14,true,false);
- text(g.finalAssault?'RUST CATHEDRAL • FINAL ASSAULT':SITE[g.site].name,34,48,16,C.cream,'left',900);text(`${Math.ceil(g.time)}s`,500,50,25,g.time<20?C.red:C.cream,'right',900);
- bar(34,66,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`HP ${p.hp}/${p.max}`,255,75,9,C.cream);
- text(`${g.build.weapons.length} WEAPONS`,34,105,10,C.yellow,'left',900);text(`NEW GEAR ${g.haul.length}`,500,105,10,C.cream,'right',900);
- if(g.finalAssault){text(g.finalLabel||'THE BREACH',270,148,12,g.driverSpawned?C.red:C.yellow,'center',900);if(g.driverSpawned){const d=g.enemies.find(e=>e.type==='driver');if(d)bar(95,163,350,10,d.hp/d.max,C.red)}}else if(g.special)text('RARE SIGNAL',270,148,12,C.yellow,'center',900);else text(g.effectLabel?`${g.rule?.label||''} • ${g.effectLabel}`:(g.rule?.label||''),270,148,9,g.effectLabel?C.red:C.muted,'center',900);
+ text(g.finalAssault?'锈蚀圣堂 • 最终突袭':SITE[g.site].name,34,48,16,C.cream,'left',900);text(`${Math.ceil(g.time)}秒`,500,50,25,g.time<20?C.red:C.cream,'right',900);
+ bar(34,66,210,10,p.hp/p.max,p.hp/p.max>.4?C.green:C.red);text(`生命 ${p.hp}/${p.max}`,255,75,9,C.cream);
+ text(`${g.build.weapons.length} 件武器`,34,105,10,C.yellow,'left',900);text(`新装备 ${g.haul.length}`,500,105,10,C.cream,'right',900);
+ if(g.finalAssault){text(g.finalLabel||'突破口',270,148,12,g.driverSpawned?C.red:C.yellow,'center',900);if(g.driverSpawned){const d=g.enemies.find(e=>e.type==='driver');if(d)bar(95,163,350,10,d.hp/d.max,C.red)}}else if(g.special)text('稀有信号',270,148,12,C.yellow,'center',900);else text(g.effectLabel?`${g.rule?.label||''} • ${g.effectLabel}`:(g.rule?.label||''),270,148,9,g.effectLabel?C.red:C.muted,'center',900);
  drawJoy();drawNotice();
 }
 function drawSurvivor(p){
@@ -1419,103 +1422,92 @@ function drawScavEnemy(e){
   ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,6.28);ctx.fill();
   if(e.type==='grenadier'){ctx.fillStyle='#626b45';ctx.beginPath();ctx.arc(e.x-14,e.y-13,7,0,6.28);ctx.fill();ctx.strokeStyle='#e7c772';ctx.lineWidth=2;ctx.stroke()}
  }
- if(!hasProd)text(e.type==='gunner'?'G':e.type==='grenadier'?'!':e.type==='elite'?'E':e.type==='armored'?'A':e.type==='sniper'?'S':e.type==='driver'?'D':'',e.x,e.y+7,e.type==='driver'?11:8,'#171912','center',900);
+ if(!hasProd)text(e.type==='gunner'?'枪':e.type==='grenadier'?'爆':e.type==='elite'?'精':e.type==='armored'?'甲':e.type==='sniper'?'狙':e.type==='driver'?'首':'',e.x,e.y+7,e.type==='driver'?11:8,'#171912','center',900);
  if(e.type!=='melee'&&e.type!=='driver')bar(e.x-18,e.y-e.r-18,36,4,e.hp/e.max,C.red)
 }
-function drawExit(ex){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(ex.x,ex.y+20,62,14,0,0,6.28);ctx.fill();drawVehicle(ex.x,ex.y,.72,C.yellow);ctx.fillStyle='rgba(22,20,15,.9)';roundRect(ex.x-54,ex.y+45,108,25,6,true,false);text('EXTRACT',ex.x,ex.y+62,9,C.yellow,'center',900);if(ex.progress>0)bar(ex.x-55,ex.y+76,110,7,ex.progress,C.green)}
+function drawExit(ex){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(ex.x,ex.y+20,62,14,0,0,6.28);ctx.fill();drawVehicle(ex.x,ex.y,.72,C.yellow);ctx.fillStyle='rgba(22,20,15,.9)';roundRect(ex.x-54,ex.y+45,108,25,6,true,false);text('撤离',ex.x,ex.y+62,9,C.yellow,'center',900);if(ex.progress>0)bar(ex.x-55,ex.y+76,110,7,ex.progress,C.green)}
 
-function drawGridScreen(kind){const isPack=kind==='pack',g=isPack?packGeom():vehicleGeom(),list=isPack?meta.backpack:meta.vehiclePack,defs=isPack?ITEM:VEH,pending=isPack?meta.pendingHaul:meta.pendingVehicle,drag=isPack?packDrag:vehicleDrag;drawDunes();ctx.fillStyle='rgba(12,14,11,.82)';ctx.fillRect(0,0,W,H);title(isPack?'BACKPACK':'VEHICLE BAY',isPack?'Fuse duplicates • supports reward adjacency':'2 hardpoints • CLEAR / ARMOR / SPLASH / CONTROL');if(isPack){const b=buildStats();text(`HP ${b.maxHp}   MOVE ${Math.round(b.speed)}   CORES ${b.weapons.length}/2`,270,118,11,C.cream,'center',800)}else{const v=vehicleStats();text(`HULL ${v.maxHull}   FUEL ${v.maxFuel}   HARDPOINTS ${v.activeWeapons.length}/2`,270,118,11,C.cream,'center',800)}ctx.fillStyle='#22251e';roundRect(g.x-10,g.y-10,g.cols*g.cell+20,g.rows*g.cell+20,14,true,false);for(let y=0;y<g.rows;y++)for(let x=0;x<g.cols;x++){ctx.fillStyle=(x+y)%2?'#303329':'#2b2f26';ctx.fillRect(g.x+x*g.cell+2,g.y+y*g.cell+2,g.cell-4,g.cell-4);ctx.strokeStyle='#42463a';ctx.strokeRect(g.x+x*g.cell+.5,g.y+y*g.cell+.5,g.cell-1,g.cell-1)}for(const it of list)drawGridItem(it,g.x+it.gx*g.cell,g.y+it.gy*g.cell,g.cell,defs,drag?.item.id===it.id);const cards=isPack?packPendingCards():vehicleCards();text(`NEW ${isPack?'GEAR':'MODULES'} ${pending.length}`,35,Math.min(g.bottom+8,640),11,C.muted,'left',900);for(const c of cards){const d=defs[c.it.type];ctx.fillStyle='#272a22';roundRect(c.x,c.y,c.w,c.h,9,true,false);ctx.fillStyle=d.color;roundRect(c.x+7,c.y+8,43,42,7,true,false);text(d.tag,c.x+28,c.y+34,10,'#171912','center',900);text(`${d.name} L${c.it.level||1}`,c.x+59,c.y+24,10,C.cream,'left',900);text(`${d.w}×${d.h}`,c.x+59,c.y+43,9,C.muted)}ctx.fillStyle='#5c302a';roundRect(28,822,215,66,12,true,false);text((isPack?packReturn:vehicleReturn)==='town'?'SELL':'DISCARD',135,861,13,'#e1c6b8','center',900);btn(298,822,214,66,(isPack?packReturn:vehicleReturn)==='town'?'BACK TO TOWN':'CONTINUE');if(drag)drawGridItem(drag.item,drag.x-drag.ox,drag.y-drag.oy,g.cell,defs,false,.8);if(isPack&&evolutionChoice)drawEvolutionModal();drawNotice()}
+function drawGridScreen(kind){const isPack=kind==='pack',g=isPack?packGeom():vehicleGeom(),list=isPack?meta.backpack:meta.vehiclePack,defs=isPack?ITEM:VEH,pending=isPack?meta.pendingHaul:meta.pendingVehicle,drag=isPack?packDrag:vehicleDrag;drawDunes();ctx.fillStyle='rgba(12,14,11,.82)';ctx.fillRect(0,0,W,H);title(isPack?'背包':'载具舱',isPack?'融合同类物品 • 辅助件靠近武器生效':'2 个武器挂点 • 直射 / 穿甲 / 范围 / 控制');if(isPack){const b=buildStats();text(`生命 ${b.maxHp}   移速 ${Math.round(b.speed)}   武器 ${b.weapons.length}/2`,270,118,11,C.cream,'center',800)}else{const v=vehicleStats();text(`车体 ${v.maxHull}   燃料 ${v.maxFuel}   挂点 ${v.activeWeapons.length}/2`,270,118,11,C.cream,'center',800)}ctx.fillStyle='#22251e';roundRect(g.x-10,g.y-10,g.cols*g.cell+20,g.rows*g.cell+20,14,true,false);for(let y=0;y<g.rows;y++)for(let x=0;x<g.cols;x++){ctx.fillStyle=(x+y)%2?'#303329':'#2b2f26';ctx.fillRect(g.x+x*g.cell+2,g.y+y*g.cell+2,g.cell-4,g.cell-4);ctx.strokeStyle='#42463a';ctx.strokeRect(g.x+x*g.cell+.5,g.y+y*g.cell+.5,g.cell-1,g.cell-1)}for(const it of list)drawGridItem(it,g.x+it.gx*g.cell,g.y+it.gy*g.cell,g.cell,defs,drag?.item.id===it.id);const cards=isPack?packPendingCards():vehicleCards();text(`新增${isPack?'装备':'模块'} ${pending.length}`,35,Math.min(g.bottom+8,640),11,C.muted,'left',900);for(const c of cards){const d=defs[c.it.type];ctx.fillStyle='#272a22';roundRect(c.x,c.y,c.w,c.h,9,true,false);ctx.fillStyle=d.color;roundRect(c.x+7,c.y+8,43,42,7,true,false);text(d.tag,c.x+28,c.y+34,10,'#171912','center',900);text(`${d.name} ${c.it.level||1}级`,c.x+59,c.y+24,10,C.cream,'left',900);text(`${d.w}×${d.h}`,c.x+59,c.y+43,9,C.muted)}ctx.fillStyle='#5c302a';roundRect(28,822,215,66,12,true,false);text((isPack?packReturn:vehicleReturn)==='town'?'出售':'丢弃',135,861,13,'#e1c6b8','center',900);btn(298,822,214,66,(isPack?packReturn:vehicleReturn)==='town'?'返回城镇':'继续');if(drag)drawGridItem(drag.item,drag.x-drag.ox,drag.y-drag.oy,g.cell,defs,false,.8);if(isPack&&evolutionChoice)drawEvolutionModal();drawNotice()}
 function drawEvolutionModal(){
  const it=meta.backpack.find(x=>x.id===evolutionChoice?.itemId);if(!it){evolutionChoice=null;return}
  const opts=EVOLUTIONS[evolutionChoice.type]||[];ctx.fillStyle='rgba(7,8,6,.86)';ctx.fillRect(0,0,W,H);
  ctx.fillStyle='#20231c';roundRect(28,310,484,420,18,true,false);
- text('LV.3 EVOLUTION',270,365,24,C.yellow,'center',900);text(ITEM[it.type].name,270,400,14,C.cream,'center',900);
- wrap('Choose one branch. This choice defines how the weapon behaves for the rest of the run.',72,438,396,20,11,C.muted);
+ text('3级进化',270,365,24,C.yellow,'center',900);text(ITEM[it.type].name,270,400,14,C.cream,'center',900);
+ wrap('选择一个进化分支。本轮余下时间里，这件武器将按该方向作战。',72,438,396,20,11,C.muted);
  opts.slice(0,2).forEach((o,i)=>{const x=i===0?45:285;ctx.fillStyle='#303329';roundRect(x,565,210,120,14,true,false);ctx.strokeStyle=i===0?C.yellow:C.teal;ctx.lineWidth=2;roundRect(x,565,210,120,14,false,true);text(o.name,x+105,600,13,C.cream,'center',900);wrap(o.desc,x+18,628,174,18,9,C.muted)});
 }
-function drawGridItem(it,x,y,cell,defs,hidden=false,alpha=1){if(hidden)return;const d=defs[it.type],list=defs===ITEM?meta.backpack:meta.vehiclePack,active=d.kind!=='weapon'||weaponIsActive(it,list,defs,2);ctx.save();ctx.globalAlpha=alpha*(active?1:.38);ctx.fillStyle=d.color;roundRect(x+3,y+3,d.w*cell-6,d.h*cell-6,8,true,false);ctx.strokeStyle=it.locked?C.yellow:active?'rgba(255,255,255,.22)':C.red;ctx.lineWidth=it.locked?2:1;roundRect(x+3,y+3,d.w*cell-6,d.h*cell-6,8,false,true);text(d.tag,x+d.w*cell/2,y+d.h*cell/2+5,Math.min(15,cell*.24),'#171912','center',900);text(`L${it.level||1}`,x+8,y+d.h*cell-9,8,C.cream,'left',900);if(it.evolution)text(it.evolution.toUpperCase().slice(0,5),x+d.w*cell-7,y+13,7,C.yellow,'right',900);if(d.kind==='weapon'&&!active)text('OFF',x+d.w*cell-7,y+d.h*cell-9,7,C.red,'right',900);ctx.restore()}
+function drawGridItem(it,x,y,cell,defs,hidden=false,alpha=1){if(hidden)return;const d=defs[it.type],list=defs===ITEM?meta.backpack:meta.vehiclePack,active=d.kind!=='weapon'||weaponIsActive(it,list,defs,2);ctx.save();ctx.globalAlpha=alpha*(active?1:.38);ctx.fillStyle=d.color;roundRect(x+3,y+3,d.w*cell-6,d.h*cell-6,8,true,false);ctx.strokeStyle=it.locked?C.yellow:active?'rgba(255,255,255,.22)':C.red;ctx.lineWidth=it.locked?2:1;roundRect(x+3,y+3,d.w*cell-6,d.h*cell-6,8,false,true);text(d.tag,x+d.w*cell/2,y+d.h*cell/2+5,Math.min(15,cell*.24),'#171912','center',900);text(`${it.level||1}级`,x+8,y+d.h*cell-9,8,C.cream,'left',900);if(it.evolution)text((EVOLUTIONS[it.type]?.find(x=>x.id===it.evolution)?.name||'进化').slice(0,5),x+d.w*cell-7,y+13,7,C.yellow,'right',900);if(d.kind==='weapon'&&!active)text('停用',x+d.w*cell-7,y+d.h*cell-9,7,C.red,'right',900);ctx.restore()}
 
 function drawTown(){
- drawDunes();ctx.fillStyle='rgba(15,13,9,.32)';ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#5b4d39';ctx.fillRect(0,125,W,735);
- ctx.fillStyle='rgba(33,29,22,.22)';for(let y=145;y<850;y+=58){ctx.fillRect(0,y,W,2)}
- ctx.fillStyle='#3d3428';ctx.fillRect(245,125,55,735);ctx.fillStyle='rgba(201,164,91,.16)';ctx.fillRect(269,125,4,735);
+ drawDunes();const hasTownArt=drawProd('townRustwater',270,480,540,960,1);
+ if(!hasTownArt){ctx.fillStyle='#5b4d39';ctx.fillRect(0,125,W,735);ctx.fillStyle='#3d3428';ctx.fillRect(245,125,55,735)}
+ const near=townNearest();
  for(const a of TOWN_SPOTS){
-  if(a.id==='routes'){ctx.fillStyle='#312b21';ctx.fillRect(a.x+72,a.y-28,7,32);ctx.fillStyle='#6e5636';roundRect(a.x,a.y,a.w,a.h,4,true,false);ctx.strokeStyle='#b58a49';ctx.lineWidth=2;roundRect(a.x+8,a.y+8,a.w-16,a.h-16,2,false,true)}
-  else if(a.id==='gate'){ctx.fillStyle='#28251e';ctx.fillRect(a.x,a.y+25,a.w,80);ctx.fillStyle='#9b773c';ctx.fillRect(a.x+10,a.y+30,8,65);ctx.fillRect(a.x+a.w-18,a.y+30,8,65);ctx.strokeStyle='#b6904d';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(a.x+15,a.y+36);ctx.lineTo(a.x+a.w-15,a.y+36);ctx.stroke()}
-  else{
-   ctx.fillStyle='rgba(16,14,11,.35)';roundRect(a.x+7,a.y+10,a.w,a.h,7,true,false);
-   ctx.fillStyle=a.id==='fuel'?'#5c4930':a.id==='garage'?'#48443a':a.id==='armory'?'#504235':'#5a4632';roundRect(a.x,a.y,a.w,a.h,6,true,false);
-   ctx.fillStyle='#27251f';ctx.fillRect(a.x+12,a.y+58,a.w-24,a.h-70);
-   ctx.fillStyle=a.id==='fuel'?C.yellow:a.id==='garage'?C.scrap:a.id==='armory'?C.red:C.rust;ctx.fillRect(a.x+14,a.y+12,a.w-28,34);
-   text(a.title,a.x+a.w/2,a.y+35,11,'#17140f','center',900);
-   ctx.fillStyle='#161612';ctx.fillRect(a.x+a.w*.38,a.y+a.h-50,a.w*.24,50);
-   if(a.id==='fuel'){ctx.fillStyle='#8b6a38';ctx.fillRect(a.x+22,a.y+78,28,48);ctx.fillStyle='#171612';ctx.fillRect(a.x+29,a.y+86,14,13)}
-   if(a.id==='garage'){ctx.strokeStyle='#9a8a67';ctx.lineWidth=4;ctx.beginPath();ctx.arc(a.x+45,a.y+91,19,0,6.28);ctx.stroke();ctx.beginPath();ctx.moveTo(a.x+45,a.y+67);ctx.lineTo(a.x+45,a.y+115);ctx.stroke()}
-   if(a.id==='market'){ctx.fillStyle='#9a7846';ctx.fillRect(a.x+22,a.y+83,42,22);ctx.fillRect(a.x+75,a.y+74,34,31)}
-  }
+  ctx.fillStyle='rgba(18,15,11,.80)';roundRect(a.x+8,a.y+8,a.w-16,27,6,true,false);
+  text(a.title,a.x+a.w/2,a.y+27,10,near?.id===a.id?C.yellow:C.cream,'center',900);
+  if(near?.id===a.id){ctx.strokeStyle=C.yellow;ctx.lineWidth=2;roundRect(a.x,a.y,a.w,a.h,8,false,true)}
  }
- ctx.fillStyle='rgba(18,15,11,.55)';ctx.fillRect(0,125,W,34);text('RUSTWATER',24,148,16,C.cream,'left',900);text('SAFE ZONE',150,147,9,C.green,'left',900);
- const vs=vehicleStats();text(`¢${meta.credits}  FUEL ${meta.vehicle.fuel}/${vs.maxFuel}  S ${meta.vehicle.scrap}`,515,147,10,C.yellow,'right',900);
+ ctx.fillStyle='rgba(18,15,11,.76)';ctx.fillRect(0,125,W,34);text('锈水镇',24,148,16,C.cream,'left',900);text('安全区',104,147,9,C.green,'left',900);
+ const vs=vehicleStats();text(`¢${meta.credits}  燃料 ${meta.vehicle.fuel}/${vs.maxFuel}  废料 ${meta.vehicle.scrap}`,515,147,10,C.yellow,'right',900);
  drawVehicle(270,820,.66,C.yellow);
  if(townWorld)drawSurvivor(townWorld.player);
- const near=townNearest();if(near&&!townPanel){ctx.fillStyle='rgba(20,18,13,.94)';roundRect(88,742,364,54,10,true,false);text(near.title,270,764,11,C.cream,'center',900);text('IN RANGE',270,784,9,C.green,'center',900);ctx.fillStyle=C.yellow;roundRect(315,850,195,70,12,true,false);text(near.id==='gate'?'LEAVE TOWN':'INTERACT',412,892,13,C.ink,'center',900)}
- text('PACK',472,95,10,C.muted,'center',900);if(!near)text('MOVE WITH JOYSTICK • WALK UP TO A SHOP',270,895,9,C.muted,'center',700);
+ if(near&&!townPanel){ctx.fillStyle='rgba(20,18,13,.94)';roundRect(88,742,364,54,10,true,false);text(near.title,270,764,11,C.cream,'center',900);text('已进入交互范围',270,784,9,C.green,'center',900);ctx.fillStyle=C.yellow;roundRect(315,850,195,70,12,true,false);text(near.id==='gate'?'离开城镇':'互动',412,892,13,C.ink,'center',900)}
+ text('背包',472,95,10,C.muted,'center',900);if(!near)text('使用摇杆移动 • 靠近建筑进行互动',270,895,9,C.muted,'center',700);
  if(!townPanel)drawJoy();if(townPanel)drawTownPanel();drawNotice()
 }
 function drawTownPanel(){ctx.fillStyle='rgba(8,9,7,.82)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#20231c';roundRect(18,110,504,800,18,true,false);text('×',488,145,25,C.cream,'center',900);if(townPanel==='market')drawMarket();if(townPanel==='fuel')drawFuel();if(townPanel==='garage')drawGarage();if(townPanel==='armory')drawArmory();if(townPanel==='routes')drawRoutes()}
 function panelHead(a,b){text(a,42,160,24,C.yellow,'left',900);text(b,42,187,10,C.muted)}
-function drawMarket(){panelHead('SCRAP MARKET',`Demand spike: ${meta.town.demand.toUpperCase()} pays +70%`);const ts=['gas','food','scrap','med'];for(let i=0;i<4;i++){const t=ts[i],y=220+i*95;ctx.fillStyle='#2b2e25';roundRect(42,y,456,65,10,true,false);text(`${t.toUpperCase()} ×${meta.cargo[t]}`,62,y+27,12,C.cream,'left',900);text(`¢${townPrice(t)} ea`,62,y+49,10,meta.town.demand===t?C.yellow:C.muted);text('SELL 1',350,y+29,10,C.cream,'center',900);text('ALL',455,y+29,10,C.yellow,'center',900)}}
-function drawFuel(){panelHead('FUEL DEPOT','Fuel now determines route range and Dry Run risk.');const cap=vehicleStats().maxFuel;text(`${meta.vehicle.fuel}/${cap}`,270,265,42,C.yellow,'center',900);bar(90,290,360,18,meta.vehicle.fuel/cap,C.yellow);[['POUR CARGO CAN',`CARGO ${meta.cargo.gas}`,250],['BUY +1 FUEL','¢5',350],['BUY +5 FUEL','¢22',450]].forEach((r,i)=>{const y=360+i*100;ctx.fillStyle='#33372d';roundRect(85,y,370,70,12,true,false);text(r[0],270,y+29,13,C.cream,'center',900);text(r[1],270,y+52,10,C.yellow,'center',800)})}
-function drawGarage(){panelHead('GARAGE','Repair, expand, buy modules.');const v=vehicleStats(),h=Math.min(meta.vehicle.hull??v.maxHull,v.maxHull);text(`HULL ${h}/${v.maxHull}`,55,235,13,C.cream,'left',900);bar(55,250,430,14,h/v.maxHull,h/v.maxHull>.4?C.green:C.red);[['REPAIR +1 • ¢6',220],['REPAIR ALL',305],[`EXPAND BAY ${meta.vehicleGrid.cols}×${meta.vehicleGrid.rows}`,390],['OPEN VEHICLE BAY',500]].forEach(r=>{ctx.fillStyle='#34382d';roundRect(55,r[1],430,60,10,true,false);text(r[0],270,r[1]+36,12,r[0].startsWith('OPEN')?C.yellow:C.cream,'center',900)});text('MODULE OFFERS',55,602,11,C.muted,'left',900);(meta.town.moduleOffers||[]).forEach((o,i)=>{const d=VEH[o.type],y=620+i*75;ctx.fillStyle='#2b2e25';roundRect(55,y,430,58,9,true,false);text(o.sold?'SOLD':d.name,75,y+24,11,o.sold?'#66695d':C.cream,'left',900);text(`¢${o.credits} + ${o.salvage}S`,75,y+45,9,C.yellow)})}
-function drawArmory(){panelHead('ARMORY','Expand your pack or buy new build pieces.');ctx.fillStyle='#34382d';roundRect(55,210,430,60,10,true,false);text(`EXPAND PACK ${meta.pack.cols}×${meta.pack.rows}`,270,246,12,C.cream,'center',900);ctx.fillStyle='#34382d';roundRect(55,300,430,60,10,true,false);text(`OPEN BACKPACK • NEW ${meta.pendingHaul.length}`,270,336,12,C.yellow,'center',900);text('GEAR OFFERS',55,420,11,C.muted,'left',900);(meta.town.gearOffers||[]).forEach((o,i)=>{const d=ITEM[o.type],y=440+i*90;ctx.fillStyle='#2b2e25';roundRect(55,y,430,70,9,true,false);text(o.sold?'SOLD':d.name,75,y+29,12,o.sold?'#66695d':C.cream,'left',900);text(`¢${o.cost} • ${d.w}×${d.h}`,75,y+52,9,C.yellow)})}
-function drawRoutes(){panelHead('ROUTE BOARD','Road style modifies fuel cost and combat pressure.');ROUTES.forEach((r,i)=>{const y=255+i*150,sel=meta.route.id===r.id;ctx.fillStyle=sel?'#4a4530':'#2b2e25';roundRect(55,y,430,110,12,true,false);ctx.strokeStyle=sel?C.yellow:'#4b5043';roundRect(55,y,430,110,12,false,true);text(r.name,75,y+35,14,sel?C.yellow:C.cream,'left',900);text(r.risk,455,y+35,10,r.risk==='HIGH'?C.red:C.muted,'right',900);wrap(r.bonus,75,y+63,350,17,10,C.muted)})}
+function drawMarket(){panelHead('废料市场',`当前需求：${CARGO_NAME[meta.town.demand]}售价 +70%`);const ts=['gas','food','scrap','med'];for(let i=0;i<4;i++){const t=ts[i],y=220+i*95;ctx.fillStyle='#2b2e25';roundRect(42,y,456,65,10,true,false);text(`${CARGO_NAME[t]} ×${meta.cargo[t]}`,62,y+27,12,C.cream,'left',900);text(`单价 ¢${townPrice(t)}`,62,y+49,10,meta.town.demand===t?C.yellow:C.muted);text('出售 1 份',350,y+29,10,C.cream,'center',900);text('全部出售',455,y+29,10,C.yellow,'center',900)}}
+function drawFuel(){panelHead('燃料站','燃料决定行驶距离，也影响燃料不足时的风险。');const cap=vehicleStats().maxFuel;text(`${meta.vehicle.fuel}/${cap}`,270,265,42,C.yellow,'center',900);bar(90,290,360,18,meta.vehicle.fuel/cap,C.yellow);[['倒入货运油罐',`货物 ${meta.cargo.gas}`,250],['购买 1 点燃料','¢5',350],['购买 5 点燃料','¢22',450]].forEach((r,i)=>{const y=360+i*100;ctx.fillStyle='#33372d';roundRect(85,y,370,70,12,true,false);text(r[0],270,y+29,13,C.cream,'center',900);text(r[1],270,y+52,10,C.yellow,'center',800)})}
+function drawGarage(){panelHead('修车厂','维修车体、扩建舱位并购买模块。');const v=vehicleStats(),h=Math.min(meta.vehicle.hull??v.maxHull,v.maxHull);text(`车体 ${h}/${v.maxHull}`,55,235,13,C.cream,'left',900);bar(55,250,430,14,h/v.maxHull,h/v.maxHull>.4?C.green:C.red);[['维修 +1 • ¢6',220],['完全修复',305],[`扩建载具舱 ${meta.vehicleGrid.cols}×${meta.vehicleGrid.rows}`,390],['打开载具舱',500]].forEach((r,i)=>{ctx.fillStyle='#34382d';roundRect(55,r[1],430,60,10,true,false);text(r[0],270,r[1]+36,12,i===3?C.yellow:C.cream,'center',900)});text('模块商品',55,602,11,C.muted,'left',900);(meta.town.moduleOffers||[]).forEach((o,i)=>{const d=VEH[o.type],y=620+i*75;ctx.fillStyle='#2b2e25';roundRect(55,y,430,58,9,true,false);text(o.sold?'已售出':d.name,75,y+24,11,o.sold?'#66695d':C.cream,'left',900);text(`¢${o.credits} + ${o.salvage} 废料`,75,y+45,9,C.yellow)})}
+function drawArmory(){panelHead('军械库','扩充背包，或购买新的构筑部件。');ctx.fillStyle='#34382d';roundRect(55,210,430,60,10,true,false);text(`扩充背包 ${meta.pack.cols}×${meta.pack.rows}`,270,246,12,C.cream,'center',900);ctx.fillStyle='#34382d';roundRect(55,300,430,60,10,true,false);text(`打开背包 • 新装备 ${meta.pendingHaul.length}`,270,336,12,C.yellow,'center',900);text('装备商品',55,420,11,C.muted,'left',900);(meta.town.gearOffers||[]).forEach((o,i)=>{const d=ITEM[o.type],y=440+i*90;ctx.fillStyle='#2b2e25';roundRect(55,y,430,70,9,true,false);text(o.sold?'已售出':d.name,75,y+29,12,o.sold?'#66695d':C.cream,'left',900);text(`¢${o.cost} • ${d.w}×${d.h}`,75,y+52,9,C.yellow)})}
+function drawRoutes(){panelHead('路线牌','道路风格会改变燃料消耗和战斗压力。');ROUTES.forEach((r,i)=>{const y=255+i*150,sel=meta.route.id===r.id;ctx.fillStyle=sel?'#4a4530':'#2b2e25';roundRect(55,y,430,110,12,true,false);ctx.strokeStyle=sel?C.yellow:'#4b5043';roundRect(55,y,430,110,12,false,true);text(r.name,75,y+35,14,sel?C.yellow:C.cream,'left',900);text(r.risk,455,y+35,10,r.id==='raider'?C.red:C.muted,'right',900);wrap(r.bonus,75,y+63,350,17,10,C.muted)})}
 
 function eventChoices(){
  const id=eventData?.id;
- if(id==='convoy')return[['HELP THE CONVOY','-4 fuel  →  +¢45 + Lv2 support'],['TAKE THE CARGO','+3 salvage + Lv2 weapon  •  Hull -2 + pursuit']];
- if(id==='signal')return[['ENTER THE RELAY','Lv2/3 weapon + ¢20  •  start search wounded + ambush'],['CUT POWER & LEAVE','+4 fuel + ¢8  •  no penalty']];
- if(id==='mechanic')return[['FULL OVERHAUL','-¢30  →  full Hull + Lv2 module'],['STRIP HIS RIG','+4 salvage  •  -2 fuel + louder search']];
- return[['STRIP IT CLEAN','Lv2 module + Lv2 gear  •  Hull -3 + pursuit'],['QUICK LOOT','+¢28 +1 fuel  •  leave now']];
+ if(id==='convoy')return[['帮助商队','燃料 -4 → ¢ +45、2级辅助件'],['夺走货物','废料 +3、2级武器 • 车体 -2、触发追击']];
+ if(id==='signal')return[['进入中继站','2/3级武器、¢ +20 • 负伤开局、触发伏击'],['切断电源并离开','燃料 +4、¢ +8 • 无惩罚']];
+ if(id==='mechanic')return[['全面检修','¢ -30 → 修满车体、2级模块'],['拆掉他的车','废料 +4 • 燃料 -2、提高搜刮压力']];
+ return[['彻底拆解','2级模块、2级装备 • 车体 -3、触发追击'],['快速搜刮','¢ +28、燃料 +1 • 立即离开']];
 }
 function drawEvent(){
  drawDunes();ctx.fillStyle='rgba(10,12,9,.76)';ctx.fillRect(0,0,W,H);
- text('ON THE ROAD • BETWEEN STOPS',270,115,13,C.yellow,'center',900);text(eventData?.name||'UNKNOWN',270,180,28,C.cream,'center',900);
+ text('公路途中 • 两站之间',270,115,13,C.yellow,'center',900);text(eventData?.name||'未知事件',270,180,28,C.cream,'center',900);
  wrap(eventData?.desc||'',65,245,410,24,13,C.muted);
  const cs=eventChoices();cs.forEach((c,i)=>{const y=430+i*175;ctx.fillStyle='#2a2d25';roundRect(55,y,430,125,14,true,false);ctx.strokeStyle=i===0?C.yellow:'#596052';ctx.lineWidth=2;roundRect(55,y,430,125,14,false,true);text(c[0],270,y+45,15,C.cream,'center',900);text(c[1],270,y+78,10,i===0?C.yellow:C.muted,'center',800)});
- text('The road takes something. Decide what you can afford.',270,820,10,C.muted,'center',700);drawNotice();
+ text('公路总会索取代价。选择你承担得起的那一个。',270,820,10,C.muted,'center',700);drawNotice();
 }
 function drawRunSummary(){
  const r=runSummary||makeRunSummary(false);drawDunes();ctx.fillStyle='rgba(10,12,9,.80)';ctx.fillRect(0,0,W,H);
- text(r.victory?'RUN COMPLETE':'RUN ENDED',270,115,32,r.victory?C.yellow:C.red,'center',900);
- text(r.victory?'RUST CATHEDRAL FALLS':'THE WASTELAND WINS',270,150,11,C.muted,'center',800);
+ text(r.victory?'本轮完成':'本轮结束',270,115,32,r.victory?C.yellow:C.red,'center',900);
+ text(r.victory?'锈蚀圣堂已经陷落':'废土再次获胜',270,150,11,C.muted,'center',800);
  ctx.fillStyle='#23261f';roundRect(45,205,450,420,18,true,false);
- text(r.build,270,250,22,C.cream,'center',900);text('FINAL BUILD',270,275,9,C.muted,'center',800);
+ text(r.build,270,250,22,C.cream,'center',900);text('最终构筑',270,275,9,C.muted,'center',800);
  const kit=START_KITS.find(x=>x.id===r.kit)?.name||String(r.kit||'').toUpperCase(),ch=CHASSIS.find(x=>x.id===r.chassis)?.name||String(r.chassis||'').toUpperCase();
  text(`${kit} • ${ch} • ¢${r.credits}`,270,298,9,C.yellow,'center',800);
- const rows=[['LEGS',r.leg],['ROAD KILLS',r.roadKills],['ON-FOOT KILLS',r.scavKills],['EVENTS',r.events||0],['BOSSES',r.bosses],['BACKPACK',r.pack]];
+ const rows=[['路段',r.leg],['公路击杀',r.roadKills],['徒步击杀',r.scavKills],['事件',r.events||0],['首领',r.bosses],['背包物品',r.pack]];
  rows.forEach((x,i)=>{const y=335+i*43;text(x[0],75,y,10,C.muted);text(String(x[1]),465,y,13,C.cream,'right',900)});
- text('COLOSSUS PARTS',75,608,10,C.muted);text(`${r.flags.mg?'MG✓':'MG—'}  ${r.flags.rocket?'RKT✓':'RKT—'}  ${r.flags.armor?'ARM✓':'ARM—'}`,465,608,10,C.yellow,'right',900);
- text(`+${r.marksEarned||0} WASTELAND MARKS`,270,685,18,C.yellow,'center',900);
- btn(75,755,390,72,'ENTER GARAGE');
- text(`TOTAL MARKS ${profile.marks} • RUNS ${profile.runs} • WINS ${profile.wins}`,270,865,9,C.muted,'center',700);
+ text('巨像部件',75,608,10,C.muted);text(`${r.flags.mg?'机枪✓':'机枪—'}  ${r.flags.rocket?'火箭✓':'火箭—'}  ${r.flags.armor?'装甲✓':'装甲—'}`,465,608,10,C.yellow,'right',900);
+ text(`废土印记 +${r.marksEarned||0}`,270,685,18,C.yellow,'center',900);
+ btn(75,755,390,72,'进入车库');
+ text(`总印记 ${profile.marks} • 轮次 ${profile.runs} • 胜利 ${profile.wins}`,270,865,9,C.muted,'center',700);
 }
 function garageCards(defs,y0){
  return defs.map((d,i)=>({d,x:i%2===0?35:285,y:y0+Math.floor(i/2)*120,w:220,h:94}));
 }
 function drawGarageMeta(){
- drawDunes();ctx.fillStyle='rgba(11,13,10,.76)';ctx.fillRect(0,0,W,H);title('THE GARAGE',`WASTELAND MARKS ${profile.marks}`);
- text('STARTING KIT',35,130,11,C.yellow,'left',900);
- for(const c of garageCards(START_KITS,150)){const unlocked=profile.unlockedKits.includes(c.d.id),sel=profile.selectedKit===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
- text('JUNKER CHASSIS',35,405,11,C.yellow,'left',900);
- for(const c of garageCards(CHASSIS,425)){const unlocked=profile.unlockedChassis.includes(c.d.id),sel=profile.selectedChassis===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'SELECTED':'TAP TO SELECT'):`UNLOCK • ${c.d.cost} MARKS`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
- btn(75,775,390,72,'START NEW RUN');text('Unlock choices, not permanent damage bonuses.',270,880,9,C.muted,'center',700);drawNotice();
+ drawDunes();ctx.fillStyle='rgba(11,13,10,.76)';ctx.fillRect(0,0,W,H);title('车库',`废土印记 ${profile.marks}`);
+ text('初始套装',35,130,11,C.yellow,'left',900);
+ for(const c of garageCards(START_KITS,150)){const unlocked=profile.unlockedKits.includes(c.d.id),sel=profile.selectedKit===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'已选择':'点击选择'):`解锁 • ${c.d.cost} 印记`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
+ text('破烂车底盘',35,405,11,C.yellow,'left',900);
+ for(const c of garageCards(CHASSIS,425)){const unlocked=profile.unlockedChassis.includes(c.d.id),sel=profile.selectedChassis===c.d.id;ctx.fillStyle=sel?'#4b452f':'#292c24';roundRect(c.x,c.y,c.w,c.h,12,true,false);ctx.strokeStyle=sel?C.yellow:'#505548';roundRect(c.x,c.y,c.w,c.h,12,false,true);text(c.d.name,c.x+14,c.y+28,12,unlocked?C.cream:C.muted,'left',900);text(c.d.desc,c.x+14,c.y+51,8,C.muted);text(unlocked?(sel?'已选择':'点击选择'):`解锁 • ${c.d.cost} 印记`,c.x+14,c.y+76,8,unlocked?C.yellow:C.red)}
+ btn(75,775,390,72,'开始新一轮');text('解锁的是新选择，而不是永久伤害加成。',270,880,9,C.muted,'center',700);drawNotice();
 }
 function garageTap(p){
  const handle=(cards,key,unlockedKey)=>{
   for(const c of cards)if(p.x>=c.x&&p.x<=c.x+c.w&&p.y>=c.y&&p.y<=c.y+c.h){
-   const list=profile[unlockedKey];if(list.includes(c.d.id)){profile[key]=c.d.id;saveProfile();notice=`${c.d.name} SELECTED`;noticeT=1;return true}
-   if(profile.marks>=c.d.cost){profile.marks-=c.d.cost;list.push(c.d.id);profile[key]=c.d.id;saveProfile();notice=`${c.d.name} UNLOCKED`;noticeT=1}else{notice='NOT ENOUGH MARKS';noticeT=1}return true
+   const list=profile[unlockedKey];if(list.includes(c.d.id)){profile[key]=c.d.id;saveProfile();notice=`已选择${c.d.name}`;noticeT=1;return true}
+   if(profile.marks>=c.d.cost){profile.marks-=c.d.cost;list.push(c.d.id);profile[key]=c.d.id;saveProfile();notice=`已解锁${c.d.name}`;noticeT=1}else{notice='废土印记不足';noticeT=1}return true
   }return false;
  };
  if(handle(garageCards(START_KITS,150),'selectedKit','unlockedKits'))return;
@@ -1526,7 +1518,7 @@ function draw(){
  ctx.clearRect(0,0,W,H);
  const shake=state==='roadcombat'&&!REDUCED_MOTION?(roadGame?.shake||0):0;
  if(shake>0){ctx.fillStyle=C.asphalt;ctx.fillRect(0,0,W,H);ctx.save();const phase=performance.now();ctx.translate(Math.sin(phase*.083)*shake,Math.sin(phase*.117+1.2)*shake*.65)}
- if(state==='menu')drawMenu();else if(state==='route')drawRoute();else if(state==='roadcombat')drawRoad();else if(state==='roadresult')drawRoadResult(false);else if(state==='roadfail')drawRoadResult(true);else if(state==='play'||state==='finalassault')drawScavenge();else if(state==='pack')drawGridScreen('pack');else if(state==='vehicle')drawGridScreen('vehicle');else if(state==='town')drawTown();else if(state==='event')drawEvent();else if(state==='runsummary')drawRunSummary();else if(state==='garage')drawGarageMeta();else if(state==='dead'){drawDunes();text('YOU DID NOT MAKE IT BACK',270,330,26,C.red,'center',900);wrap('New gear from this scavenging run was lost. Your persistent build remains for prototype testing.',75,390,390,22,13,C.muted);btn(75,600,390,70,'BACK TO ROAD MAP')}
+ if(state==='menu')drawMenu();else if(state==='route')drawRoute();else if(state==='roadcombat')drawRoad();else if(state==='roadresult')drawRoadResult(false);else if(state==='roadfail')drawRoadResult(true);else if(state==='play'||state==='finalassault')drawScavenge();else if(state==='pack')drawGridScreen('pack');else if(state==='vehicle')drawGridScreen('vehicle');else if(state==='town')drawTown();else if(state==='event')drawEvent();else if(state==='runsummary')drawRunSummary();else if(state==='garage')drawGarageMeta();else if(state==='dead'){drawDunes();text('你没能活着回来',270,330,26,C.red,'center',900);wrap('本次搜刮获得的新装备已经遗失。原型测试中，你的长期构筑仍会保留。',75,390,390,22,13,C.muted);btn(75,600,390,70,'返回路线图')}
  if(shake>0)ctx.restore();
 }
 

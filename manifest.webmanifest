@@ -1,6 +1,6 @@
 {
-  "name": "Wasteland Survivor",
-  "short_name": "Wasteland",
+  "name": "废土幸存者",
+  "short_name": "废土幸存者",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
