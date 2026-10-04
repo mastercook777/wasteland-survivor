@@ -16,7 +16,7 @@ This build reframes the existing Wasteland Survivor prototype around a **9:16 po
 - Rustwater is rebuilt as a portrait safe-zone hub.
 - Fuel, Dry Run penalties, equipment selling, backpack expansion and vehicle bay expansion remain part of the run economy.
 - Added local save through `localStorage`.
-- Added an original melody-forward wasteland soundtrack combining western themes, road rock, blues colour and light jazz harmony, with distinct arrangements for the menu, route map, road combat, bosses, each scavenging location, Rustwater, events, inventory, garage and run results.
+- Replaced the procedural soundtrack with four independently produced, licensed songs for the menu, route map, road combat and scavenging combat. The western blues, cowboy rock, old-school JRPG metal and retro-synth/cello metal arrangements are intentionally unrelated rather than variations of one generated motif; see `MUSIC-CREDITS.md`.
 - Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
 
 ## Audio
