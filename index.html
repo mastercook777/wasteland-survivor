@@ -16,9 +16,11 @@
   <main id="app">
     <div id="game-shell">
       <canvas id="game" width="540" height="960" aria-label="废土幸存者竖屏游戏画布"></canvas>
+      <button id="audio-toggle" type="button" aria-label="关闭音乐和音效" title="关闭音乐和音效">♪</button>
     </div>
     <div id="landscape-note">建议使用竖屏模式</div>
   </main>
+  <script src="audio.js"></script>
   <script src="game.js"></script>
   <script>
     if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

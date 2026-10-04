@@ -3,6 +3,7 @@
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
+const audio=window.GameAudio||{unlock(){},sync(){},sfx(){}};
 const W=canvas.width,H=canvas.height;
 const REDUCED_MOTION=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const keys=new Set();
@@ -334,7 +335,7 @@ function ensureChoices(force=false){
  }
  meta.mapChoices=shuffle(arr);
 }
-function selectNode(i){ensureChoices();meta.selectedNode=meta.mapChoices[i]||meta.mapChoices[0];save();}
+function selectNode(i){ensureChoices();meta.selectedNode=meta.mapChoices[i]||meta.mapChoices[0];audio.sfx('select');save();}
 function fuelCost(){const n=meta.selectedNode;if(!n)return 0;if(n.type==='town')return 2;if(n.type==='final')return 6+(meta.route.fuel||0);if(n.type==='boss')return 5+(meta.route.fuel||0);return 2+(n.danger||1)+(meta.route.fuel||0)}
 function destinationName(){return meta.selectedNode?.name||'未知地点'}
 function completeDestination(){meta.arrived=false;meta.selectedNode=null;meta.mapChoices=[];meta.roadLeg++;meta.runStep++;ensureChoices(true);save();}
@@ -351,6 +352,7 @@ function startRoad(){
  roadGame={duration,time:duration,elapsed:0,scroll:0,spawn:.6,mine:4.8,boss:false,bossRoute,finalRoute,bossSpawned:false,bossDefeated:false,victoryDelay:0,colossusY:-190,dry,cost,threat,build:vs,player:{x:270,y:800,w:52,h:78,hp:meta.vehicle.hull==null?vs.maxHull:Math.min(meta.vehicle.hull,vs.maxHull),max:vs.maxHull,speed:vs.speed*(dry?.76:1),inv:0,mg:0,flak:.55,arc:.8,cannon:.9,rocket:1.1,emp:1.6},enemies:[],bullets:[],enemyBullets:[],mines:[],strikes:[],barriers:[],barrierTimer:8.5,drops:[],fx:[],dust:[],debris:[],dustTimer:0,shake:0,kills:0,scrap:0,fuel:0,repairs:0};
  routeDepart={t:0,duration:REDUCED_MOTION?.18:.78,target:{...(routeNodePositions()[meta.mapChoices.findIndex(x=>x.id===meta.selectedNode?.id)]||{x:270,y:350})},name:meta.selectedNode?.short||destinationName()};
  state='routeleave';
+ audio.sfx('engine');
  spawnRoadEnemy('bike');
  if(!bossRoute&&threat>=.92)spawnRoadEnemy('buggy');
 }
@@ -409,6 +411,7 @@ function fireRocketVolley(){
   const pa=roadIsHeavy(a)?1:0,pb=roadIsHeavy(b)?1:0;return pa-pb||distance(p,a)-distance(p,b)
  });
  if(!candidates.length)return;
+ audio.sfx('rocket');
  const targets=candidates.slice(0,5);
  for(let i=0;i<5;i++){
   const t=targets[i%targets.length],cfg={spd:575,dmg:2.55,r:7},sx=p.x+(i-2)*8,sy=p.y-38,aim=roadIntercept(t,sx,sy,cfg.spd,'rocket'),n=norm(aim.x-sx,aim.y-sy);
@@ -423,6 +426,7 @@ function fireFlak(){
   const a=base+q*.115,spd=690;
   g.bullets.push({x:p.x,y:p.y-38,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:.72,damage:1.25,kind:'flak',r:5,pierce:1});
  }
+ audio.sfx('shotgun');
  return true;
 }
 function fireArc(){
@@ -435,6 +439,7 @@ function fireArc(){
   roadHitDamage(g,e,'arc',damage);e.disabled=Math.max(e.disabled||0,roadIsHeavy(e)?.52:.34);g.fx.push({x:e.x,y:e.y,r:34,life:.28,total:.28,color:'#76e8ef',kind:'electricHit'});
  }
  g.fx.push({points:[{x:p.x,y:p.y-48},...chain.map(e=>({x:e.x,y:e.y}))],life:.30,total:.30,color:'#70e5ef',kind:'electricArc',seed:Math.random()*10});g.shake=Math.max(g.shake||0,1.8);
+ audio.sfx('electric');
  for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
  notice=`电弧连锁 ×${chain.length} · 目标短暂瘫痪`;noticeT=.7;return true;
 }
@@ -451,6 +456,7 @@ function fireEMP(){
  g.mines=g.mines.filter(m=>!centers.some(e=>Math.hypot(m.x-e.x,m.y-e.y)<175));
  if(g.strikes){const ids=new Set(hit.map(e=>e.rid));g.strikes=g.strikes.filter(st=>!ids.has(st.ownerId)&&!centers.some(e=>Math.hypot(st.x-e.x,st.y-e.y)<220));}
  g.fx.push({x:p.x,y:p.y-35,r:300,life:.60,total:.60,color:'#65dce5',kind:'empWave'});g.fx.push({source:{x:p.x,y:p.y-48},targets:hit.map(e=>({x:e.x,y:e.y})),life:.38,total:.38,color:'#82eff4',kind:'empLink',seed:Math.random()*10});g.shake=Math.max(g.shake||0,3.2);
+ audio.sfx('electric');
  notice=`电磁爆发 · 瘫痪 ${hit.length} 个目标`;noticeT=1;return true;
 }
 function fireRoad(kind,target){
@@ -458,8 +464,9 @@ function fireRoad(kind,target){
  const sx=p.x,sy=p.y-38,aim=roadIntercept(target,sx,sy,cfg.spd,kind),n=norm(aim.x-sx,aim.y-sy);
  g.bullets.push({x:sx,y:sy,vx:n.x*cfg.spd,vy:n.y*cfg.spd,life:1.9,damage:cfg.dmg,kind,r:cfg.r,targetId:target.rid,homing:kind==='mg'?5.5:kind==='cannon'?9.5:12});
  g.fx.push({x:p.x,y:p.y-54,r:kind==='cannon'?18:kind==='mg'?9:12,life:kind==='cannon'?.16:.1,color:kind==='cannon'?'#f0bd55':'#f4e0a1',kind:'muzzle'});
+ audio.sfx(kind==='cannon'?'cannon':kind==='mg'?'mg':'shot');
 }
-function hurtRoad(n){const p=roadGame.player;if(p.inv>0)return;p.hp-=n;p.inv=.45;roadGame.shake=Math.max(roadGame.shake||0,4);roadGame.fx.push({x:p.x,y:p.y,r:35,life:.25,color:C.red});}
+function hurtRoad(n){const p=roadGame.player;if(p.inv>0)return;p.hp-=n;p.inv=.45;roadGame.shake=Math.max(roadGame.shake||0,4);roadGame.fx.push({x:p.x,y:p.y,r:35,life:.25,color:C.red});audio.sfx('hurt')}
 function killRoad(i){
  const g=roadGame,e=g.enemies[i];
  if(e.type==='dreadnought'){g.bossDefeated=true;meta.runStats.bosses++}
@@ -471,6 +478,7 @@ function killRoad(i){
  meta.runStats.roadKills++;g.kills+=e.score;g.fx.push({x:e.x,y:e.y,r:e.w*.78,life:.46,color:'#dd8040',kind:'explosion'});
  const blastShake=e.group==='colossus'?(e.part==='engine'?15:7):e.type==='dreadnought'?14:e.type==='wartruck'?10:e.type==='truck'||e.type==='missilevan'?6:0;
  g.shake=Math.max(g.shake||0,blastShake);
+ audio.sfx('explosion',{big:blastShake>=10});
  const pieces=e.type==='bike'?4:e.type==='wartruck'||e.type==='dreadnought'?12:7;
  for(let n=0;n<pieces;n++)g.debris.push({x:e.x+rnd(-12,12),y:e.y+rnd(-8,8),vx:rnd(-150,150),vy:rnd(-170,-25),w:rnd(3,9),h:rnd(3,11),rot:rnd(0,6.28),spin:rnd(-8,8),life:rnd(.45,.95),color:Math.random()<.35?'#b65738':'#4d4638'});
  if(e.group!=='colossus'){
@@ -490,11 +498,11 @@ function finishRoadSuccess(){
  }
  const bf=meta.route.id==='salt'?2:0,bs=meta.route.id==='raider'?2:0;meta.vehicle.scrap+=g.scrap+bs;meta.vehicle.fuel=Math.min(g.build.maxFuel,meta.vehicle.fuel+g.fuel+bf);g.scrap+=bs;g.fuel+=bf;
  const pool=VEH_REWARD_POOL,final=meta.selectedNode?.type==='final',boss=meta.selectedNode?.type==='boss',t=pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),lv=boss?2:(meta.selectedNode?.danger===3&&Math.random()<.25?2:1);
- if(final){g.reward='armor';g.rewardLv=3;roadResultReveal=0;state='roadresult';save();return}
+ if(final){g.reward='armor';g.rewardLv=3;roadResultReveal=0;state='roadresult';audio.sfx('victory');save();return}
  meta.pendingVehicle.push(makeVehicle(t,lv));g.reward=t;g.rewardLv=lv;
  if(boss){meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),2));meta.credits+=35}
  else if(meta.route.id==='raider'&&Math.random()<.55)meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(pool,meta.vehiclePack,VEH,'vehicleUpgradeGap'),1));
- roadResultReveal=0;state='roadresult';save();
+ roadResultReveal=0;state='roadresult';audio.sfx('victory');save();
 }
 function roadHitDamage(g,e,kind,base){
  let dmg=base*roadDamageMultiplier(kind,e);
@@ -545,9 +553,11 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
    const hx=e.x,hy=e.y,rad=b.splash||68;
    for(let k=g.enemies.length-1;k>=0;k--){const v=g.enemies[k];if(Math.hypot(v.x-hx,v.y-hy)<=rad){roadHitDamage(g,v,'rocket',b.damage);if(v.hp<=0)killRoad(k)}}
    g.fx.push({x:hx,y:hy,r:rad,life:.25,color:'#d97642',kind:'rocketImpact'});
+   audio.sfx('explosion');
   }else{
    roadHitDamage(g,e,b.kind,b.damage);
    g.fx.push({x:b.x,y:b.y,r:b.kind==='cannon'?26:b.kind==='flak'?14:8,life:.18,color:b.kind==='cannon'?'#e0ad36':b.kind==='flak'?'#d9c084':C.yellow,kind:'impact'});
+   audio.sfx('impact');
    if(e.hp<=0)killRoad(j);
    if(b.kind==='flak'&&(b.pierce||0)>0){b.pierce--;hit=false;b.hitIds=b.hitIds||[];b.hitIds.push(e.rid);continue}
   }
@@ -577,7 +587,7 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
  for(let i=g.enemyBullets.length-1;i>=0;i--){const b=g.enemyBullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(Math.abs(b.x-p.x)<25+(b.heavy?5:0)&&Math.abs(b.y-p.y)<33+(b.heavy?5:0)){hurtRoad(b.damage||1);g.enemyBullets.splice(i,1);continue}if(b.life<=0||b.y>1000)g.enemyBullets.splice(i,1)}
  for(let i=g.strikes.length-1;i>=0;i--){
   const st=g.strikes[i];st.t-=dt;
-  if(st.t<=0){if(Math.hypot(p.x-st.x,p.y-st.y)<st.r)hurtRoad(st.damage||2);if(Math.hypot(p.x-st.x,p.y-st.y)<170)g.shake=Math.max(g.shake||0,5);g.fx.push({x:st.x,y:st.y,r:st.r,life:.32,color:'#cf6844',kind:'missileImpact'});g.strikes.splice(i,1)}
+  if(st.t<=0){if(Math.hypot(p.x-st.x,p.y-st.y)<st.r)hurtRoad(st.damage||2);if(Math.hypot(p.x-st.x,p.y-st.y)<170)g.shake=Math.max(g.shake||0,5);g.fx.push({x:st.x,y:st.y,r:st.r,life:.32,color:'#cf6844',kind:'missileImpact'});audio.sfx('explosion');g.strikes.splice(i,1)}
  }
  g.barrierTimer-=dt;
  if(g.threat>=.96&&g.elapsed>7&&g.barrierTimer<=0){
@@ -593,8 +603,8 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
   }
   if(br.y>1020)g.barriers.splice(i,1);
  }
- if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(55,485),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(55,485),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f',kind:'mineImpact'});g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
- for(let i=g.drops.length-1;i>=0;i--){const d=g.drops[i];d.y+=145*dt;if(distance(d,p)<42){if(d.type==='scrap')g.scrap++;else if(d.type==='fuel')g.fuel++;else if(d.type==='repair'){const before=p.hp;p.hp=Math.min(p.max,p.hp+2);if(p.hp>before){g.repairs++;notice='战地维修：车体 +2';noticeT=1.1}}g.drops.splice(i,1);continue}if(d.y>980)g.drops.splice(i,1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
+ if(g.mine<=0&&g.elapsed>7){g.mines.push({x:rnd(55,485),y:-25,r:16});if(g.threat>1.05&&g.elapsed/g.duration>.65&&Math.random()<Math.min(.4,(g.threat-1)*.8))g.mines.push({x:rnd(55,485),y:-70,r:16});g.mine=rnd(4.0,5.8)/g.threat}for(let i=g.mines.length-1;i>=0;i--){const m=g.mines[i];m.y+=210*dt;if(distance(m,p)<38){hurtRoad(2);g.fx.push({x:m.x,y:m.y,r:32,life:.3,color:'#db7c3f',kind:'mineImpact'});audio.sfx('explosion');g.mines.splice(i,1);continue}if(m.y>990)g.mines.splice(i,1)}
+ for(let i=g.drops.length-1;i>=0;i--){const d=g.drops[i];d.y+=145*dt;if(distance(d,p)<42){if(d.type==='scrap')g.scrap++;else if(d.type==='fuel')g.fuel++;else if(d.type==='repair'){const before=p.hp;p.hp=Math.min(p.max,p.hp+2);if(p.hp>before){g.repairs++;notice='战地维修：车体 +2';noticeT=1.1;audio.sfx('heal')}}if(d.type!=='repair')audio.sfx('pickup');g.drops.splice(i,1);continue}if(d.y>980)g.drops.splice(i,1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}
  if(g.bossRoute&&!g.bossSpawned&&g.elapsed>6){g.bossSpawned=true;g.boss=true;if(g.finalRoute)spawnColossus();else spawnRoadEnemy('dreadnought')}
  else if(!g.bossRoute&&!g.boss&&g.elapsed/g.duration>.76){g.boss=true;spawnRoadEnemy('boss')}
  if(g.spawn<=0){if(!g.bossRoute||!g.bossSpawned||g.enemies.filter(e=>e.group!=='colossus'&&e.type!=='dreadnought').length<(g.finalRoute?4:4)){spawnRoadEnemy();const extraChance=clamp((g.threat-.9)*.5,0,.30);if(!g.bossRoute&&g.elapsed/g.duration>.52&&Math.random()<extraChance)spawnRoadEnemy()}g.spawn=rnd(.95,1.35)/(meta.route.spawn||1)/g.threat}
@@ -773,7 +783,7 @@ function moveEnemyAwaySmart(e,tx,ty,dt,speed,obs,bounds){
  moveEnemySmart(e,e.x+dx/d*180,e.y+dy/d*180,dt,speed,obs,bounds);
 }
 function moveActor(p,dt,speed,minX,maxX,minY,maxY){let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);p.x+=n.x*speed*dt;p.y+=n.y*speed*dt}p.x=clamp(p.x,minX,maxX);p.y=clamp(p.y,minY,maxY)}
-function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='已自动使用医疗包';noticeT=1.2}}
+function hurtPlayer(n){const p=game.player;if(p.inv>0)return;p.hp-=n;p.inv=.55;game.fx.push({x:p.x,y:p.y,r:28,life:.28,color:C.red});audio.sfx('hurt');if(p.hp<=2&&p.med>0){p.med--;p.hp=Math.min(p.max,p.hp+2);notice='已自动使用医疗包';noticeT=1.2;audio.sfx('heal')}}
 function chooseLoot(){const w=SITE[game.site].loot,r=Math.random();let a=0;for(const k of ['gas','food','scrap','med']){a+=w[k];if(r<a)return k}return'scrap'}
 function gearDrop(rare=false){const chance=.12+SITE[game.site].gear+game.build.luck+(rare?.35:0);if(Math.random()>chance)return null;return makeItem(pickUpgradeReward(GEAR_REWARD_POOL,meta.backpack,ITEM,'gearUpgradeGap'),rare&&Math.random()<.45?2:1)}
 function openCrate(c){
@@ -786,7 +796,7 @@ function openCrate(c){
  game.fx.push({x:c.x,y:c.y,r:c.rare?36:28,life:.45,color:c.rare?'#ffe796':C.green,kind:'searchBurst'});
  const g=gearDrop(c.rare);if(g)game.haul.push(g);
  if(game.site==='junkyard'&&Math.random()<(c.rare?.55:.12*(game.rule?.moduleBoost||1)))meta.pendingVehicle.push(makeVehicle(pickUpgradeReward(VEH_REWARD_POOL,meta.vehiclePack,VEH,'vehicleUpgradeGap'),c.rare&&Math.random()<.25?2:1));
- notice=c.rare?'已开启稀有储藏箱':'补给已收入囊中';noticeT=.8;save()
+ notice=c.rare?'已开启稀有储藏箱':'补给已收入囊中';noticeT=.8;audio.sfx(c.rare?'rare':'pickup');save()
 }
 function pointInObstacle(x,y,o,pad=0){return x>=o.x-pad&&x<=o.x+o.w+pad&&y>=o.y-pad&&y<=o.y+o.h+pad}
 function segmentHitsObstacle(x1,y1,x2,y2,obstacles,pad=0){
@@ -866,6 +876,7 @@ function fireScav(w,target){
   game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,knock,stagger,hitIds:[]})
  }
  game.fx.push({x:p.x+(p.recoilX||0)+cfg.wx+Math.cos(base)*17,y:p.y+(p.recoilY||0)+cfg.wy+Math.sin(base)*17,r:9,life:.1,color:C.yellow,kind:'muzzle'})
+ audio.sfx(w.pellets>1?'shotgun':w.interval<.3?'mg':'shot');
 }
 const SCAV_STAGGER_IMMUNE=new Set(['armored','elite','driver']);
 function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,(g.finalAssault?180:90)-g.elapsed);p.inv=Math.max(0,p.inv-dt);const recoilReturn=Math.exp(-dt*15);p.recoilX=(p.recoilX||0)*recoilReturn;p.recoilY=(p.recoilY||0)*recoilReturn;let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}
@@ -883,11 +894,12 @@ function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.ma
   if((e.type==='elite'||e.type==='armored'||e.type==='driver')&&b.eliteBonus)dmg*=1+b.eliteBonus;
   e.hp-=dmg;(b.hitIds||(b.hitIds=[])).push(e.eid);
    g.fx.push({x:b.x,y:b.y,r:7,life:.15,color:b.ap>0?C.teal:C.yellow,kind:'impact'});
+  audio.sfx('impact');
   if(e.hp>0&&!SCAV_STAGGER_IMMUNE.has(e.type)){
    e.stun=Math.max(e.stun||0,b.stagger||.09);
    if((e.knockLock||0)<=0){const push=norm(b.vx,b.vy);moveWithObstacles(e,push.x*(b.knock||7),push.y*(b.knock||7),e.r,g.obstacles,[25,515,170,g.worldH-80]);e.knockLock=.07}
   }
-  if(e.hp<=0){meta.runStats.scavKills++;if(e.type==='driver')g.driverDefeated=true;if(!g.finalAssault&&Math.random()<.08+g.build.luck){const gear=gearDrop(false);if(gear)g.haul.push(gear)}g.enemies.splice(j,1)}
+  if(e.hp<=0){meta.runStats.scavKills++;if(e.type==='driver')g.driverDefeated=true;if(!g.finalAssault&&Math.random()<.08+g.build.luck){const gear=gearDrop(false);if(gear)g.haul.push(gear)}audio.sfx('explosion',{big:e.type==='driver'||e.type==='elite'});g.enemies.splice(j,1)}
   if((b.pierce||0)>0)b.pierce--;else hit=true;
   break
  }
@@ -944,7 +956,7 @@ for(let i=g.grenades.length-1;i>=0;i--){
   if(t>=1){gr.phase='fuse';gr.x=gr.tx;gr.y=gr.ty;gr.z=0}
  }else{
   gr.fuse-=dt;
-  if(gr.fuse<=0){if(distance(gr,p)<gr.r)hurtPlayer(gr.damage||2);g.fx.push({x:gr.x,y:gr.y,r:gr.r,life:.35,color:'#dd6d43'});g.grenades.splice(i,1)}
+  if(gr.fuse<=0){if(distance(gr,p)<gr.r)hurtPlayer(gr.damage||2);g.fx.push({x:gr.x,y:gr.y,r:gr.r,life:.35,color:'#dd6d43'});audio.sfx('explosion');g.grenades.splice(i,1)}
  }
 }
  for(let i=g.loot.length-1;i>=0;i--){const l=g.loot[i];l.age=(l.age||0)+dt;l.life-=dt;if(l.life<=0)g.loot.splice(i,1)}
@@ -954,7 +966,7 @@ for(let i=g.grenades.length-1;i>=0;i--){
   if(p.hp<=0){finishRun(false)}
   return;
  }
- let active=null,best=999;for(const c of g.crates){if(c.opened)continue;const d=distance(p,c);if(d<58&&d<best){best=d;active=c}}for(const c of g.crates){if(c!==active)c.progress=0}if(active){active.progress+=dt/(active.rare?1.65:1.15);if(active.progress>=1)openCrate(active)}
+ let active=null,best=999;for(const c of g.crates){if(c.opened)continue;const d=distance(p,c);if(d<58&&d<best){best=d;active=c}}for(const c of g.crates){if(c!==active)c.progress=0}if(active){if(active.progress===0)audio.sfx('search');active.progress+=dt/(active.rare?1.65:1.15);if(active.progress>=1)openCrate(active)}
  const ed=distance(p,g.exit);if(ed<65){g.exit.progress+=dt/1.0;if(g.exit.progress>=1){meta.pendingHaul=[...g.haul];state='pack';packReturn='route';packAdvance=true;packDrag=null;save();return}}else g.exit.progress=0;
  g.spawn-=dt;const pressure=g.elapsed>45?1.45:1;if(g.spawn<=0){spawnScavEnemy();if(g.elapsed>65&&Math.random()<.45)spawnScavEnemy();g.spawn=rnd(2.2,3.5)/pressure/(g.danger===3?1.3:1)/(g.rule?.pressure||1)}for(let i=g.fx.length-1;i>=0;i--){g.fx[i].life-=dt;if(g.fx[i].life<=0)g.fx.splice(i,1)}if(p.hp<=0){meta.pendingHaul=[];finishRun(false)}}
 
@@ -997,7 +1009,7 @@ function finishRun(victory){
  if(state==='runsummary')return;
  runSummary=makeRunSummary(victory);runSummary.marksEarned=victory?3:1;
  profile.runs++;if(victory)profile.wins++;profile.marks+=runSummary.marksEarned;saveProfile();
- meta.runEnded={...runSummary};state='runsummary';save();
+ meta.runEnded={...runSummary};state='runsummary';audio.sfx(victory?'victory':'defeat');save();
 }
 function enterEvent(){
  const def=WORLD_EVENTS.find(x=>x.id===meta.pendingRoadEvent?.id)||WORLD_EVENTS[0];
@@ -1040,7 +1052,7 @@ function resolveEvent(choiceIndex){
 }
 function enterTown(){state='town';townPanel=null;townWorld={player:{x:270,y:790,r:14,bodyDir:'upRight',pendingDir:null,dirHold:0,aimAngle:-Math.PI/2,lastAimAngle:-Math.PI/2},near:null};meta.arrived=false;if(meta.town.offerLeg!==meta.roadLeg||meta.town.upgradeOfferLeg!==meta.roadLeg){meta.town.demand=choice(['gas','food','scrap','med']);meta.town.gearOffers=shopOfferTypes(GEAR_REWARD_POOL,meta.backpack,ITEM).map(type=>({type,cost:Math.round(ITEM[type].sell*1.8),sold:false}));meta.town.moduleOffers=shopOfferTypes(VEH_REWARD_POOL,meta.vehiclePack,VEH).map(type=>({type,credits:Math.round(VEH[type].sell*1.7),salvage:2+Math.floor(VEH[type].sell/10),sold:false}));meta.town.offerLeg=meta.roadLeg;meta.town.upgradeOfferLeg=meta.roadLeg}save()}
 function townPrice(t){const base={gas:5,food:4,scrap:6,med:9}[t];return Math.round(base*(meta.town.demand===t?1.7:1))}
-function say(s){notice=s;noticeT=1.5}
+function say(s){notice=s;noticeT=1.5;audio.sfx(/需要|没有|不足|无法|无需/.test(s)?'error':'confirm')}
 const TOWN_SPOTS=[
  {id:'market',x:28,y:190,w:210,h:145,title:'废料市场',sub:'出售货物',sign:'¢'},
  {id:'fuel',x:302,y:180,w:210,h:150,title:'燃料站',sub:'补充燃料',sign:'油'},
@@ -1097,10 +1109,11 @@ function joyStart(e,p){joy.active=true;joy.id=e.pointerId;joy.ox=p.x;joy.oy=p.y;
 function joyMove(p){if(!joy.active)return;let dx=p.x-joy.ox,dy=p.y-joy.oy;const m=Math.hypot(dx,dy),max=62;if(m>max){dx=dx/m*max;dy=dy/m*max}joy.x=joy.ox+dx;joy.y=joy.oy+dy;joy.dx=dx/max;joy.dy=dy/max}
 function joyEnd(){joy.active=false;joy.dx=joy.dy=0}
 
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys.add(k);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(state==='menu'&&(k==='enter'||k===' ')){state='route';ensureChoices()}else if(state==='route'&&(k==='enter'||k===' ')){if(!meta.selectedNode)selectNode(0);startRoad()}else if(state==='roadresult'&&(k==='enter'||k===' ')){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else if(meta.pendingRoadEvent)enterEvent();else startScavenge()}else if(state==='runsummary'&&(k==='enter'||k===' ')){state='garage'}else if(state==='garage'&&(k==='enter'||k===' ')){startNewRun()}else if((state==='roadfail'||state==='dead')&&(k==='enter'||k===' ')){finishRun(false)}else if(state==='route'&&(k==='b'||k==='i'))startPack('route',false,[]) ;else if(state==='route'&&k==='v')startVehicleBay('route')});
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys.add(k);if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(['enter',' ','b','i','v'].includes(k))audio.sfx('ui');if(state==='menu'&&(k==='enter'||k===' ')){state='route';ensureChoices()}else if(state==='route'&&(k==='enter'||k===' ')){if(!meta.selectedNode)selectNode(0);startRoad()}else if(state==='roadresult'&&(k==='enter'||k===' ')){if(meta.selectedNode?.type==='town')enterTown();else if(meta.selectedNode?.type==='boss'){completeDestination();state='route'}else if(meta.selectedNode?.type==='final')startFinalBreach();else if(meta.pendingRoadEvent)enterEvent();else startScavenge()}else if(state==='runsummary'&&(k==='enter'||k===' ')){state='garage'}else if(state==='garage'&&(k==='enter'||k===' ')){startNewRun()}else if((state==='roadfail'||state==='dead')&&(k==='enter'||k===' ')){finishRun(false)}else if(state==='route'&&(k==='b'||k==='i'))startPack('route',false,[]) ;else if(state==='route'&&k==='v')startVehicleBay('route')});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 canvas.addEventListener('pointerdown',e=>{
  const p=canvasPoint(e);
+ if(state!=='roadcombat'&&state!=='play'&&state!=='finalassault')audio.sfx('ui');
  if(state==='roadcombat'||state==='play'||state==='finalassault'){if(p.y>500)joyStart(e,p);return}
  if(state==='town'&&!townPanel){if(p.x>=430&&p.y>=105&&p.y<=145){startPack('town',false,[]);return}const near=townNearest();if(near&&p.x>=315&&p.x<=510&&p.y>=850&&p.y<=920){townInteract();return}if(p.y>500)joyStart(e,p);return}
  if(state==='menu'){state='route';ensureChoices();return}
@@ -1175,7 +1188,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,22,21,.96)';roundRect(75,858,390,50,12,true,false);fitText(notice,270,889,350,UI.body,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('最终核心电磁锁定修复 • A22',270,856,UI.caption,'#777b6c','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('原创废土金属原声与战斗音效 • A23',270,856,UI.caption,'#777b6c','center',700)}
 function drawProdCover(key,x,y,w,h,alpha=1){
  const a=PROD[key];if(!a?.ready)return false;const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale,sx=(iw-sw)/2,sy=(ih-sh)/2;
@@ -1695,6 +1708,6 @@ function draw(){
  if(shake>0)ctx.restore();
 }
 
-function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();drawArtStatus();requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;audio.sync(state,{site:game?.site,boss:!!roadGame?.bossRoute,final:!!roadGame?.finalRoute,victory:!!runSummary?.victory});update(dt);draw();drawArtStatus();requestAnimationFrame(loop)}
 ensureChoices();requestAnimationFrame(loop);
 })();

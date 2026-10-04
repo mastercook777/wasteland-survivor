@@ -26,6 +26,25 @@ body { touch-action: none; overscroll-behavior: none; -webkit-user-select: none;
   box-shadow: 0 0 0 3px rgba(19,17,12,.72), 0 24px 80px rgba(0,0,0,.62), inset 0 0 40px rgba(0,0,0,.22);
 }
 #game { width: 100%; height: 100%; display: block; touch-action: none; }
+#audio-toggle {
+  position: absolute;
+  z-index: 3;
+  top: max(10px, env(safe-area-inset-top));
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(241,228,196,.42);
+  border-radius: 50%;
+  background: rgba(21,24,18,.78);
+  color: #f1e4c4;
+  font: 800 18px/34px system-ui, sans-serif;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,.32);
+  touch-action: manipulation;
+}
+#audio-toggle.muted { color: #9b927b; border-color: rgba(155,146,123,.28); }
+#audio-toggle:focus-visible { outline: 2px solid #d9a52b; outline-offset: 2px; }
 #landscape-note { display: none; }
 @media (orientation: landscape) and (max-height: 650px) {
   #landscape-note {

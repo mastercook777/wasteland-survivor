@@ -16,6 +16,12 @@ This build reframes the existing Wasteland Survivor prototype around a **9:16 po
 - Rustwater is rebuilt as a portrait safe-zone hub.
 - Fuel, Dry Run penalties, equipment selling, backpack expansion and vehicle bay expansion remain part of the run economy.
 - Added local save through `localStorage`.
+- Added an original procedural retro wasteland-metal soundtrack with distinct themes for the menu, route map, road combat, bosses, each scavenging location, Rustwater, events, inventory, garage and run results.
+- Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
+
+## Audio
+
+Audio is generated in real time with the Web Audio API, so it remains compact and works in the installed offline PWA without external music files. Mobile browsers start audio after the first tap or key press. Each scene selects its own loop automatically, while boss and final-assault routes use more intense arrangements.
 
 ## iPhone / PWA support
 
@@ -29,7 +35,7 @@ This build includes:
 - service-worker offline cache
 - disabled page zoom/scroll gestures while playing
 
-For iPhone testing, host this folder on any static HTTPS host (GitHub Pages, Cloudflare Pages, Netlify, etc.), open it in Safari, then choose **Share → Add to Home Screen**.
+For iPhone testing, host this folder on any static HTTPS host (GitHub Pages, Cloudflare Pages, Netlify, etc.), open it in Safari, tap once to unlock audio, then choose **Share → Add to Home Screen**.
 
 ## Controls
 
