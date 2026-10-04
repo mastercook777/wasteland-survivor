@@ -426,16 +426,13 @@ function fireFlak(){
  return true;
 }
 function fireArc(){
- const g=roadGame,p=g.player,first=g.enemies.filter(e=>e.y<p.y+30).sort((a,b)=>{
-  const pa=(a.type==='bike'?0:a.type==='buggy'?1:a.type==='missilevan'?2:3),pb=(b.type==='bike'?0:b.type==='buggy'?1:b.type==='missilevan'?2:3);
-  return pa-pb||distance(p,a)-distance(p,b)
- })[0];
+ const g=roadGame,p=g.player,first=roadTarget(g,p,g.finalRoute?660:560);
  if(!first)return false;
  const chain=[first],rest=g.enemies.filter(e=>e!==first).sort((a,b)=>distance(first,a)-distance(first,b));
  for(const e of rest){if(chain.length>=g.build.arcChains)break;if(distance(chain[chain.length-1],e)<210||distance(first,e)<230)chain.push(e)}
  for(let i=0;i<chain.length;i++){
   const e=chain[i],mult=e.group==='colossus'?.50:roadIsHeavy(e)?.65:1,base=e.type==='bike'?3.4:e.type==='buggy'?3.0:e.type==='missilevan'?2.8:2.35,damage=base*mult*Math.max(.74,1-i*.07);
-  e.hp-=damage;e.disabled=Math.max(e.disabled||0,roadIsHeavy(e)?.52:.34);g.fx.push({x:e.x,y:e.y,r:34,life:.28,total:.28,color:'#76e8ef',kind:'electricHit'});
+  roadHitDamage(g,e,'arc',damage);e.disabled=Math.max(e.disabled||0,roadIsHeavy(e)?.52:.34);g.fx.push({x:e.x,y:e.y,r:34,life:.28,total:.28,color:'#76e8ef',kind:'electricHit'});
  }
  g.fx.push({points:[{x:p.x,y:p.y-48},...chain.map(e=>({x:e.x,y:e.y}))],life:.30,total:.30,color:'#70e5ef',kind:'electricArc',seed:Math.random()*10});g.shake=Math.max(g.shake||0,1.8);
  for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
@@ -443,14 +440,11 @@ function fireArc(){
 }
 function fireEMP(){
  const g=roadGame,p=g.player;
- const priority=g.enemies.filter(e=>e.y<p.y+40).sort((a,b)=>{
-  const pa=(a.type==='missilevan'?0:a.group==='colossus'?1:2),pb=(b.type==='missilevan'?0:b.group==='colossus'?1:2);
-  return pa-pb||distance(p,a)-distance(p,b)
- })[0];
+ const priority=roadTarget(g,p,g.finalRoute?660:560);
  if(!priority)return false;
  const hit=[priority],rest=g.enemies.filter(e=>e!==priority).sort((a,b)=>distance(priority,a)-distance(priority,b));
  for(const e of rest){if(hit.length>=1+(g.build.empChains||1))break;if(distance(priority,e)<185)hit.push(e)}
- for(const e of hit){const damage=e.group==='colossus'?.8:e.type==='missilevan'?3:e.type==='bike'?2:e.type==='buggy'?1.8:1.25;e.disabled=Math.max(e.disabled||0,e.group==='colossus'?2.2:3.4);e.hp-=damage;g.fx.push({x:e.x,y:e.y,r:48,life:.42,total:.42,color:'#65dce5',kind:'electricHit'})}
+ for(const e of hit){const damage=e.group==='colossus'?.8:e.type==='missilevan'?3:e.type==='bike'?2:e.type==='buggy'?1.8:1.25;e.disabled=Math.max(e.disabled||0,e.group==='colossus'?2.2:3.4);roadHitDamage(g,e,'emp',damage);g.fx.push({x:e.x,y:e.y,r:48,life:.42,total:.42,color:'#65dce5',kind:'electricHit'})}
  for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
  const centers=hit;
  g.enemyBullets=g.enemyBullets.filter(b=>!centers.some(e=>Math.hypot(b.x-e.x,b.y-e.y)<220));
@@ -1181,7 +1175,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,22,21,.96)';roundRect(75,858,390,50,12,true,false);fitText(notice,270,889,350,UI.body,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('初始武器升级与城镇 UI • A21',270,856,UI.caption,'#777b6c','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('最终核心电磁锁定修复 • A22',270,856,UI.caption,'#777b6c','center',700)}
 function drawProdCover(key,x,y,w,h,alpha=1){
  const a=PROD[key];if(!a?.ready)return false;const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale,sx=(iw-sw)/2,sy=(ih-sh)/2;
