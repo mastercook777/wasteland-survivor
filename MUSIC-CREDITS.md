@@ -1,10 +1,12 @@
 # Music credits
 
-The A25 soundtrack uses four independently produced tracks. The original
-procedural soundtrack has been removed; combat and interface sound effects
-remain generated locally by the game.
+The A26 soundtrack uses nine scene assignments built from independently
+produced tracks. The town deliberately reprises the main-menu theme, while
+route, combat, final assault, random events, workshop screens, victory and
+defeat each have separate musical identities. Combat and interface sound
+effects remain generated locally by the game.
 
-## Main menu
+## Main menu and Rustwater town
 
 - **Un désert** by Loyalty Freak Music
 - Source: https://opengameart.org/content/un-d%C3%A9sert
@@ -36,3 +38,44 @@ remain generated locally by the game.
 - License: CC0 1.0 / Public Domain (also offered under CC BY 4.0)
 - Local file: `assets/music/scavenge_battle.ogg`
 - SHA-256: `4C7A9F30C2326994AC946EE70572D1E0EAB39E0DF67E48418BAF091DEBB030B3`
+
+## Final assault and boss routes
+
+- **JRPG Epic Rock Battle Theme #1 (loop)** by HydroGene
+- Source: https://opengameart.org/content/jrpg-epic-rock-battle-theme-1
+- License: CC0 1.0 / Public Domain
+- Local file: `assets/music/final_battle.mp3`
+- SHA-256: `006BE3310CB9A2612384B99D8087035904EAAD45F285A4F74170FF7EC6CA7F81`
+
+## Random events
+
+- **Time Constraints** by tapatilorenzo
+- Source: https://opengameart.org/content/midi-2-tension-songs
+- License: CC0 1.0 / Public Domain
+- Local file: `assets/music/event_tension.mp3`
+- SHA-256: `0F75A71366DA4E28DD50369E9C3EFB41D7C934972EBF673F8B8F35908DC28D7A`
+
+## Backpack, vehicle bay and garage
+
+- **Funked Up** by Joth
+- Source: https://opengameart.org/content/funked-up
+- License: CC0 1.0 / Public Domain
+- Optional attribution requested by the author: Joth
+- Local file: `assets/music/workshop_funk.mp3`
+- SHA-256: `57CD81254A0F4E068535C5421F93B586514332AD2377F81AEA190DD91659FFF3`
+
+## Victory and successful road results
+
+- **Victory! Victory! Victory!** by Spring Spring / Julie Damsgaard
+- Source: https://opengameart.org/content/victory-victory-victory
+- License: CC0 1.0 / Public Domain
+- Local file: `assets/music/victory_theme.ogg`
+- SHA-256: `F263605366144BE169F66F1649A4BF7F3E03B86B511E63C0B5D18D0C3402BA25`
+
+## Defeat, death and failed runs
+
+- **Game Over** by Kistol
+- Source: https://opengameart.org/content/game-over
+- License: CC0 1.0 / Public Domain
+- Local file: `assets/music/defeat_theme.ogg`
+- SHA-256: `EB16AEB17FED5B13575702E082B54DB00B296F6F4F2E9EE89C63ACA895BC085E`

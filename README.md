@@ -16,12 +16,12 @@ This build reframes the existing Wasteland Survivor prototype around a **9:16 po
 - Rustwater is rebuilt as a portrait safe-zone hub.
 - Fuel, Dry Run penalties, equipment selling, backpack expansion and vehicle bay expansion remain part of the run economy.
 - Added local save through `localStorage`.
-- Replaced the procedural soundtrack with four independently produced, licensed songs for the menu, route map, road combat and scavenging combat. The western blues, cowboy rock, old-school JRPG metal and retro-synth/cello metal arrangements are intentionally unrelated rather than variations of one generated motif; see `MUSIC-CREDITS.md`.
-- Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
+- Replaced the procedural soundtrack with nine licensed scene assignments. Rustwater reprises the main-menu theme; route, road combat, scavenging combat, final assault, random events, workshop screens, victory and defeat use distinct produced tracks rather than variations of one generated motif. See `MUSIC-CREDITS.md`.
+- Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. Music now sits below the SFX bus and automatically ducks further under gunfire, explosions, impacts and damage. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
 
 ## Audio
 
-Audio is generated in real time with the Web Audio API, so it remains compact and works in the installed offline PWA without external music files. Mobile browsers start audio after the first tap or key press. Each scene selects its own loop automatically, while boss and final-assault routes use more intense arrangements.
+Sound effects are generated in real time with the Web Audio API. Licensed music files are bundled locally and cached by the service worker, so the installed PWA still works offline. Mobile browsers start audio after the first tap or key press. Each scene selects its assigned track automatically, boss and final-assault routes use the dedicated metal theme, and important SFX temporarily lower the music before it smoothly returns.
 
 ## iPhone / PWA support
 
