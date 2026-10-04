@@ -16,8 +16,8 @@ This build reframes the existing Wasteland Survivor prototype around a **9:16 po
 - Rustwater is rebuilt as a portrait safe-zone hub.
 - Fuel, Dry Run penalties, equipment selling, backpack expansion and vehicle bay expansion remain part of the run economy.
 - Added local save through `localStorage`.
-- Replaced the procedural soundtrack with nine licensed scene assignments. Rustwater reprises the main-menu theme; route, road combat, scavenging combat, final assault, random events, workshop screens, victory and defeat use distinct produced tracks rather than variations of one generated motif. See `MUSIC-CREDITS.md`.
-- Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. Music now sits below the SFX bus and automatically ducks further under gunfire, explosions, impacts and damage. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
+- Replaced the procedural soundtrack with nine licensed tracks and a restrained scene map. All of Rustwater, including its facility panels, keeps the main-menu/town theme. Route departure, road results, backpack, vehicle bay and garage deliberately share one workshop theme instead of changing music at every screen. Combat, final assault, events and full-run outcomes keep distinct produced tracks. See `MUSIC-CREDITS.md`.
+- Added synthesized weapon, impact, explosion, damage, healing, loot, search, transaction and result sound effects. A27 lowers music slightly, raises the dedicated SFX output stage to 3.2× and still ducks music under gunfire, explosions, impacts and damage. The round music button at the top-right mutes/unmutes all audio and remembers the choice locally.
 
 ## Audio
 

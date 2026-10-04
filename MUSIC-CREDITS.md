@@ -1,10 +1,11 @@
 # Music credits
 
-The A26 soundtrack uses nine scene assignments built from independently
-produced tracks. The town deliberately reprises the main-menu theme, while
-route, combat, final assault, random events, workshop screens, victory and
-defeat each have separate musical identities. Combat and interface sound
-effects remain generated locally by the game.
+The A27 soundtrack keeps nine licensed tracks but uses a more restrained scene
+map. The workshop theme now ties together route departure, successful road
+results, backpack, vehicle bay and garage. The whole town, including every
+facility panel, keeps the main-menu/town theme, while combat, final assault,
+random events and full-run outcomes retain their identities. Combat and
+interface sound effects remain generated locally by the game.
 
 ## Main menu and Rustwater town
 
@@ -55,7 +56,7 @@ effects remain generated locally by the game.
 - Local file: `assets/music/event_tension.mp3`
 - SHA-256: `0F75A71366DA4E28DD50369E9C3EFB41D7C934972EBF673F8B8F35908DC28D7A`
 
-## Backpack, vehicle bay and garage
+## Transitions and loadout screens
 
 - **Funked Up** by Joth
 - Source: https://opengameart.org/content/funked-up
@@ -63,8 +64,10 @@ effects remain generated locally by the game.
 - Optional attribution requested by the author: Joth
 - Local file: `assets/music/workshop_funk.mp3`
 - SHA-256: `57CD81254A0F4E068535C5421F93B586514332AD2377F81AEA190DD91659FFF3`
+- Used for route departure, successful road results, backpack, vehicle bay and
+  garage.
 
-## Victory and successful road results
+## Full-run victory
 
 - **Victory! Victory! Victory!** by Spring Spring / Julie Damsgaard
 - Source: https://opengameart.org/content/victory-victory-victory

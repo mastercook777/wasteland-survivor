@@ -1,13 +1,14 @@
 (() => {
 'use strict';
 
-// A26 expands the score into a scene-based soundtrack and gives SFX mix priority.
+// A27 consolidates non-combat transitions around one workshop theme and makes SFX dominant.
 // Music credits and licenses are documented in MUSIC-CREDITS.md.
 const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-const STORE_KEY='ws-audio-v2';
-let prefs={muted:false,music:.46,sfx:.88};
+const STORE_KEY='ws-audio-v3';
+const SFX_OUTPUT=3.2;
+let prefs={muted:false,music:.40,sfx:1};
 try{
- const legacy=JSON.parse(localStorage.getItem('ws-audio-v1')||'{}');
+ const legacy=JSON.parse(localStorage.getItem('ws-audio-v2')||localStorage.getItem('ws-audio-v1')||'{}');
  const stored=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');
  if(typeof legacy.muted==='boolean')prefs.muted=legacy.muted;
  prefs={...prefs,...stored}
@@ -82,11 +83,12 @@ async function switchMusic(key){
 function resolveScene(name,detail={}){
  if(name==='town')return'menu';
  if(name==='finalassault')return'final';
- if(name==='roadcombat'||name==='routeleave')return detail.final||detail.boss?'final':'road';
+ if(name==='routeleave')return'workshop';
+ if(name==='roadcombat')return detail.final||detail.boss?'final':'road';
  if(name==='play')return'scavenge';
  if(name==='event')return'event';
  if(name==='pack'||name==='vehicle'||name==='garage')return'workshop';
- if(name==='roadresult')return'victory';
+ if(name==='roadresult')return'workshop';
  if(name==='roadfail'||name==='dead')return'defeat';
  if(name==='runsummary')return detail.victory?'victory':'defeat';
  if(name==='route')return'route';
@@ -101,7 +103,7 @@ function ensure(){
  if(ac||!AudioContextClass)return !!ac;
  ac=new AudioContextClass();master=ac.createGain();sfxBus=ac.createGain();compressor=ac.createDynamicsCompressor();
  compressor.threshold.value=-16;compressor.knee.value=16;compressor.ratio.value=4;compressor.attack.value=.004;compressor.release.value=.2;
- sfxBus.gain.value=prefs.sfx;master.gain.value=prefs.muted?0:.92;sfxBus.connect(compressor);compressor.connect(master);master.connect(ac.destination);
+ sfxBus.gain.value=prefs.sfx;master.gain.value=prefs.muted?0:SFX_OUTPUT;sfxBus.connect(compressor);compressor.connect(master);master.connect(ac.destination);
  const len=Math.max(1,Math.floor(ac.sampleRate*.5));noiseBuffer=ac.createBuffer(1,len,ac.sampleRate);const d=noiseBuffer.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
  return true
 }
@@ -149,7 +151,7 @@ function sfx(name,opt={}){
 }
 function setMuted(value){
  prefs.muted=!!value;savePrefs();fadeToken++;
- if(ensure()){master.gain.setTargetAtTime(prefs.muted?0:.92,ac.currentTime,.035)}
+ if(ensure()){master.gain.setTargetAtTime(prefs.muted?0:SFX_OUTPUT,ac.currentTime,.035)}
  if(prefs.muted){players.forEach(a=>{a.pause();a.volume=0})}else unlock().then(()=>switchMusic(trackKey));
  updateButton()
 }
@@ -158,7 +160,7 @@ function updateButton(){
  const b=document.getElementById('audio-toggle');if(!b)return;
  const label=!unlocked?'播放音乐和音效':prefs.muted?'开启音乐和音效':'关闭音乐和音效';
  b.textContent=prefs.muted?'♪×':'♪';b.classList.toggle('muted',prefs.muted);b.setAttribute('aria-label',label);b.title=label;
- b.dataset.track=currentKey||trackKey;b.dataset.scene=desiredScene;b.dataset.audioState=!unlocked?'locked':currentMusic&&!currentMusic.paused?'running':'ready';b.dataset.arrangement='licensed-nine-scene-a26';b.dataset.musicSource=currentMusic?new URL(currentMusic.src).pathname.split('/').pop():'pending';b.dataset.musicVolume=(currentMusic?.volume||0).toFixed(3);b.dataset.musicTarget=targetVolume(currentKey||trackKey).toFixed(3);b.dataset.duck=duckFactor.toFixed(2);b.dataset.duckEvents=String(duckEvents)
+ b.dataset.track=currentKey||trackKey;b.dataset.scene=desiredScene;b.dataset.audioState=!unlocked?'locked':currentMusic&&!currentMusic.paused?'running':'ready';b.dataset.arrangement='consolidated-workshop-a27';b.dataset.musicSource=currentMusic?new URL(currentMusic.src).pathname.split('/').pop():'pending';b.dataset.musicVolume=(currentMusic?.volume||0).toFixed(3);b.dataset.musicTarget=targetVolume(currentKey||trackKey).toFixed(3);b.dataset.sfxOutput=(prefs.sfx*SFX_OUTPUT).toFixed(2);b.dataset.duck=duckFactor.toFixed(2);b.dataset.duckEvents=String(duckEvents)
 }
 function bind(){
  const b=document.getElementById('audio-toggle');if(b)b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!unlocked){unlock();return}toggle()});
@@ -167,5 +169,5 @@ function bind(){
  document.addEventListener('visibilitychange',()=>{if(document.hidden){players.forEach(a=>a.pause());if(ac)ac.suspend()}else if(!prefs.muted)unlock()})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
-window.GameAudio={unlock,sync,sfx,toggle,setMuted,get muted(){return prefs.muted},get scene(){return desiredScene},get track(){return trackKey},get mix(){return{music:prefs.music,sfx:prefs.sfx,duck:duckFactor,volume:currentMusic?.volume||0}}};
+window.GameAudio={unlock,sync,sfx,toggle,setMuted,get muted(){return prefs.muted},get scene(){return desiredScene},get track(){return trackKey},get mix(){return{music:prefs.music,sfx:prefs.sfx*SFX_OUTPUT,duck:duckFactor,volume:currentMusic?.volume||0}}};
 })();
