@@ -1,8 +1,8 @@
 (() => {
 'use strict';
 
-// A28 keeps town loadout screens on the town score and layers licensed samples with procedural SFX.
-// Music and SFX credits and licenses are documented in MUSIC-CREDITS.md and SFX-CREDITS.md.
+// A29 keeps town loadout screens on the town score and restores the A27 SFX baseline.
+// Music credits and licenses are documented in MUSIC-CREDITS.md.
 const AudioContextClass=window.AudioContext||window.webkitAudioContext;
 const STORE_KEY='ws-audio-v3';
 const SFX_OUTPUT=3.2;
@@ -26,23 +26,10 @@ const TRACKS={
  defeat:{src:'assets/music/defeat_theme.ogg',gain:.50,loop:false}
 };
 
-const SFX_SAMPLES={
- pistol:{src:'assets/sfx/pistol_9mm.mp3',gain:.095},
- smg:{src:'assets/sfx/smg_9mm.mp3',gain:.080},
- shotgun:{src:'assets/sfx/shotgun_12ga.mp3',gain:.120},
- rifle556:{src:'assets/sfx/rifle_556.mp3',gain:.090},
- rifle762:{src:'assets/sfx/rifle_762.mp3',gain:.105},
- rocket:{src:'assets/sfx/missile.wav',gain:.100},
- electric:{src:'assets/sfx/electric_hit.wav',gain:.090},
- explosion:{src:'assets/sfx/explosion.wav',gain:.120}
-};
-
 let ac=null,master=null,sfxBus=null,compressor=null,noiseBuffer=null;
 let unlocked=false,desiredScene='menu',sceneDetail={},trackKey='menu',currentKey='',currentMusic=null,fadeToken=0;
 let duckFactor=1,duckTimer=0,duckReleaseToken=0,duckEvents=0;
 const players=new Map(),cooldown=new Map();
-const sampleBuffers=new Map(),sampleLoading=new Map();
-let sampleFailures=0,lastSample='none';
 
 function savePrefs(){try{localStorage.setItem(STORE_KEY,JSON.stringify(prefs))}catch(e){}}
 function midi(n){return 440*Math.pow(2,(n-69)/12)}
@@ -52,21 +39,6 @@ function getPlayer(key){
  a.loop=spec.loop!==false;a.preload='metadata';a.playsInline=true;a.volume=0;
  for(const event of ['playing','pause','waiting','error'])a.addEventListener(event,updateButton);
  players.set(key,a);return a;
-}
-function loadSample(key){
- if(sampleBuffers.has(key))return Promise.resolve(sampleBuffers.get(key));
- if(sampleLoading.has(key))return sampleLoading.get(key);
- const spec=SFX_SAMPLES[key];if(!spec||!ac)return Promise.resolve(null);
- const request=fetch(new URL(spec.src,document.baseURI).href,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error(`SFX ${r.status}`);return r.arrayBuffer()}).then(data=>ac.decodeAudioData(data)).then(buffer=>{sampleBuffers.set(key,buffer);updateButton();return buffer}).catch(()=>{sampleFailures++;updateButton();return null});
- sampleLoading.set(key,request);return request
-}
-function primeSamples(){Object.keys(SFX_SAMPLES).forEach(loadSample)}
-function playSample(key,t,level=1,rate=1,delay=0){
- const buffer=sampleBuffers.get(key),spec=SFX_SAMPLES[key];if(!buffer||!spec||!ac)return false;
- const src=ac.createBufferSource(),g=ac.createGain(),start=t+delay,actualRate=Math.max(.35,rate*(.985+Math.random()*.03)),duration=buffer.duration/actualRate,peak=Math.max(.0002,spec.gain*level);
- src.buffer=buffer;src.playbackRate.value=actualRate;src.connect(g);g.connect(sfxBus);
- g.gain.setValueAtTime(peak,start);g.gain.setValueAtTime(peak,start+Math.max(.005,duration-.025));g.gain.exponentialRampToValueAtTime(.0001,start+duration);
- src.start(start);lastSample=key;updateButton();return true
 }
 function targetVolume(key){return prefs.muted?0:Math.min(1,prefs.music*(TRACKS[key]?.gain||.5)*duckFactor)}
 function duckMusic(factor=.5,duration=240){
@@ -134,7 +106,6 @@ function ensure(){
  compressor.threshold.value=-16;compressor.knee.value=16;compressor.ratio.value=4;compressor.attack.value=.004;compressor.release.value=.2;
  sfxBus.gain.value=prefs.sfx;master.gain.value=prefs.muted?0:SFX_OUTPUT;sfxBus.connect(compressor);compressor.connect(master);master.connect(ac.destination);
  const len=Math.max(1,Math.floor(ac.sampleRate*.5));noiseBuffer=ac.createBuffer(1,len,ac.sampleRate);const d=noiseBuffer.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
- primeSamples();
  return true
 }
 async function unlock(){
@@ -154,27 +125,22 @@ function allow(name,seconds){const now=ac?.currentTime||performance.now()/1000,l
 function sweep(t,start,end,d=.12,type='square',level=.08){if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(start,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,end),t+d);o.connect(g);g.connect(sfxBus);env(g,t,.002,d,level);o.start(t);o.stop(t+d+.03)}
 function sfx(name,opt={}){
  if(!unlocked||prefs.muted||!ac)return;const t=ac.currentTime+.006;
- const cd={ui:.035,select:.05,pistol:.07,shot:.07,smg:.055,rifle:.18,shotgun:.20,'vehicle-mg':.065,mg:.065,flak:.14,cannon:.30,rocket:.28,arc:.18,electric:.18,emp:.30,impact:.045,explosion:.09,hurt:.18,pickup:.08,error:.16,confirm:.08}[name]||.02;if(!allow(name,cd))return;
+ const cd={ui:.035,select:.05,shot:.055,mg:.075,impact:.045,explosion:.09,hurt:.18,pickup:.08,error:.16,confirm:.08}[name]||.02;if(!allow(name,cd))return;
  const indicator=document.getElementById('audio-toggle');if(indicator)indicator.dataset.lastSfx=name;
- const duck={ui:[.72,100],select:[.62,150],confirm:[.56,220],error:[.50,220],engine:[.52,350],pistol:[.42,210],shot:[.42,210],smg:[.46,160],rifle:[.28,350],shotgun:[.23,420],'vehicle-mg':[.40,170],mg:[.40,170],flak:[.24,390],cannon:[.18,580],rocket:[.28,470],arc:[.30,330],electric:[.30,330],emp:[.20,540],impact:[.55,140],hurt:[.26,430],pickup:[.60,180],rare:[.38,520],heal:[.50,280],search:[.62,180],victory:[.34,650],defeat:[.34,650],whoosh:[.55,220]}[name];
+ const duck={ui:[.72,100],select:[.62,150],confirm:[.56,220],error:[.50,220],engine:[.52,350],shot:[.45,180],mg:[.46,160],shotgun:[.28,380],cannon:[.24,520],rocket:[.32,420],electric:[.35,300],impact:[.55,140],hurt:[.26,430],pickup:[.60,180],rare:[.38,520],heal:[.50,280],search:[.62,180],victory:[.34,650],defeat:[.34,650],whoosh:[.55,220]}[name];
  if(name==='explosion')duckMusic(opt.big?.22:.30,opt.big?560:420);else if(duck)duckMusic(duck[0],duck[1]);
  if(name==='ui'){tone(620,t,.035,'square',.035,sfxBus,2600);return}
  if(name==='select'){tone(520,t,.045,'square',.045,sfxBus,2800);tone(780,t+.035,.05,'square',.035,sfxBus,3200);return}
  if(name==='confirm'){tone(523,t,.055,'square',.045,sfxBus,3000);tone(659,t+.05,.055,'square',.045,sfxBus,3200);tone(784,t+.10,.08,'square',.05,sfxBus,3400);return}
  if(name==='error'){sweep(t,190,105,.13,'sawtooth',.065);return}
  if(name==='engine'){noise(t,.34,.055,sfxBus,430,'lowpass');sweep(t,48,105,.38,'sawtooth',.07);return}
- if(name==='pistol'||name==='shot'){playSample('pistol',t,1,1.02);noise(t,.055,.036,sfxBus,2400);tone(128,t,.055,'square',.028,sfxBus,1700);return}
- if(name==='smg'){playSample('smg',t,.92,1.06);noise(t,.038,.030,sfxBus,3400);tone(185,t,.035,'square',.022,sfxBus,2400);return}
- if(name==='rifle'){playSample('rifle762',t,1.12,.94);noise(t,.085,.045,sfxBus,1900);sweep(t,118,52,.11,'sawtooth',.038);return}
- if(name==='shotgun'){playSample('shotgun',t,1.08,.90);noise(t,.16,.075,sfxBus,1250);sweep(t,92,35,.18,'sawtooth',.055);return}
- if(name==='vehicle-mg'||name==='mg'){playSample('rifle556',t,.95,.97);noise(t,.052,.040,sfxBus,2900);tone(145,t,.045,'square',.030,sfxBus,1900);return}
- if(name==='flak'){playSample('shotgun',t,.72,1.10);playSample('rifle556',t,.64,.91,.035);noise(t,.14,.075,sfxBus,1050);sweep(t,128,38,.16,'sawtooth',.055);return}
- if(name==='cannon'){playSample('rifle762',t,.90,.70);playSample('explosion',t,1.12,.64,.018);noise(t,.28,.105,sfxBus,420,'lowpass');sweep(t,78,24,.34,'sawtooth',.080);return}
- if(name==='rocket'){playSample('rocket',t,1,.98);noise(t,.20,.048,sfxBus,1200);sweep(t,320,82,.28,'sawtooth',.040);return}
- if(name==='arc'||name==='electric'){playSample('electric',t,.88,1.14);sweep(t,150,1800,.14,'square',.045);tone(1380,t+.055,.065,'square',.026,sfxBus,5200);noise(t,.15,.035,sfxBus,4800,'highpass');return}
- if(name==='emp'){playSample('electric',t,1.05,.72);tone(58,t,.28,'sine',.070,sfxBus,540);tone(116,t+.045,.24,'triangle',.050,sfxBus,900);noise(t,.30,.055,sfxBus,760,'lowpass');sweep(t,95,820,.24,'sine',.040);return}
- if(name==='impact'){const heavy=['cannon','rocket','flak'].includes(opt.kind);noise(t,heavy?.08:.045,heavy?.060:.040,sfxBus,heavy?980:2400,heavy?'lowpass':'bandpass');if(heavy)tone(88,t,.08,'triangle',.032,sfxBus,900);return}
- if(name==='explosion'){playSample('explosion',t,opt.big?1.25:.92,opt.big?.78:1);noise(t,.28,opt.big?.13:.085,sfxBus,opt.big?380:620,'lowpass');sweep(t,opt.big?76:102,25,opt.big?.32:.21,'sawtooth',opt.big?.090:.060);return}
+ if(name==='mg'||name==='shot'){noise(t,name==='mg'?.045:.07,name==='mg'?.065:.085,sfxBus,name==='mg'?2600:1800);sweep(t,name==='mg'?165:120,name==='mg'?92:58,name==='mg'?.055:.09,'square',name==='mg'?.045:.065);return}
+ if(name==='shotgun'){noise(t,.14,.14,sfxBus,1500);sweep(t,105,42,.14,'sawtooth',.09);return}
+ if(name==='cannon'){noise(t,.24,.18,sfxBus,520,'lowpass');sweep(t,95,30,.24,'sawtooth',.13);return}
+ if(name==='rocket'){noise(t,.18,.08,sfxBus,900);sweep(t,520,115,.22,'sawtooth',.06);return}
+ if(name==='electric'){sweep(t,120,1350,.12,'square',.055);noise(t,.16,.055,sfxBus,4500,'highpass');return}
+ if(name==='impact'){noise(t,.045,.045,sfxBus,2100);return}
+ if(name==='explosion'){noise(t,.28,opt.big?.19:.12,sfxBus,opt.big?420:650,'lowpass');sweep(t,opt.big?82:105,28,opt.big?.30:.20,'sawtooth',opt.big?.12:.075);return}
  if(name==='hurt'){noise(t,.11,.08,sfxBus,950);sweep(t,150,65,.13,'square',.075);return}
  if(name==='pickup'){tone(880,t,.05,'square',.045,sfxBus,3500);tone(1320,t+.045,.09,'square',.04,sfxBus,4200);return}
  if(name==='rare'){[0,4,7,12].forEach((n,i)=>tone(midi(72+n),t+i*.055,.11,'square',.045,sfxBus,4300));return}
@@ -195,7 +161,7 @@ function updateButton(){
  const b=document.getElementById('audio-toggle');if(!b)return;
  const label=!unlocked?'播放音乐和音效':prefs.muted?'开启音乐和音效':'关闭音乐和音效';
  b.textContent=prefs.muted?'♪×':'♪';b.classList.toggle('muted',prefs.muted);b.setAttribute('aria-label',label);b.title=label;
- b.dataset.track=currentKey||trackKey;b.dataset.scene=desiredScene;b.dataset.audioState=!unlocked?'locked':currentMusic&&!currentMusic.paused?'running':'ready';b.dataset.arrangement='hybrid-weapon-sfx-a28';b.dataset.musicSource=currentMusic?new URL(currentMusic.src).pathname.split('/').pop():'pending';b.dataset.musicVolume=(currentMusic?.volume||0).toFixed(3);b.dataset.musicTarget=targetVolume(currentKey||trackKey).toFixed(3);b.dataset.sfxOutput=(prefs.sfx*SFX_OUTPUT).toFixed(2);b.dataset.sfxSamples=`${sampleBuffers.size}/${Object.keys(SFX_SAMPLES).length}`;b.dataset.sfxSampleFailures=String(sampleFailures);b.dataset.lastSample=lastSample;b.dataset.duck=duckFactor.toFixed(2);b.dataset.duckEvents=String(duckEvents)
+ b.dataset.track=currentKey||trackKey;b.dataset.scene=desiredScene;b.dataset.audioState=!unlocked?'locked':currentMusic&&!currentMusic.paused?'running':'ready';b.dataset.arrangement='town-continuity-sfx-rollback-a29';b.dataset.musicSource=currentMusic?new URL(currentMusic.src).pathname.split('/').pop():'pending';b.dataset.musicVolume=(currentMusic?.volume||0).toFixed(3);b.dataset.musicTarget=targetVolume(currentKey||trackKey).toFixed(3);b.dataset.sfxOutput=(prefs.sfx*SFX_OUTPUT).toFixed(2);b.dataset.duck=duckFactor.toFixed(2);b.dataset.duckEvents=String(duckEvents)
 }
 function bind(){
  const b=document.getElementById('audio-toggle');if(b)b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!unlocked){unlock();return}toggle()});
@@ -204,5 +170,5 @@ function bind(){
  document.addEventListener('visibilitychange',()=>{if(document.hidden){players.forEach(a=>a.pause());if(ac)ac.suspend()}else if(!prefs.muted)unlock()})
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
-window.GameAudio={unlock,sync,sfx,toggle,setMuted,get muted(){return prefs.muted},get scene(){return desiredScene},get track(){return trackKey},get samples(){return{ready:sampleBuffers.size,total:Object.keys(SFX_SAMPLES).length,failures:sampleFailures,last:lastSample}},get mix(){return{music:prefs.music,sfx:prefs.sfx*SFX_OUTPUT,duck:duckFactor,volume:currentMusic?.volume||0}}};
+window.GameAudio={unlock,sync,sfx,toggle,setMuted,get muted(){return prefs.muted},get scene(){return desiredScene},get track(){return trackKey},get mix(){return{music:prefs.music,sfx:prefs.sfx*SFX_OUTPUT,duck:duckFactor,volume:currentMusic?.volume||0}}};
 })();
