@@ -1,11 +1,12 @@
 # Music credits
 
-The A27 soundtrack keeps nine licensed tracks but uses a more restrained scene
+The A28 soundtrack keeps nine licensed tracks but uses a more restrained scene
 map. The workshop theme now ties together route departure, successful road
-results, backpack, vehicle bay and garage. The whole town, including every
-facility panel, keeps the main-menu/town theme, while combat, final assault,
-random events and full-run outcomes retain their identities. Combat and
-interface sound effects remain generated locally by the game.
+results, route-side loadout and the between-run garage. The whole town,
+including every facility panel plus character and vehicle loadout screens
+opened from town, keeps the main-menu/town theme. Combat, final assault, random
+events and full-run outcomes retain their identities. Combat sound credits are
+documented separately in `SFX-CREDITS.md`.
 
 ## Main menu and Rustwater town
 
@@ -64,8 +65,9 @@ interface sound effects remain generated locally by the game.
 - Optional attribution requested by the author: Joth
 - Local file: `assets/music/workshop_funk.mp3`
 - SHA-256: `57CD81254A0F4E068535C5421F93B586514332AD2377F81AEA190DD91659FFF3`
-- Used for route departure, successful road results, backpack, vehicle bay and
-  garage.
+- Used for route departure, successful road results, route-side backpack and
+  vehicle loadout, and the between-run garage. Town-originated loadout screens
+  deliberately continue the town theme instead.
 
 ## Full-run victory
 
