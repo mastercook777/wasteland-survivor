@@ -426,7 +426,7 @@ function fireFlak(){
   const a=base+q*.115,spd=690;
   g.bullets.push({x:p.x,y:p.y-38,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:.72,damage:1.25,kind:'flak',r:5,pierce:1});
  }
- audio.sfx('flak');
+ audio.sfx('shotgun');
  return true;
 }
 function fireArc(){
@@ -439,7 +439,7 @@ function fireArc(){
   roadHitDamage(g,e,'arc',damage);e.disabled=Math.max(e.disabled||0,roadIsHeavy(e)?.52:.34);g.fx.push({x:e.x,y:e.y,r:34,life:.28,total:.28,color:'#76e8ef',kind:'electricHit'});
  }
  g.fx.push({points:[{x:p.x,y:p.y-48},...chain.map(e=>({x:e.x,y:e.y}))],life:.30,total:.30,color:'#70e5ef',kind:'electricArc',seed:Math.random()*10});g.shake=Math.max(g.shake||0,1.8);
- audio.sfx('arc');
+ audio.sfx('electric');
  for(let i=g.enemies.length-1;i>=0;i--)if(g.enemies[i].hp<=0)killRoad(i);
  notice=`电弧连锁 ×${chain.length} · 目标短暂瘫痪`;noticeT=.7;return true;
 }
@@ -456,7 +456,7 @@ function fireEMP(){
  g.mines=g.mines.filter(m=>!centers.some(e=>Math.hypot(m.x-e.x,m.y-e.y)<175));
  if(g.strikes){const ids=new Set(hit.map(e=>e.rid));g.strikes=g.strikes.filter(st=>!ids.has(st.ownerId)&&!centers.some(e=>Math.hypot(st.x-e.x,st.y-e.y)<220));}
  g.fx.push({x:p.x,y:p.y-35,r:300,life:.60,total:.60,color:'#65dce5',kind:'empWave'});g.fx.push({source:{x:p.x,y:p.y-48},targets:hit.map(e=>({x:e.x,y:e.y})),life:.38,total:.38,color:'#82eff4',kind:'empLink',seed:Math.random()*10});g.shake=Math.max(g.shake||0,3.2);
- audio.sfx('emp');
+ audio.sfx('electric');
  notice=`电磁爆发 · 瘫痪 ${hit.length} 个目标`;noticeT=1;return true;
 }
 function fireRoad(kind,target){
@@ -464,7 +464,7 @@ function fireRoad(kind,target){
  const sx=p.x,sy=p.y-38,aim=roadIntercept(target,sx,sy,cfg.spd,kind),n=norm(aim.x-sx,aim.y-sy);
  g.bullets.push({x:sx,y:sy,vx:n.x*cfg.spd,vy:n.y*cfg.spd,life:1.9,damage:cfg.dmg,kind,r:cfg.r,targetId:target.rid,homing:kind==='mg'?5.5:kind==='cannon'?9.5:12});
  g.fx.push({x:p.x,y:p.y-54,r:kind==='cannon'?18:kind==='mg'?9:12,life:kind==='cannon'?.16:.1,color:kind==='cannon'?'#f0bd55':'#f4e0a1',kind:'muzzle'});
- audio.sfx(kind==='cannon'?'cannon':kind==='mg'?'vehicle-mg':'pistol');
+ audio.sfx(kind==='cannon'?'cannon':kind==='mg'?'mg':'shot');
 }
 function hurtRoad(n){const p=roadGame.player;if(p.inv>0)return;p.hp-=n;p.inv=.45;roadGame.shake=Math.max(roadGame.shake||0,4);roadGame.fx.push({x:p.x,y:p.y,r:35,life:.25,color:C.red});audio.sfx('hurt')}
 function killRoad(i){
@@ -557,7 +557,7 @@ function updateRoad(dt){const g=roadGame,p=g.player;g.elapsed+=dt;g.time=Math.ma
   }else{
    roadHitDamage(g,e,b.kind,b.damage);
    g.fx.push({x:b.x,y:b.y,r:b.kind==='cannon'?26:b.kind==='flak'?14:8,life:.18,color:b.kind==='cannon'?'#e0ad36':b.kind==='flak'?'#d9c084':C.yellow,kind:'impact'});
-   audio.sfx('impact',{kind:b.kind});
+   audio.sfx('impact');
    if(e.hp<=0)killRoad(j);
    if(b.kind==='flak'&&(b.pierce||0)>0){b.pierce--;hit=false;b.hitIds=b.hitIds||[];b.hitIds.push(e.rid);continue}
   }
@@ -873,10 +873,10 @@ function fireScav(w,target){
  const knock=w.pellets>1?10:w.damage>=2?9:w.interval<.3?5:7,stagger=w.pellets>1?.14:w.damage>=2?.12:.09;
  for(let i=0;i<w.pellets;i++){
   const a=base+(i-(w.pellets-1)/2)*(w.spread||0);
-  game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,knock,stagger,weapon:w.type,hitIds:[]})
+  game.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:w.range/w.speed,damage:w.damage,r:w.pellets>1?3:4,pierce:w.pierce||0,ap:w.ap||0,eliteBonus:w.eliteBonus||0,knock,stagger,hitIds:[]})
  }
  game.fx.push({x:p.x+(p.recoilX||0)+cfg.wx+Math.cos(base)*17,y:p.y+(p.recoilY||0)+cfg.wy+Math.sin(base)*17,r:9,life:.1,color:C.yellow,kind:'muzzle'})
- audio.sfx(w.type==='shotgun'?'shotgun':w.type==='smg'?'smg':w.type==='rifle'?'rifle':'pistol');
+ audio.sfx(w.pellets>1?'shotgun':w.interval<.3?'mg':'shot');
 }
 const SCAV_STAGGER_IMMUNE=new Set(['armored','elite','driver']);
 function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.max(0,(g.finalAssault?180:90)-g.elapsed);p.inv=Math.max(0,p.inv-dt);const recoilReturn=Math.exp(-dt*15);p.recoilX=(p.recoilX||0)*recoilReturn;p.recoilY=(p.recoilY||0)*recoilReturn;let mx=0,my=0;if(keys.has('a')||keys.has('arrowleft'))mx--;if(keys.has('d')||keys.has('arrowright'))mx++;if(keys.has('w')||keys.has('arrowup'))my--;if(keys.has('s')||keys.has('arrowdown'))my++;mx+=joy.dx;my+=joy.dy;if(Math.hypot(mx,my)>.08){const n=norm(mx,my);moveWithObstacles(p,n.x*p.speed*dt,n.y*p.speed*dt,p.r,g.obstacles,[28,512,170,g.worldH-90])}
@@ -894,7 +894,7 @@ function updateScavenge(dt){const g=game,p=g.player;g.elapsed+=dt;g.time=Math.ma
   if((e.type==='elite'||e.type==='armored'||e.type==='driver')&&b.eliteBonus)dmg*=1+b.eliteBonus;
   e.hp-=dmg;(b.hitIds||(b.hitIds=[])).push(e.eid);
    g.fx.push({x:b.x,y:b.y,r:7,life:.15,color:b.ap>0?C.teal:C.yellow,kind:'impact'});
-  audio.sfx('impact',{kind:b.weapon});
+  audio.sfx('impact');
   if(e.hp>0&&!SCAV_STAGGER_IMMUNE.has(e.type)){
    e.stun=Math.max(e.stun||0,b.stagger||.09);
    if((e.knockLock||0)<=0){const push=norm(b.vx,b.vy);moveWithObstacles(e,push.x*(b.knock||7),push.y*(b.knock||7),e.r,g.obstacles,[25,515,170,g.worldH-80]);e.knockLock=.07}
@@ -1188,7 +1188,7 @@ function drawArtStatus(){
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,22,21,.96)';roundRect(75,858,390,50,12,true,false);fitText(notice,270,889,350,UI.body,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('实录枪炮与战车音效 • A28',270,856,UI.caption,'#777b6c','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('城镇整备保持配乐 • A29',270,856,UI.caption,'#777b6c','center',700)}
 function drawProdCover(key,x,y,w,h,alpha=1){
  const a=PROD[key];if(!a?.ready)return false;const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale,sx=(iw-sw)/2,sy=(ih-sh)/2;

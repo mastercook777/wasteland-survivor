@@ -1,12 +1,12 @@
 # Music credits
 
-The A28 soundtrack keeps nine licensed tracks but uses a more restrained scene
+The A29 soundtrack keeps nine licensed tracks but uses a more restrained scene
 map. The workshop theme now ties together route departure, successful road
 results, route-side loadout and the between-run garage. The whole town,
 including every facility panel plus character and vehicle loadout screens
 opened from town, keeps the main-menu/town theme. Combat, final assault, random
-events and full-run outcomes retain their identities. Combat sound credits are
-documented separately in `SFX-CREDITS.md`.
+events and full-run outcomes retain their identities. The rejected A28 sampled
+SFX layer has been removed and the A27 synthesized SFX baseline restored.
 
 ## Main menu and Rustwater town
 
