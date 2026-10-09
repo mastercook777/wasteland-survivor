@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const NON_PIXEL_ART_RELEASE='A34';
+const NON_PIXEL_ART_RELEASE='A35';
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
@@ -74,6 +74,7 @@ const PROD_SOURCES={
  lootGas:'assets/art/production/loot_gas_v1.webp',
  lootFood:'assets/art/production/loot_food_v1.webp',
  lootScrap:'assets/art/production/loot_scrap_v1.webp',
+ lootRepair:'assets/art/production/loot_repair_wrench_v1.png',
  lootMed:'assets/art/production/loot_med_v1.webp',
  enemyGunner:'assets/art/production/enemy_gunner_v1.webp',
  enemyMelee:'assets/art/production/enemy_melee_v1.webp',
@@ -145,7 +146,7 @@ function drawProdTiledY(key,x,y,w,h,offset=0,alpha=1){
 const ITEM_ART={pistol:'itemPistol',smg:'itemSmg',shotgun:'itemShotgun',rifle:'itemRifle',ammo:'itemAmmo',scope:'itemScope',apammo:'itemApammo',vest:'itemVest',medkit:'itemMedkit',charm:'itemCharm',boots:'itemBoots'};
 const VEH_ART={mg:'moduleMg',cannon:'moduleCannon',engine:'moduleEngine',belt:'moduleBelt',loader:'moduleLoader',turbo:'moduleTurbo',armor:'moduleArmor',fueltank:'moduleFueltank',rocket:'moduleRocket',emp:'moduleEmp',capacitor:'moduleCapacitor',flak:'moduleFlak',arc:'moduleArc'};
 const SCAV_GROUND_ART={gas:'scavGroundGas',clinic:'scavGroundClinic',motel:'scavGroundMotel',junkyard:'scavGroundJunkyard',final:'scavGroundJunkyard'};
-const ROAD_DROP_ART={fuel:'lootGas',scrap:'lootScrap'};
+const ROAD_DROP_ART={fuel:'lootGas',scrap:'lootScrap',repair:'lootRepair'};
 function itemArtKey(type,defs){return(defs===ITEM?ITEM_ART:VEH_ART)[type]}
 
 const C={bg:'#100f0b',panel:'#211f18',panel2:'#302b20',cream:'#f1e4c4',muted:'#9b927b',yellow:'#d9a52b',red:'#b94d37',green:'#708c55',blue:'#607d8d',teal:'#548c87',asphalt:'#302f2a',asphalt2:'#252620',sand:'#8b7655',sand2:'#695b45',outline:'#171812',white:'#f4ead2',gas:'#d7a12e',food:'#b86f43',scrap:'#9b9b91',med:'#bd5549',rust:'#8f4b32',dust:'#b79b6a',ink:'#15140f'};
@@ -1427,26 +1428,25 @@ function drawRoadAtmosphere(g){
 }
 function drawMissileGlyph(x,y,vx,vy,hostile=false,scale=1){
  ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(vy,vx)+Math.PI/2);ctx.scale(scale,scale);ctx.lineCap='round';
- for(let i=0;i<3;i++){ctx.globalAlpha=.25-i*.06;ctx.fillStyle='#34312a';ctx.beginPath();ctx.arc((i%2?1:-1)*(i+1)*1.6,25+i*10,5+i*2,0,6.28);ctx.fill()}
- ctx.globalAlpha=.8;ctx.fillStyle='#dc8240';ctx.beginPath();ctx.moveTo(-4,10);ctx.lineTo(0,30);ctx.lineTo(4,10);ctx.closePath();ctx.fill();ctx.fillStyle='#ffe0a0';ctx.beginPath();ctx.moveTo(-2,10);ctx.lineTo(0,23);ctx.lineTo(2,10);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
- ctx.fillStyle='#1d201d';ctx.beginPath();ctx.moveTo(0,-23);ctx.lineTo(6,-13);ctx.lineTo(6,5);ctx.lineTo(12,12);ctx.lineTo(4,9);ctx.lineTo(-4,9);ctx.lineTo(-12,12);ctx.lineTo(-6,5);ctx.lineTo(-6,-13);ctx.closePath();ctx.fill();
- ctx.fillStyle=hostile?'#68736e':'#b79d66';ctx.fillRect(-4.2,-12,8.4,18);ctx.fillStyle=hostile?'#c98d50':'#e4c175';ctx.fillRect(-4.2,-5,8.4,3);ctx.fillStyle='#e7d7ab';ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(4,-12);ctx.lineTo(-4,-12);ctx.closePath();ctx.fill();ctx.restore();
+ for(let i=0;i<3;i++){ctx.globalAlpha=.25-i*.06;ctx.fillStyle='#34312a';ctx.beginPath();ctx.arc((i%2?1:-1)*(i+1)*2,20+i*8,5+i*2,0,6.28);ctx.fill()}
+ ctx.globalAlpha=.8;ctx.fillStyle='#dc8240';ctx.beginPath();ctx.moveTo(-5,8);ctx.lineTo(0,22);ctx.lineTo(5,8);ctx.closePath();ctx.fill();ctx.fillStyle='#ffe0a0';ctx.beginPath();ctx.moveTo(-2,8);ctx.lineTo(0,17);ctx.lineTo(2,8);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+ ctx.fillStyle='#252a25';ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(8,-10);ctx.lineTo(8,5);ctx.lineTo(14,12);ctx.lineTo(6,8);ctx.lineTo(-6,8);ctx.lineTo(-14,12);ctx.lineTo(-8,5);ctx.lineTo(-8,-10);ctx.closePath();ctx.fill();
+ ctx.fillStyle=hostile?'#89978b':'#c8ad72';ctx.fillRect(-6,-9,12,16);ctx.fillStyle=hostile?'#d89452':'#edca79';ctx.fillRect(-6,-3,12,4);ctx.fillStyle='#e7d7ab';ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(5,-10);ctx.lineTo(-5,-10);ctx.closePath();ctx.fill();ctx.restore();
 }
 function drawRoadProjectile(b){
  if(b.kind==='rocket'){drawMissileGlyph(b.x,b.y,b.vx,b.vy,false,.9);return}
- ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx)+Math.PI/2);ctx.lineCap='round';
+ ctx.save();ctx.translate(b.x,b.y);
  if(b.kind==='cannon'){
-  ctx.strokeStyle='rgba(18,16,12,.78)';ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(0,6);ctx.lineTo(0,27);ctx.stroke();ctx.strokeStyle='rgba(231,139,43,.78)';ctx.lineWidth=8;ctx.stroke();ctx.strokeStyle='#fff1bb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(0,20);ctx.stroke();
-  ctx.fillStyle='#171a16';ctx.fillRect(-5,-9,10,18);ctx.fillStyle='#c9a35b';ctx.fillRect(-3,-7,6,12);ctx.fillStyle='#fff0b8';ctx.beginPath();ctx.moveTo(0,-13);ctx.lineTo(4,-7);ctx.lineTo(-4,-7);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(21,17,12,.84)';ctx.beginPath();ctx.arc(0,0,12,0,6.28);ctx.fill();ctx.fillStyle='#d88638';ctx.beginPath();ctx.arc(0,0,9,0,6.28);ctx.fill();ctx.fillStyle='#fff1bd';ctx.beginPath();ctx.arc(0,0,5,0,6.28);ctx.fill();ctx.strokeStyle='#f5c66e';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,13,0,6.28);ctx.stroke();
  }else{
-  const flak=b.kind==='flak';if(flak){ctx.fillStyle='rgba(26,30,28,.72)';ctx.beginPath();ctx.arc(0,-2,8,0,6.28);ctx.fill();ctx.fillStyle='#b9d9cd';for(const [px,py] of [[0,-7],[-5,1],[5,1]]){ctx.beginPath();ctx.arc(px,py,2.2,0,6.28);ctx.fill()}ctx.strokeStyle='rgba(197,230,207,.62)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,5);ctx.lineTo(0,14);ctx.stroke()}
-  else{ctx.strokeStyle='rgba(15,14,11,.78)';ctx.lineWidth=5.5;ctx.beginPath();ctx.moveTo(0,1);ctx.lineTo(0,19);ctx.stroke();ctx.strokeStyle='#e9bd66';ctx.lineWidth=3;ctx.stroke();ctx.strokeStyle='#fff4c3';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,16);ctx.stroke();ctx.fillStyle='#fff0b1';ctx.beginPath();ctx.ellipse(0,-3,2.2,5.5,0,0,6.28);ctx.fill()}
+  const flak=b.kind==='flak';if(flak){ctx.fillStyle='rgba(26,30,28,.82)';ctx.beginPath();ctx.arc(0,0,9,0,6.28);ctx.fill();ctx.fillStyle='#b9e3d4';for(const [px,py] of [[0,-5],[-5,3],[5,3]]){ctx.beginPath();ctx.arc(px,py,2.5,0,6.28);ctx.fill()}}
+  else{ctx.fillStyle='rgba(17,15,11,.84)';ctx.beginPath();ctx.arc(0,0,8,0,6.28);ctx.fill();ctx.fillStyle='#e9b65d';ctx.beginPath();ctx.arc(0,0,5.5,0,6.28);ctx.fill();ctx.fillStyle='#fff4cf';ctx.beginPath();ctx.arc(0,0,2.8,0,6.28);ctx.fill()}
  }
  ctx.restore();
 }
 function drawEnemyRoadProjectile(b){
  if(b.heavy){drawMissileGlyph(b.x,b.y,b.vx,b.vy,true,1.04);return}
- ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx)+Math.PI/2);ctx.lineCap='round';ctx.strokeStyle='rgba(25,15,13,.78)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,1);ctx.lineTo(0,17);ctx.stroke();ctx.strokeStyle='#c25a45';ctx.lineWidth=2.6;ctx.stroke();ctx.fillStyle='#f2b482';ctx.beginPath();ctx.ellipse(0,-3,2.1,5.5,0,0,6.28);ctx.fill();ctx.restore();
+ ctx.save();ctx.translate(b.x,b.y);ctx.fillStyle='rgba(31,13,10,.86)';ctx.beginPath();ctx.arc(0,0,8,0,6.28);ctx.fill();ctx.fillStyle='#c6533e';ctx.beginPath();ctx.arc(0,0,5.5,0,6.28);ctx.fill();ctx.fillStyle='#ffcfaa';ctx.beginPath();ctx.arc(0,0,2.5,0,6.28);ctx.fill();ctx.restore();
 }
 function roadStrikePoint(st,progress){const p=clamp(progress,0,1),arc=145;return{x:st.sx+(st.x-st.sx)*p,groundY:st.sy+(st.y-st.sy)*p,y:st.sy+(st.y-st.sy)*p-Math.sin(Math.PI*p)*arc}}
 function drawRoadStrikeMissile(st){
@@ -1496,10 +1496,10 @@ function drawRoadFX(f){
 }
 function drawMine(m){ctx.save();ctx.filter='drop-shadow(0px 0px 4px rgba(220,65,45,.7))';const art=drawProd('roadMine',m.x,m.y,40,40,1);ctx.restore();if(art)return;ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(m.x,m.y+6,m.r+5,8,0,0,6.28);ctx.fill();ctx.fillStyle='#24251f';ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,6.28);ctx.fill();ctx.strokeStyle='#c26455';ctx.lineWidth=3;ctx.beginPath();ctx.arc(m.x,m.y,m.r-5,0,6.28);ctx.stroke();ctx.fillStyle='#d39b3e';for(let a=0;a<6;a++){const q=a*Math.PI/3;ctx.fillRect(m.x+Math.cos(q)*(m.r-3)-2,m.y+Math.sin(q)*(m.r-3)-2,4,4)}}
 function drawRoadDrop(d){
- const pulse=.5+.5*Math.sin(performance.now()*.005+d.x*.03),key=ROAD_DROP_ART[d.type],size=d.type==='fuel'?40:38;
- ctx.save();ctx.fillStyle='rgba(14,13,10,.34)';ctx.beginPath();ctx.ellipse(d.x,d.y+10,size*.39,6,0,0,6.28);ctx.fill();
- ctx.globalAlpha=.16+pulse*.12;ctx.strokeStyle=d.type==='fuel'?C.yellow:d.type==='scrap'?C.cream:C.green;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(d.x,d.y+7,size*.45,8,0,0,6.28);ctx.stroke();ctx.restore();
- if(key){ctx.save();ctx.filter=`drop-shadow(0px 0px 4px ${d.type==='fuel'?'rgba(255,202,91,.78)':'rgba(235,222,182,.75)'})`;const art=drawProdContain(key,d.x,d.y,size,size,1);ctx.restore();if(art)return}
+ const pulse=.5+.5*Math.sin(performance.now()*.005+d.x*.03),key=ROAD_DROP_ART[d.type],size=d.type==='repair'?44:d.type==='fuel'?40:38;
+ const rim=d.type==='repair'?'#9ce98c':d.type==='fuel'?'#f7cf70':'#ded4b6';
+ ctx.save();ctx.fillStyle='rgba(12,16,12,.48)';ctx.beginPath();ctx.arc(d.x,d.y,25,0,6.28);ctx.fill();ctx.globalAlpha=.72+pulse*.22;ctx.strokeStyle=rim;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(d.x,d.y,25,0,6.28);ctx.stroke();ctx.globalAlpha=.18+pulse*.12;ctx.lineWidth=4;ctx.beginPath();ctx.arc(d.x,d.y,29,0,6.28);ctx.stroke();ctx.restore();
+ if(key&&drawProdContain(key,d.x,d.y,size,size,1))return;
  ctx.fillStyle=d.type==='fuel'?C.gas:d.type==='repair'?C.green:C.scrap;ctx.beginPath();ctx.arc(d.x,d.y,12,0,6.28);ctx.fill();text(d.type==='fuel'?'油':d.type==='repair'?'+':'废',d.x,d.y+4,10,'#171912','center',900)
 }
 function drawRoadResult(fail=false){
@@ -1519,8 +1519,8 @@ function drawRoadResult(fail=false){
 }
 
 function drawScavProjectile(b,hostile=false){
- const color=hostile?(b.sniper?'#e9b78b':'#d66a4d'):(b.ap>0?'#8fd6be':'#f0d392'),tail=b.sniper?18:12;
- ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx)+Math.PI/2);ctx.lineCap='round';ctx.strokeStyle='rgba(20,17,13,.88)';ctx.lineWidth=b.sniper?6:5;ctx.beginPath();ctx.moveTo(0,1);ctx.lineTo(0,tail);ctx.stroke();ctx.strokeStyle=color;ctx.lineWidth=b.sniper?3.2:2.6;ctx.stroke();ctx.fillStyle=color;ctx.strokeStyle='#211b15';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,-2,b.sniper?2.8:2.3,b.sniper?5.5:4.2,0,0,6.28);ctx.fill();ctx.stroke();ctx.fillStyle='#fff3cd';ctx.beginPath();ctx.ellipse(0,-4,1,b.sniper?2.4:1.7,0,0,6.28);ctx.fill();ctx.restore();
+ const color=hostile?(b.sniper?'#e89b73':'#d9664d'):(b.ap>0?'#8edbc5':'#efd394'),r=b.sniper?6:4.5;
+ ctx.save();ctx.translate(b.x,b.y);ctx.fillStyle='rgba(20,17,13,.88)';ctx.beginPath();ctx.arc(0,0,r+2.5,0,6.28);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r,0,6.28);ctx.fill();ctx.fillStyle=hostile?'#ffdcc2':'#fff9dc';ctx.beginPath();ctx.arc(0,0,b.sniper?2.5:2,0,6.28);ctx.fill();if(b.sniper){ctx.strokeStyle='#f5ae88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,9,0,6.28);ctx.stroke()}ctx.restore();
 }
 function drawScavFX(f){
  const duration=f.kind==='muzzle'?.1:f.kind==='searchBurst'?.45:f.r>18?.35:.15,t=clamp(f.life/duration,0,1),rr=Math.max(2,f.r*(.3+1-t));
@@ -1804,7 +1804,7 @@ function startArtRenderPreview(){
   spawnRoadEnemy('bike');spawnRoadEnemy('buggy');spawnRoadEnemy('truck');
   const bike=roadGame.enemies.find(e=>e.type==='bike'),buggy=roadGame.enemies.find(e=>e.type==='buggy'),truck=roadGame.enemies.find(e=>e.type==='truck');
   if(bike)Object.assign(bike,{x:155,y:344,hp:2,maxHp:2,sway:-.35});if(buggy)Object.assign(buggy,{x:382,y:254,hp:3,maxHp:4,sway:.4});if(truck)Object.assign(truck,{x:270,y:188,hp:7,maxHp:9,sway:0});
-  roadGame.barriers=[{y:548,gapX:286,gapW:174,h:28}];roadGame.mines=[{x:404,y:594,r:16}];roadGame.drops=[{x:126,y:642,type:'scrap'},{x:342,y:704,type:'fuel'}];
+  roadGame.barriers=[{y:548,gapX:286,gapW:174,h:28}];roadGame.mines=[{x:404,y:594,r:16}];roadGame.drops=[{x:126,y:642,type:'scrap'},{x:342,y:704,type:'fuel'},{x:238,y:678,type:'repair'}];
   if(ART_RENDER_PREVIEW==='road-fx'){roadGame.bullets=[{x:170,y:510,vx:0,vy:-1,kind:'mg'},{x:230,y:470,vx:0,vy:-1,kind:'flak'},{x:290,y:430,vx:0,vy:-1,kind:'cannon'},{x:350,y:390,vx:0,vy:-1,kind:'rocket'}];roadGame.enemyBullets=[{x:400,y:475,vx:0,vy:1},{x:445,y:430,vx:0,vy:1,heavy:true}];roadGame.fx=[{x:128,y:385,r:25,life:.34,color:'#e6a24d',kind:'explosion'},{x:235,y:340,r:14,life:.14,color:'#f2c977',kind:'impact'},{x:330,y:324,r:16,life:.1,color:C.yellow,kind:'muzzle'}]}
   if(ART_RENDER_PREVIEW==='road-missile')roadGame.strikes=[{x:365,y:700,r:64,t:1.02,totalT:1.15,sx:210,sy:190,damage:2}];
   return true
