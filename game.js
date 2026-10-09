@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const NON_PIXEL_ART_RELEASE='A33';
+const NON_PIXEL_ART_RELEASE='A34';
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
@@ -1239,14 +1239,14 @@ function drawArtStatus(){
  if(!location.pathname.includes('/preview/'))return;
  const keys=['playerJunker','playerBodyUpLeft','playerBodyUpRight','playerBodyDownLeft','playerBodyDownRight','playerWeaponRifle','enemyBike','enemyBuggy','enemyTruck','enemyWartruck','enemyMissileVan','enemyColossus','routeWasteland','townRustwater','siteGasStation','siteClinic','siteMotel','siteJunkyard','propGasCover','propGasPump','propClinicCover','propMotelCover','propJunkyardCover','propJunkyardTireStack','enemyGunner','enemyMelee','enemyGrenadier','enemySniper','enemyArmored','enemyElite','enemyDriver'];
  const ready=keys.every(k=>PROD[k]?.ready),error=keys.some(k=>PROD[k]?.error);
- const label=ready?'美术已就绪':error?'美术加载失败':'美术加载中';
+ const label=`${NON_PIXEL_ART_RELEASE} · ${ready?'美术已就绪':error?'美术加载失败':'美术加载中'}`;
  ctx.fillStyle='rgba(10,10,8,.86)';roundRect(386,8,144,26,7,true,false);
  fitText(label,458,27,126,10,9,ready?C.green:error?C.red:C.yellow,'center',900)
 }
 function drawNotice(){if(noticeT<=0)return;ctx.fillStyle='rgba(13,22,21,.96)';roundRect(75,858,390,50,12,true,false);fitText(notice,270,889,350,UI.body,12,C.cream,'center',900)}
 function drawJoy(){if(!joy.active)return;ctx.save();ctx.globalAlpha=.72;ctx.fillStyle='#151812';ctx.strokeStyle='rgba(239,232,207,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.ox,joy.oy,66,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=C.yellow;ctx.beginPath();ctx.arc(joy.x,joy.y,26,0,Math.PI*2);ctx.fill();ctx.restore()}
 
-function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text('城镇整备保持配乐 • A29',270,856,UI.caption,'#777b6c','center',700)}
+function drawMenu(){drawDunes();ctx.fillStyle='rgba(12,14,11,.25)';ctx.fillRect(0,0,W,H);text('废土',270,270,48,C.cream,'center',900);text('幸存者',270,320,48,C.yellow,'center',900);text('竖屏原型版',270,360,UI.body,C.muted,'center',800);drawVehicle(270,535,1.35,C.yellow);btn(85,720,370,72,'点击开始');text('单手操作 • 构筑 • 公路 • 搜刮',270,825,UI.caption,C.muted,'center',800);text(`城镇整备保持配乐 • ${NON_PIXEL_ART_RELEASE}`,270,856,UI.caption,'#777b6c','center',700)}
 function drawProdCover(key,x,y,w,h,alpha=1){
  const a=PROD[key];if(!a?.ready)return false;const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.max(w/iw,h/ih),sw=w/scale,sh=h/scale,sx=(iw-sw)/2,sy=(ih-sh)/2;
