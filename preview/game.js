@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const NON_PIXEL_ART_RELEASE='A30';
+const NON_PIXEL_ART_RELEASE='A31';
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
@@ -130,6 +130,17 @@ function drawProdContain(key,x,y,w,h,alpha=1){
  const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
  const scale=Math.min(w/iw,h/ih),dw=iw*scale,dh=ih*scale;
  ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(a.img,x-dw/2,y-dh/2,dw,dh);ctx.restore();return true
+}
+function drawProdTiledY(key,x,y,w,h,offset=0,alpha=1){
+ const a=PROD[key];if(!a?.ready)return false;
+ const iw=a.img.naturalWidth||a.img.width,ih=a.img.naturalHeight||a.img.height;if(!iw||!ih)return false;
+ const scale=w/iw,tileH=ih*scale,phase=((offset%tileH)+tileH)%tileH,firstY=y+phase-tileH;
+ ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();ctx.globalAlpha=alpha;
+ for(let tileY=firstY,index=Math.floor(offset/tileH)-1;tileY<y+h;tileY+=tileH,index++){
+  if(index%2){ctx.save();ctx.translate(x,tileY+tileH);ctx.scale(1,-1);ctx.drawImage(a.img,0,0,w,tileH);ctx.restore()}
+  else ctx.drawImage(a.img,x,tileY,w,tileH)
+ }
+ ctx.restore();return true
 }
 const ITEM_ART={pistol:'itemPistol',smg:'itemSmg',shotgun:'itemShotgun',rifle:'itemRifle',ammo:'itemAmmo',scope:'itemScope',apammo:'itemApammo',vest:'itemVest',medkit:'itemMedkit',charm:'itemCharm',boots:'itemBoots'};
 const VEH_ART={mg:'moduleMg',cannon:'moduleCannon',engine:'moduleEngine',belt:'moduleBelt',loader:'moduleLoader',turbo:'moduleTurbo',armor:'moduleArmor',fueltank:'moduleFueltank',rocket:'moduleRocket',emp:'moduleEmp',capacitor:'moduleCapacitor',flak:'moduleFlak',arc:'moduleArc'};
@@ -1327,7 +1338,7 @@ function drawColossus(g){
  if(meta.finalFlags.rocket)drawColossusSmoke(365,g.colossusY+8,28,.35)
 }
 function drawRoadBackdrop(g){
- if(drawProd('roadGround',270,480,W,H,1))return;
+ if(drawProdTiledY('roadGround',0,0,W,H,g.scroll,1))return;
  ctx.fillStyle='#806747';ctx.fillRect(0,0,W,H);
  ctx.fillStyle='#4e4434';ctx.fillRect(0,0,18,H);ctx.fillRect(522,0,18,H);
  ctx.fillStyle=C.asphalt;ctx.fillRect(18,0,504,H);
@@ -1572,7 +1583,7 @@ function drawScavenge(){
  ctx.fillStyle=ground;ctx.fillRect(0,0,W,H);
  ctx.save();ctx.translate(0,-cam);
  ctx.fillStyle=ground;ctx.fillRect(0,0,W,g.worldH);
- const hasGroundArt=drawProd(SCAV_GROUND_ART[site],270,g.worldH/2,W,g.worldH,1);
+ const hasGroundArt=drawProdTiledY(SCAV_GROUND_ART[site],0,0,W,g.worldH,0,1);
  if(!hasGroundArt){
   ctx.strokeStyle='rgba(40,32,22,.16)';ctx.lineWidth=2;for(let y=75;y<g.worldH;y+=95){ctx.beginPath();ctx.moveTo(0,y);ctx.quadraticCurveTo(130,y-16,270,y+5);ctx.quadraticCurveTo(420,y+22,540,y-7);ctx.stroke()}
   for(let y=140;y<g.worldH;y+=260){const shift=(y/260%2)*85;ctx.fillStyle='rgba(30,27,21,.22)';ctx.fillRect(24+shift,y,42,4);ctx.fillRect(430-shift*.35,y+78,58,5);ctx.fillStyle='rgba(207,173,105,.10)';ctx.fillRect(100+shift*.4,y+135,72,3)}
@@ -1772,7 +1783,7 @@ function draw(){
 function previewItem(type,gx,gy){return{id:`qa-${type}`,type,gx,gy,level:1,locked:false}}
 function startArtRenderPreview(){
  if(!ART_RENDER_PREVIEW)return false;
- if(ART_RENDER_PREVIEW==='road'){
+ if(ART_RENDER_PREVIEW==='road'||ART_RENDER_PREVIEW==='road-motion'){
   meta.selectedNode={id:'art-road-preview',type:'scavenge',site:'clinic',name:'荒漠诊所',short:'诊所',icon:'医',focus:'医疗物资',danger:3,special:false};
   const fuel=meta.vehicle.fuel;startRoad();meta.vehicle.fuel=fuel;state='roadcombat';roadGame.elapsed=12;roadGame.time=33;roadGame.scroll=186;roadGame.player.x=258;
   spawnRoadEnemy('bike');spawnRoadEnemy('buggy');spawnRoadEnemy('truck');
@@ -1791,6 +1802,6 @@ function startArtRenderPreview(){
  }
  return false
 }
-function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;audio.sync(state,{site:game?.site,boss:!!roadGame?.bossRoute,final:!!roadGame?.finalRoute,victory:!!runSummary?.victory,returnState:state==='pack'?packReturn:state==='vehicle'?vehicleReturn:null});if(!ART_RENDER_PREVIEW)update(dt);draw();drawArtStatus();requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;audio.sync(state,{site:game?.site,boss:!!roadGame?.bossRoute,final:!!roadGame?.finalRoute,victory:!!runSummary?.victory,returnState:state==='pack'?packReturn:state==='vehicle'?vehicleReturn:null});if(!ART_RENDER_PREVIEW)update(dt);else if(ART_RENDER_PREVIEW==='road-motion')roadGame.scroll+=340*dt;draw();drawArtStatus();requestAnimationFrame(loop)}
 if(!startArtRenderPreview())ensureChoices();requestAnimationFrame(loop);
 })();
